@@ -20,7 +20,7 @@ sources = [
 	"LWC/FIFO.vhd",
 	"LWC/key_piso.vhd",
 	"LWC/LWC_SCA.vhd",
-	"LWC/NIST_LWAPI.vhd",
+	"LWC/NIST_LWAPI_pkg.vhd",
 	"LWC/PostProcessor.vhd",
 	"LWC/PreProcessor.vhd",
 	"HPC2/nand_HPC2.vhd",
@@ -33,22 +33,21 @@ sources = [
 	"General/xor_2.vhd",
 ]
 
-# includes = []
 top = "LWC_SCA"
 # clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
 # reset.asynchronous = false
 # parameters = { G_DO_FIFO_DEPTH = 1 }
+
 [language]
 vhdl.version = "2008"
 # vhdl.synopsys = false
 verilog.version = "2001"
 # systemverilog.version = "2009"
-# [tb]
-# sources = ["LWC_SCA_TB.vhd"]
-# includes = []
-# top = "LWC_SCA_TB"
+[tb]
+sources = ["src_tb/LWC_TB_SCA.vhd"]
+top = "LWC_SCA_TB"
 [lwc.aead]
 algorithm = "xoodyakv1"
 # key_bits = 128
