@@ -323,6 +323,7 @@ begin
             variable rdi_line : line;
             variable rdi_vec  : std_logic_vector(RW - 1 downto 0);
             variable read_ok  : boolean;
+	    variable fstatus  : FILE_OPEN_STATUS;
         begin
             report LF & "RW=" & integer'image(RW);
             wait until reset_done and rising_edge(clk);
@@ -338,7 +339,8 @@ begin
                     num_rand_vectors <= num_rand_vectors + 1;
                 end loop;
             else
-                file_open(rdi_file, G_FNAME_RDI, READ_MODE);
+                file_open(fstatus, rdi_file, G_FNAME_RDI, READ_MODE);
+		if fstatus = OPEN_OK then
                 while not stop_clock loop
                     loop
                         if endfile(rdi_file) then
@@ -374,6 +376,9 @@ begin
                     num_rand_vectors <= num_rand_vectors + 1;
                 end loop;
                 file_close(rdi_file);
+		else
+			report "Failed to open RDI file: " & G_FNAME_RDI severity FAILURE;
+		end if;
             end if;
             wait;                       -- until simulation ends
         end process;
