@@ -5,7 +5,7 @@
 -- -----------------------------------------------------------------
 --
 --
--- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Müller, Pascal Sasdrich
+-- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Mï¿½ller, Pascal Sasdrich
 --
 -- All rights reserved.
 --
@@ -29,15 +29,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity Mux2 is
+entity mux2 is
 	Port ( 
 		sel0	: in  STD_LOGIC;
 		D0		: in  STD_LOGIC;
 		D1		: in  STD_LOGIC;
 		Q  	: out STD_LOGIC);
-end Mux2;
+end mux2;
 
-architecture Behavioral of Mux2 is
+architecture Behavioral of mux2 is
 begin
 
 	Q <= D0 when sel0 = '0' else D1;

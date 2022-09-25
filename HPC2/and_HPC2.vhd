@@ -5,7 +5,7 @@
 -- -----------------------------------------------------------------
 --
 --
--- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Müller, Pascal Sasdrich
+-- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Mï¿½ller, Pascal Sasdrich
 --
 -- All rights reserved.
 --
@@ -42,7 +42,7 @@ end and_HPC2;
 
 architecture Behavioral of and_HPC2 is
 
-	component reg is
+	component my_register is
 	PORT ( 
 		clk 	: IN  STD_LOGIC;
 		d 		: IN  STD_LOGIC;
@@ -80,9 +80,9 @@ begin
 		Z(I)(I) <= mul_s2_out(I);
 		
 		--pipeline
-		mul_pipe_s1 : reg port map (clk => clk, d => mul(I), q => mul_s1_out(I));
-		mul_pipe_s2 : reg port map (clk => clk, d => mul_s1_out(I), q => mul_s2_out(I));
-		a_i : reg port map(clk => clk, d => a(I), q => a_reg(I));
+		mul_pipe_s1 : my_register port map (clk => clk, d => mul(I), q => mul_s1_out(I));
+		mul_pipe_s2 : my_register port map (clk => clk, d => mul_s1_out(I), q => mul_s2_out(I));
+		a_i : my_register port map(clk => clk, d => a(I), q => a_reg(I));
 
 		gen_j : for J in 0 to security_order generate
 			gen_i_neq_j : if (I /= J) generate
@@ -93,12 +93,12 @@ begin
 				z(I)(J) <= p_0_pipe_out(I)(J) xor p_1_out(I)(J);
 
 				-- registers
-				s_reg: reg port map (clk => clk, d => s_in(I)(J), q => s_out(I)(J));
-				p_0_reg: reg port map (clk => clk, d => p_0_in(I)(J), q => p_0_out(I)(J));
-				p_1_reg: reg port map (clk => clk, d => p_1_in(I)(J), q => p_1_out(I)(J));
+				s_reg: my_register port map (clk => clk, d => s_in(I)(J), q => s_out(I)(J));
+				p_0_reg: my_register port map (clk => clk, d => p_0_in(I)(J), q => p_0_out(I)(J));
+				p_1_reg: my_register port map (clk => clk, d => p_1_in(I)(J), q => p_1_out(I)(J));
 
 				-- pipeline
-				p_0_pipe : reg port map (clk => clk, d => p_0_out(I)(J), q => p_0_pipe_out (I)(J));
+				p_0_pipe : my_register port map (clk => clk, d => p_0_out(I)(J), q => p_0_pipe_out (I)(J));
 
 			end generate gen_i_neq_j;
 		end generate gen_j;

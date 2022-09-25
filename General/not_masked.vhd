@@ -1,47 +1,48 @@
 -------------------------------------------------------------------
--- COMPANY : Ruhr University Bochum
--- AUTHOR  : Amir Moradi (amir.moradi@rub.de)
--- DOCUMENT: https://eprint.iacr.org/2021/569/
+-- company : ruhr university bochum
+-- author  : amir moradi (amir.moradi@rub.de)
+-- document: https://eprint.iacr.org/2021/569/
 -- -----------------------------------------------------------------
 --
 --
--- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Müller, Pascal Sasdrich
+-- copyright (c) 2021, david knichel, amir moradi, nicolai mï¿½ller, pascal sasdrich
 --
--- All rights reserved.
+-- all rights reserved.
 --
--- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
--- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
--- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
--- DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTERS BE LIABLE FOR ANY
--- DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
--- (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
--- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
--- ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
--- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
--- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-- this software is provided by the copyright holders and contributors "as is" and
+-- any express or implied warranties, including, but not limited to, the implied
+-- warranties of merchantability and fitness for a particular purpose are
+-- disclaimed. in no event shall the copyright holder or contributers be liable for any
+-- direct, indirect, incidental, special, exemplary, or consequential damages
+-- (including, but not limited to, procurement of substitute goods or services;
+-- loss of use, data, or profits; or business interruption) however caused and
+-- on any theory of liability, whether in contract, strict liability, or tort
+-- (including negligence or otherwise) arising in any way out of the use of this
+-- software, even if advised of the possibility of such damage.
 --
--- Please see LICENSE and README for license and further instructions.
+-- please see license and readme for license and further instructions.
 --
 
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity not_masked is
-	generic (
-		low_latency    : integer := 1; -- dummy
-		security_order : integer := 1; -- d
-		pipeline       : integer := 1); -- 0/1
-	port (
-		a 		: in  std_logic_vector(security_order downto 0);
-		b 		: out std_logic_vector(security_order downto 0));
+    generic(
+        LOW_LATENCY    : integer := 1;  -- dummy
+        SECURITY_ORDER : integer := 1;  -- d
+        PIPELINE       : integer := 1
+    ); -- 0/1
+    port(
+        a : in  std_logic_vector(SECURITY_ORDER downto 0);
+        b : out std_logic_vector(SECURITY_ORDER downto 0)
+    );
 end not_masked;
 
-architecture Behavioral of not_masked is
-begin 
+architecture behavioral of not_masked is
+begin
 
-	b(0) 								<= not a(0);
-	b(security_order downto 1) <= a(security_order downto 1);
+    b(0)                       <= not a(0);
+    b(SECURITY_ORDER downto 1) <= a(SECURITY_ORDER downto 1);
 
-end Behavioral;
+end behavioral;

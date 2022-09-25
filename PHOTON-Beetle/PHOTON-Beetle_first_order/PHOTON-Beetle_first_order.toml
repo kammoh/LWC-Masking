@@ -1,7 +1,7 @@
 name = "PHOTON-Beetle_first_order"
 description = "PHOTON-Beetle with 1st order masking"
 author = ["Nicolai Mueller", "Amir Moradi"]
-url = "https://github.com/GMUCERG/PHOTON-Beetle" # Reference design which we protect
+url = "https://github.com/GMUCERG/PHOTON-Beetle"     # Reference design which we protect
 license = "GPL-3.0"
 version = "0.1.0"
 [rtl]
@@ -28,9 +28,9 @@ sources = [
 	"HPC2/and_HPC2.vhd",
 	"HPC2/xnor_HPC2.vhd",
 	"HPC2/xor_HPC2.vhd",
-	"General/Mux2.vhd"
-	"General/mux2_masked.vhd"
-	"General/Gates.v"
+	"General/Mux2.vhd",
+	"General/mux2_masked.vhd",
+	"General/Gates.v",
 	"General/reg.vhd",
 	"General/xnor_2.vhd",
 	"General/xor_2.vhd",

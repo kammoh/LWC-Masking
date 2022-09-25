@@ -1,0 +1,21 @@
+[rtl]
+sources = [
+	# "General/Gates.v",
+	"General/Gates.vhd",
+	"General/not_masked.vhd",
+	"General/my_register.vhd",
+	"General/reg_masked.vhd",
+	"General/xnor_2.vhd",
+	"General/xor_2.vhd",
+	"General/buf_clk.vhd",
+	"General/buf_masked.vhd",
+	"General/mux2.vhd",
+	"General/mux2_masked.vhd",
+	"HPC2/and_HPC2.vhd",
+	"HPC2/nand_HPC2.vhd",
+	"HPC2/xor_HPC2.vhd",
+	"HPC2/xnor_HPC2.vhd",
+	"HPC2/or_HPC2.vhd",
+	"HPC2/nor_HPC2.vhd",
+	"HPC2/mux2_HPC2.vhd",
+]

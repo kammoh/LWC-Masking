@@ -31,9 +31,18 @@ package design_pkg is
     constant HASH_VALUE_SIZE : natural := 256;
     --! CryptoCore BDI data width in bits. Supported values: 32, 16, 8
     constant CCW             : natural := 32;
-    constant CCWdiv8         : integer := CCW/8;
+    constant CCWdiv8         : integer := CCW / 8;
     --! CryptoCore key input width in bits
     constant CCSW            : natural := CCW;
-    constant CCRW            : natural := CCW;
+    constant NUM_SHARES      : natural := 2;
+
+    constant STATE_SIZE     : integer  := 320;
+    constant CCRW            : natural := 320;
+
+    
+    constant IV_SIZE        : integer := 64;
+    constant NPUB_SIZE      : integer := 128;
+    constant KEY_SIZE       : integer := 128;
+    constant DBLK_HASH_SIZE : integer := 64;
 
 end design_pkg;

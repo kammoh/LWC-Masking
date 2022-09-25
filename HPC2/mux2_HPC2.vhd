@@ -5,7 +5,7 @@
 -- -----------------------------------------------------------------
 --
 --
--- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Müller, Pascal Sasdrich
+-- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Mï¿½ller, Pascal Sasdrich
 --
 -- All rights reserved.
 --
@@ -52,7 +52,7 @@ component and_HPC2 is
              c : out std_logic_vector(security_order downto 0));
 end component;
 
-component reg is
+component my_register is
 	PORT ( clk 	: IN  STD_LOGIC;
 			 d 	: IN  STD_LOGIC;
 			 q 	: OUT  STD_LOGIC);
@@ -68,8 +68,8 @@ gen_i: for I in 0 to security_order generate
     and_in(I) <= a(I) xor b(I);
         --pipeline
     gen_pipe_i_1 : if (pipeline /= 0) generate
-            b_pipe_s1 : reg port map (clk => clk, d => b(I), q => b_s1(I));
-            b_pipe_s2 : reg port map (clk => clk, d => b_s1(I), q => b_s2(I));
+            b_pipe_s1 : my_register port map (clk => clk, d => b(I), q => b_s1(I));
+            b_pipe_s2 : my_register port map (clk => clk, d => b_s1(I), q => b_s2(I));
     end generate gen_pipe_i_1;
      
     gen_pipe_i_0 : if (pipeline = 0) generate

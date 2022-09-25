@@ -18,45 +18,44 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use ieee.std_logic_misc.all;
+
 use work.NIST_LWAPI_pkg.all;
 use work.design_pkg.all;
 use work.ascon_pkg.all;
 
-
 entity CryptoCore_SCA is
-    Port (
-        clk             : in   STD_LOGIC;
-        rst             : in   STD_LOGIC;
+    Port(
+        clk             : in  STD_LOGIC;
+        rst             : in  STD_LOGIC;
         --PreProcessor===============================================
         ----!key----------------------------------------------------
-        key             : in   STD_LOGIC_VECTOR (SDI_SHARES * CCSW -1  downto 0);
-        key_valid       : in   STD_LOGIC;
-        key_ready       : out  STD_LOGIC;
+        key             : in  STD_LOGIC_VECTOR(SDI_SHARES * CCSW - 1 downto 0);
+        key_valid       : in  STD_LOGIC;
+        key_ready       : out STD_LOGIC;
         ----!Data----------------------------------------------------
-        bdi             : in   STD_LOGIC_VECTOR (PDI_SHARES * CCW - 1 downto 0);
-        bdi_valid       : in   STD_LOGIC;
-        bdi_ready       : out  STD_LOGIC;
-        bdi_pad_loc     : in   STD_LOGIC_VECTOR (CCWdiv8 -1 downto 0);
-        bdi_valid_bytes : in   STD_LOGIC_VECTOR (CCWdiv8 -1 downto 0);
-        bdi_size        : in   STD_LOGIC_VECTOR (3       -1 downto 0);
-        bdi_eot         : in   STD_LOGIC;
-        bdi_eoi         : in   STD_LOGIC;
-        bdi_type        : in   STD_LOGIC_VECTOR (4       -1 downto 0);
-        decrypt_in      : in   STD_LOGIC;
-        key_update      : in   STD_LOGIC;
-        hash_in         : in   std_logic;
+        bdi             : in  STD_LOGIC_VECTOR(PDI_SHARES * CCW - 1 downto 0);
+        bdi_valid       : in  STD_LOGIC;
+        bdi_ready       : out STD_LOGIC;
+        bdi_pad_loc     : in  STD_LOGIC_VECTOR(CCWdiv8 - 1 downto 0);
+        bdi_valid_bytes : in  STD_LOGIC_VECTOR(CCWdiv8 - 1 downto 0);
+        bdi_size        : in  STD_LOGIC_VECTOR(3 - 1 downto 0);
+        bdi_eot         : in  STD_LOGIC;
+        bdi_eoi         : in  STD_LOGIC;
+        bdi_type        : in  STD_LOGIC_VECTOR(4 - 1 downto 0);
+        decrypt_in      : in  STD_LOGIC;
+        key_update      : in  STD_LOGIC;
+        hash_in         : in  std_logic;
         --!Post Processor=========================================
-        bdo             : out  STD_LOGIC_VECTOR (PDI_SHARES * CCW - 1 downto 0);
-        bdo_valid       : out  STD_LOGIC;
-        bdo_ready       : in   STD_LOGIC;
-        bdo_type        : out  STD_LOGIC_VECTOR (4       -1 downto 0);
-        bdo_valid_bytes : out  STD_LOGIC_VECTOR (CCWdiv8 -1 downto 0);
-        end_of_block    : out  STD_LOGIC;
-        msg_auth_valid  : out  STD_LOGIC;
-        msg_auth_ready  : in   STD_LOGIC;
-        msg_auth        : out  STD_LOGIC;
-		rdi             : in  std_logic_vector(RW - 1 downto 0);
+        bdo             : out STD_LOGIC_VECTOR(PDI_SHARES * CCW - 1 downto 0);
+        bdo_valid       : out STD_LOGIC;
+        bdo_ready       : in  STD_LOGIC;
+        bdo_type        : out STD_LOGIC_VECTOR(4 - 1 downto 0);
+        bdo_valid_bytes : out STD_LOGIC_VECTOR(CCWdiv8 - 1 downto 0);
+        end_of_block    : out STD_LOGIC;
+        msg_auth_valid  : out STD_LOGIC;
+        msg_auth_ready  : in  STD_LOGIC;
+        msg_auth        : out STD_LOGIC;
+        rdi             : in  std_logic_vector(CCRW - 1 downto 0);
         rdi_valid       : in  std_logic;
         rdi_ready       : out std_logic
     );
@@ -64,97 +63,90 @@ end CryptoCore_SCA;
 
 architecture behavioral of CryptoCore_SCA is
 
-    component Asconp_HPC2_ClockGating_d1 is
-        port(
-            clk : in std_logic;
-            state_in_s0 : in std_logic_vector (319 downto 0);
-            state_in_s1 : in std_logic_vector (319 downto 0);
-            state_out_s0 : out std_logic_vector (319 downto 0);
-            state_out_s1 : out std_logic_vector (319 downto 0);
-            rcon : in std_logic_vector (3 downto 0);
-            fresh : in std_logic_vector (319 downto 0)
-        );
-    end component;
-	
+    -- component Asconp_HPC2_ClockGating_d1 is
+    --     port(
+    --         clk : in std_logic;
+    --         state_in_s0 : in std_logic_vector (319 downto 0);
+    --         state_in_s1 : in std_logic_vector (319 downto 0);
+    --         state_out_s0 : out std_logic_vector (319 downto 0);
+    --         state_out_s1 : out std_logic_vector (319 downto 0);
+    --         rcon : in std_logic_vector (3 downto 0);
+    --         fresh : in std_logic_vector (319 downto 0)
+    --     );
+    -- end component;
+
     ---------------------------------------------------------------------------
     --! Constant Values: Ascon
     ---------------------------------------------------------------------------
-    constant tag_size : integer := 128;
-    constant state_size : integer := 320;
-    constant iv_size : integer := 64;
-    constant rnd_size : integer := 320;
-    constant npub_size : integer := 128;
-    constant dblk_hash_size : integer := 64;
-    constant key_size : integer := 128;
-    constant iv_hash : std_logic_vector(63 downto 0) := X"00400c0000000100";	
+    constant IV_HASH        : std_logic_vector(63 downto 0) := X"00400c0000000100";
 
     --! Constant to check for empty hash
     constant empty_hash_size_c : std_logic_vector(2 downto 0) := (others => '0');
-	
+
     -- Number of words the respective blocks contain.
-    constant npub_words_c : integer := get_words(npub_size, CCW);
-    constant hash_words_c : integer := get_words(hash_value_size, CCW);
-    constant block_words_c : integer := get_words(dblk_size, CCW);
-    constant block_hash_words_c : integer := get_words(dblk_hash_size, CCW);
-    constant key_words_c : integer := get_words(key_size, CCW);
-    constant tag_words_c : integer := get_words(tag_size, CCW);	
+    constant npub_words_c       : integer := get_words(NPUB_SIZE, CCW);
+    constant hash_words_c       : integer := get_words(hash_value_size, CCW);
+    constant block_words_c      : integer := get_words(dblk_size, CCW);
+    constant BLOCK_HASH_WORDS_C : integer := get_words(DBLK_HASH_SIZE, CCW);
+    constant key_words_c        : integer := get_words(KEY_SIZE, CCW);
+    constant tag_words_c        : integer := get_words(TAG_SIZE, CCW);
 
     signal n_state_s, state_s : state_t;
 
     -- Word counter for address generation. Increases every time a word is transferred.
-    signal word_idx_s : integer range 0 to hash_words_c - 1;
+    signal word_idx_s        : integer range 0 to hash_words_c - 1;
     signal word_idx_offset_s : integer range 0 to hash_words_c - 1;
 
     -- Internal Port signals
-    signal key_s : std_logic_vector(SDI_SHARES * CCSW - 1 downto 0);
-    signal rdi_ready_s : std_logic;
-    signal key_ready_s : std_logic;
-    signal bdi_ready_s : std_logic;
-    signal bdi_s : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
-    signal bdi_s_reg : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
+    signal key_s             : std_logic_vector(SDI_SHARES * CCSW - 1 downto 0);
+    signal rdi_ready_s       : std_logic;
+    signal key_ready_s       : std_logic;
+    signal bdi_ready_s       : std_logic;
+    signal bdi_s             : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
+    signal bdi_s_reg         : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
     signal bdi_valid_bytes_s : std_logic_vector(CCWdiv8 - 1 downto 0);
-    signal bdi_pad_loc_s : std_logic_vector(CCWdiv8 - 1 downto 0);
+    signal bdi_pad_loc_s     : std_logic_vector(CCWdiv8 - 1 downto 0);
 
-    signal bdo_s : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
+    signal bdo_s             : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
     signal bdo_valid_bytes_s : std_logic_vector(CCWdiv8 - 1 downto 0);
-    signal bdo_valid_s : std_logic;
-    signal bdo_type_s : std_logic_vector(3 downto 0);
-    signal end_of_block_s : std_logic;
-    signal msg_auth_valid_s : std_logic;
-    signal bdoo_s : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
-    signal bdoo_s_reg : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
+    signal bdo_valid_s       : std_logic;
+    signal bdo_type_s        : std_logic_vector(3 downto 0);
+    signal end_of_block_s    : std_logic;
+    signal msg_auth_valid_s  : std_logic;
+    signal bdoo_s            : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
+    signal bdoo_s_reg        : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
 
     -- Internal Flags
-    signal n_decrypt_s, decrypt_s : std_logic;
-    signal n_hash_s, hash_s : std_logic;
+    signal n_decrypt_s, decrypt_s       : std_logic;
+    signal n_hash_s, hash_s             : std_logic;
     signal n_empty_hash_s, empty_hash_s : std_logic;
-    signal n_msg_auth_s, msg_auth_s : std_logic;
-    signal n_eoi_s, eoi_s : std_logic;
-    signal n_eot_s, eot_s : std_logic;
+    signal n_msg_auth_s, msg_auth_s     : std_logic;
+    signal n_eoi_s, eoi_s               : std_logic;
+    signal n_eot_s, eot_s               : std_logic;
     signal n_update_key_s, update_key_s : std_logic;
 
     -- Utility Signals
     signal bdi_partial_s : std_logic;
-    signal pad_added_s : std_logic;
-    signal bit_pos_s : integer range 0 to 511;
+    signal pad_added_s   : std_logic;
+    signal bit_pos_s     : integer range 0 to 511;
 
     -- Ascon Signals
-    signal ascon_state_s : std_logic_vector(PDI_SHARES * STATE_SIZE - 1 downto 0);
+    signal ascon_state_s          : std_logic_vector(PDI_SHARES * STATE_SIZE - 1 downto 0);
     signal ascon_state_s_unshared : std_logic_vector(STATE_SIZE - 1 downto 0);
 
     signal ascon_state_n_s : std_logic_vector(PDI_SHARES * STATE_SIZE - 1 downto 0);
-    signal ascon_cnt_s : std_logic_vector(7 downto 0);
-    signal delay_cnt_s : std_logic_vector(7 downto 0);
+    signal ascon_cnt_s     : std_logic_vector(7 downto 0);
+    signal delay_cnt_s     : std_logic_vector(7 downto 0);
 
-    signal ascon_key_s : std_logic_vector(SDI_SHARES * KEY_SIZE - 1 downto 0);
-    signal ascon_nonce_s : std_logic_vector(PDI_SHARES * NPUB_SIZE - 1 downto 0);
-    signal ascon_rcon_s : std_logic_vector(3 downto 0);
+    signal ascon_key_s      : std_logic_vector(SDI_SHARES * KEY_SIZE - 1 downto 0);
+    signal ascon_nonce_s    : std_logic_vector(PDI_SHARES * NPUB_SIZE - 1 downto 0);
+    signal ascon_rcon_s     : std_logic_vector(3 downto 0);
     signal ascon_hash_cnt_s : integer range 0 to 3;
 
     -- Ascon-p
     signal asconp_out_s : std_logic_vector(PDI_SHARES * STATE_SIZE - 1 downto 0);
-    
-	signal bdi_s_unshared : std_logic_vector(CCW - 1 downto 0);
+
+    signal bdi_s_unshared  : std_logic_vector(CCW - 1 downto 0);
     signal bdoo_s_unshared : std_logic_vector(CCW - 1 downto 0);
 
 BEGIN
@@ -163,30 +155,30 @@ BEGIN
     -- Algorithm is specified in Big Endian. However, this is a Little Endian
     -- implementation so reverse_byte/bit functions are used to reorder affected signals.
     ----------------------------------------------------------------------------
-    key_s <= reverse_bytes(key);
-    bdi_s <= reverse_bytes(bdi);
+    key_s             <= reverse_bytes(key);
+    bdi_s             <= reverse_bytes(bdi);
     bdi_valid_bytes_s <= reverse_bits(bdi_valid_bytes);
-    bdi_pad_loc_s <= reverse_bits(bdi_pad_loc);
-    rdi_ready <= rdi_ready_s;
-    key_ready <= key_ready_s;
-    bdi_ready <= bdi_ready_s;
-    bdo <= reverse_bytes(bdo_s);
-    bdo_valid_bytes <= reverse_bits(bdo_valid_bytes_s);
-    bdo_valid <= bdo_valid_s;
-    bdo_type <= bdo_type_s;
-    end_of_block <= end_of_block_s;
-    msg_auth <= msg_auth_s;
-    msg_auth_valid <= msg_auth_valid_s;
+    bdi_pad_loc_s     <= reverse_bits(bdi_pad_loc);
+    rdi_ready         <= rdi_ready_s;
+    key_ready         <= key_ready_s;
+    bdi_ready         <= bdi_ready_s;
+    bdo               <= reverse_bytes(bdo_s);
+    bdo_valid_bytes   <= reverse_bits(bdo_valid_bytes_s);
+    bdo_valid         <= bdo_valid_s;
+    bdo_type          <= bdo_type_s;
+    end_of_block      <= end_of_block_s;
+    msg_auth          <= msg_auth_s;
+    msg_auth_valid    <= msg_auth_valid_s;
 
     ---------------------------------------------------------------------------
     --! Utility Signals
     ---------------------------------------------------------------------------
 
     -- Used to determine whether 0x80 padding word can be inserted into this last word.
-    bdi_partial_s <= or_reduce(bdi_pad_loc_s);
+    bdi_partial_s <= or (bdi_pad_loc_s);
 
     -- Lowest bit index in state that is currently used for data absorption/extraction.
-    bit_pos_s <= (word_idx_s MOD (DBLK_SIZE/CCW)) * CCW;
+    bit_pos_s <= (word_idx_s MOD (DBLK_SIZE / CCW)) * CCW;
 
     -- Round constant for Ascon-p.
     ascon_rcon_s <= ascon_cnt_s(3 DOWNTO 0);
@@ -195,19 +187,19 @@ BEGIN
     --! Ascon-p instantiation
     ---------------------------------------------------------------------------
     bdoo_s_unshared <= (others => '0'); --bdoo_s_reg(CCW - 1 DOWNTO 0) xor bdoo_s_reg(PDI_SHARES * CCW - 1 DOWNTO CCW);
-    bdi_s_unshared <= (others => '0'); --bdi_s_reg(CCW - 1 downto 0) xor bdi_s_reg(PDI_SHARES * CCW - 1 downto CCW);
+    bdi_s_unshared  <= (others => '0'); --bdi_s_reg(CCW - 1 downto 0) xor bdi_s_reg(PDI_SHARES * CCW - 1 downto CCW);
 
-    i_Asconp_HPC2_ClockGating_d1: Asconp_HPC2_ClockGating_d1
-        port map (
-            clk => clk,
+    i_Asconp_HPC2_ClockGating_d1 : entity work.Asconp_HPC2_ClockGating_d1
+        port map(
+            clk         => clk,
+            fresh       => rdi,
+            rcon        => ascon_rcon_s,
             state_in_s0 => ascon_state_s(STATE_SIZE - 1 DOWNTO 0),
             state_in_s1 => ascon_state_s(PDI_SHARES * STATE_SIZE - 1 DOWNTO STATE_SIZE),
             state_out_s0 => asconp_out_s(STATE_SIZE - 1 DOWNTO 0),
-            state_out_s1 => asconp_out_s(PDI_SHARES * STATE_SIZE - 1 DOWNTO STATE_SIZE),  
-            rcon => ascon_rcon_s,
-            fresh => rdi
+            state_out_s1 => asconp_out_s(PDI_SHARES * STATE_SIZE - 1 DOWNTO STATE_SIZE)
         );
-    
+
     -- Quick fix for dynamic slicing
     p_CASE : process (word_idx_s,ascon_state_s,word_idx_offset_s)
         variable sel : INTEGER RANGE 0 TO 9;
@@ -600,20 +592,17 @@ BEGIN
                     END IF;
                 END IF;
 
-            WHEN OTHERS =>
-                n_state_s <= IDLE;
-
         END CASE;
     END PROCESS p_next_state;
 
     ----------------------------------------------------------------------------
     --! Decoder process for control logic
     ----------------------------------------------------------------------------
-    p_decoder : PROCESS (state_s, rdi_valid, rdi_ready_s, key_valid, key_ready_s, update_key_s, eot_s,
+    p_decoder : process (state_s, key_valid, update_key_s, eot_s,
         bdi_s_unshared, bdi_valid, bdi_ready_s, bdi_eoi, bdi_eot,
         bdi_size, bdi_type, eoi_s, hash_in, hash_s, empty_hash_s, decrypt_in, decrypt_s,
-        bdo_ready, word_idx_s, msg_auth_s, msg_auth_valid_s,bdoo_s_unshared)
-    BEGIN
+        bdo_ready, msg_auth_s, bdoo_s_unshared, bdi_s, bdoo_s, key_update)
+    begin
 
         -- Default values preventing latches
         rdi_ready_s <= '0';

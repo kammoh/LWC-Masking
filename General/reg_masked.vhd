@@ -5,7 +5,7 @@
 -- -----------------------------------------------------------------
 --
 --
--- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Müller, Pascal Sasdrich
+-- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Mï¿½ller, Pascal Sasdrich
 --
 -- All rights reserved.
 --
@@ -41,7 +41,7 @@ end reg_masked;
 
 architecture Behavioral of reg_masked is
 
-	component reg is
+	component my_register is
 	PORT ( 
 		clk 	: IN  STD_LOGIC;
 		D 	: IN  STD_LOGIC;
@@ -51,7 +51,7 @@ architecture Behavioral of reg_masked is
 begin 
 
 	gen_o : for I in 0 to security_order generate
-		s_reg: reg port map (clk => clk, D => D(I), Q => Q(I));
+		s_reg: my_register port map (clk => clk, D => D(I), Q => Q(I));
 	end generate gen_o;
 
 end Behavioral;
