@@ -34,7 +34,7 @@ sources = [
 ]
 
 top = "LWC_SCA"
-# clock.port = "clk"
+clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
 # reset.asynchronous = false
