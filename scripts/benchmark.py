@@ -302,9 +302,6 @@ def gen_shares(in_file: Path, num_shares, w_nbytes=0, keep_comments=True):
     return out_file
 
 
-KATS_DIR = SCRIPT_DIR / "GMU_KAT"
-
-
 FRESH_RAND_COL_NAME = "fresh rand. bits"
 RAND_PER_BYTE_COL_NAME = "rand. bits per byte of data"
 
@@ -336,11 +333,12 @@ def cli(toml_path, debug, sim_flow, build=False):
     design = LwcDesign.from_toml(toml_path)
     lwc = design.lwc
     assert lwc.aead and lwc.aead.algorithm
-    w = lwc.ports.pdi.bit_width
-    sw = lwc.ports.sdi.bit_width
     pdi_shares = lwc.ports.pdi.num_shares
     sdi_shares = lwc.ports.sdi.num_shares
-    tv_dir = KATS_DIR / design.name
+    design_root_dir = design._design_root
+    if not design_root_dir:
+        design_root_dir = Path.cwd()
+    tv_dir = design_root_dir / "BENCH_KAT" / design.name
     timing_report = Path.cwd() / (design.name + "_timing.txt")
     cref_dir = Path(toml_path).parent / "cref"
     if not cref_dir.exists():

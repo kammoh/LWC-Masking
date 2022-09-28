@@ -6,9 +6,9 @@ license = "GPL-3.0"
 version = "0.1.0"
 [rtl]
 sources = [
+	"src_rtl/LWC_config.vhd",
 	"src_rtl/CryptoCore_SCA.vhd",
 	"src_rtl/design_pkg.vhd",
-	"src_rtl/LWC_config.vhd",
 	"src_rtl/nlfsr.vhd",
 	"src_rtl/nlfsr_core_HPC2_ClockGating_d1.v",
 	"src_rtl/tinyjambu_control.vhd",
