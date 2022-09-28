@@ -53,9 +53,9 @@ entity LWC_TB IS
         G_FNAME_TIMING     : string   := "timing.txt"; --! Path to the generated timing measurements (when G_TEST_MODE=4)
         G_FNAME_FAILED_TVS : string   := "failed_testvectors.txt"; --! Path to the generated log of failed testvector words
         G_FNAME_RESULT     : string   := "result.txt"; --! Path to the generated result file containing 0 or 1  -- REDUNDANT / NOT USED
-        G_PRERESET_WAIT_NS : natural  := 0; --! Time (in nanoseconds) to wait before reseting UUT. Xilinx GSR takes 100ns, required for post-synth simulation
-        G_INPUT_DELAY_NS   : natural  := 0; --! Input delay in nanoseconds
-        G_TIMEOUT_CYCLES   : integer  := 0; --! Fail simulation after this many consecutive cycles of data I/O inactivity, 0: disable timeout
+        G_PRERESET_WAIT_PS : natural  := 0; --! Time (in picoseconds) to wait before reseting UUT. Xilinx GSR takes 100ns, required for post-synth simulation
+        G_INPUT_DELAY_PS   : natural  := 1_500; --! Input delay in picoseconds
+        G_TIMEOUT_CYCLES   : integer  := 10_000; --! Fail simulation after this many consecutive cycles of data I/O inactivity, 0: disable timeout
         G_VERBOSE_LEVEL    : integer  := 0; --! Verbosity level;
         G_LWC_WRAPPER      : boolean  := FALSE
     );
@@ -66,7 +66,7 @@ architecture TB of LWC_TB is
     function GET_RW return positive is
     begin
         if RW > 0 and G_LWC_WRAPPER then
-            return 8;
+            return 0;
         end if;
         return RW;
     end function;
@@ -74,7 +74,7 @@ architecture TB of LWC_TB is
     constant RW          : positive       := GET_RW;
     constant W_S         : positive       := W * PDI_SHARES;
     constant SW_S        : positive       := SW * SDI_SHARES;
-    constant input_delay : TIME           := G_INPUT_DELAY_NS * ns;
+    constant input_delay : TIME           := G_INPUT_DELAY_PS * ps;
     constant clk_period  : TIME           := G_CLK_PERIOD_PS * ps;
     constant TB_HEAD     : string(1 to 6) := "# TB :";
     constant INS_HEAD    : string(1 to 6) := "INS = ";
@@ -261,7 +261,7 @@ begin
         report LF & " -- Testvectors:  " & G_FNAME_PDI & " " & G_FNAME_SDI & " " & G_FNAME_DO & LF & " -- Clock Period:  " & integer'image(G_CLK_PERIOD_PS) & " ps" & LF & " -- Max Failures:  " & integer'image(G_MAX_FAILURES) & LF & " -- Timout Cycles: " & integer'image(G_TIMEOUT_CYCLES) & LF & " -- Test Mode:     " & integer'image(G_TEST_MODE) & LF & " -- Random Seed:   " & integer'image(G_RANDOM_SEED) & LF & " -- Test Mode:     " & integer'image(G_TEST_MODE) & LF & CR severity note;
 
         seed(G_RANDOM_SEED);
-        wait for G_PRERESET_WAIT_NS * ns;
+        wait for G_PRERESET_WAIT_PS * ps;
         if ASYNC_RSTN then
             rst <= '0';
             wait for 2 * clk_period;

@@ -45,7 +45,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 use work.design_pkg.all;
-use work.LWC_config.all;
+use work.NIST_LWAPI_pkg.all;
 
 entity LWC_SCA is
     generic(

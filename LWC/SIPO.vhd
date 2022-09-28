@@ -194,11 +194,11 @@ begin
                     end if;
                 end if;
             end process;
-            GEN_PIPELINED_CHANNELS : for ch in 0 to G_CHANNELS - 1 generate
+            GEN_CHANNELS : for ch in 0 to G_CHANNELS - 1 generate
                 GEN_BUFF_WORDS : for i in 0 to BUFF_WORDS - 1 generate
                     pout_array(ch)(i) <= data(ch)(i);
                 end generate GEN_BUFF_WORDS;
-            end generate GEN_PIPELINED_CHANNELS;
+            end generate GEN_CHANNELS;
         end generate GEN_PIPELINED;
         -- Passthrough version, i.e., passes the last input to output
         -- there will be a combinational path from input data to output data
@@ -206,14 +206,14 @@ begin
             nx_marker <= INIT_MARKER when out_fire else
                          '0' & marker(0 to BUFF_WORDS - 1) when in_fire else
                          marker;
-            GEN_NOT_PIPELINED_SUBWORD : if G_SUBWORD generate
+            GEN_SUBWORD : if G_SUBWORD generate
                 pout_valid_o <= (is_full or sin_last = '1') and sin_valid = '1';
-            end generate;
-            GEN_NOT_PIPELINED_NOT_SUBWORD : if not G_SUBWORD generate
+            end generate GEN_SUBWORD;
+            GEN_NOT_SUBWORD : if not G_SUBWORD generate
                 pout_valid_o <= is_full and sin_valid = '1';
-            end generate;
+            end generate GEN_NOT_SUBWORD;
 
-            GEN_NOT_PIPELINED_CHANNELS : for ch in 0 to G_CHANNELS - 1 generate
+            GEN_CHANNELS : for ch in 0 to G_CHANNELS - 1 generate
                 process(clk) is
                 begin
                     if rising_edge(clk) then
@@ -248,17 +248,17 @@ begin
         GEN_SUBWORD : if G_SUBWORD generate
             signal valids : std_logic_vector(0 to BUFF_WORDS - 1);
         begin
-            GEN_SUBWORD_CHANNELS : for ch in 0 to G_CHANNELS - 1 generate
+            GEN_CHANNELS : for ch in 0 to G_CHANNELS - 1 generate
                 GEN_POUT_ARRAY : for i in 0 to BUFF_WORDS - 1 generate
                     pout_array(ch)(i) <= and_mask(valids(i), data(ch)(i)) or --
                                          and_mask(marker(i), sin_data_arr(ch));
                 end generate;
-                GEN_CLEAR_INVALIDS : if G_CLEAR_INVALID_BYTES generate
+                GEN_SUBWORD_CLEAR_INVALIDS : if G_CLEAR_INVALID_BYTES generate
                     pout_array(ch)(BUFF_WORDS) <= and_mask(marker(BUFF_WORDS), sin_data_arr(ch));
-                end generate GEN_CLEAR_INVALIDS;
-                GEN_NOT_CLEAR_INVALIDS : if not G_CLEAR_INVALID_BYTES generate -- else generate
+                end generate;
+                GEN_SUBWORD_NOT_CLEAR_INVALIDS : if not G_CLEAR_INVALID_BYTES generate -- else generate
                     pout_array(ch)(BUFF_WORDS) <= sin_data_arr(ch);
-                end generate GEN_NOT_CLEAR_INVALIDS;
+                end generate;
             end generate;
 
             GEN_POUT_KEEP : for i in 0 to BUFF_WORDS generate
@@ -290,9 +290,9 @@ begin
                     valids <= any_marker;
                 end process;
             end generate GEN_CLEAR_INVALIDS;
-            GEN_SUBWORD_NOT_CLEAR_INVALIDS : if not G_SUBWORD or not G_CLEAR_INVALID_BYTES generate -- else generate
+            GEN_NOT_CLEAR_INVALIDS : if not G_SUBWORD or not G_CLEAR_INVALID_BYTES generate -- else generate
                 valids <= not marker(0 to BUFF_WORDS - 1);
-            end generate GEN_SUBWORD_NOT_CLEAR_INVALIDS;
+            end generate GEN_NOT_CLEAR_INVALIDS;
             sin_ready_o <= pout_ready = '1' or (sin_last /= '1' and not is_full);
             -- NOTE: assuming G_PIPELINED = FALSE
             pout_last   <= sin_last;

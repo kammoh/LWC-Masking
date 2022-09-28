@@ -1,0 +1,14 @@
+rtl.sources = [
+    "NIST_LWAPI_pkg.vhd",
+    "PISO.vhd",
+    "SIPO.vhd",
+    "FIFO.vhd",
+    "PreProcessor.vhd",
+    "PostProcessor.vhd",
+    "LWC_SCA.vhd",
+]
+rtl.top = "LWC_SCA"
+
+tb.sources = [
+    "LWC_TB_SCA.vhd"
+]

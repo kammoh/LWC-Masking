@@ -36,7 +36,7 @@ package design_pkg is
     constant CCSW            : natural := CCW;
     constant NUM_SHARES      : natural := 2;
 
-    constant STATE_SIZE     : integer  := 320;
+    constant STATE_SIZE      : integer := 320;
     constant CCRW            : natural := 320;
 
     

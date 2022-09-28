@@ -1,0 +1,8 @@
+rtl.sources = [
+    "LFSR.vhd",
+    "asym_fifo.vhd",
+    "LWC_SCA_wrapper.vhd",
+]
+rtl.top = "LWC_SCA_wrapper"
+rtl.clock_port = "clk"
+

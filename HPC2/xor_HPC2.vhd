@@ -5,7 +5,7 @@
 -- -----------------------------------------------------------------
 --
 --
--- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Müller, Pascal Sasdrich
+-- Copyright (c) 2021, David Knichel, Amir Moradi, Nicolai Mï¿½ller, Pascal Sasdrich
 --
 -- All rights reserved.
 --
@@ -30,7 +30,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity xor_HPC2 is
 	generic (
-		security_order : integer := 2; -- d
+		security_order : integer := 1; -- d
 		pipeline       : integer := 1); -- 0/1
 	port (
 		a 		: in  std_logic_vector(security_order downto 0);
