@@ -88,37 +88,37 @@ architecture TB of LWC_TB is
 
     --=================================================== Signals ===================================================--
     --! stop clock generation
-    signal stop_clock              : boolean                             := False;
+    signal stop_clock          : boolean                             := False;
     --! initial reset of UUT is complete
-    signal reset_done              : boolean                             := False;
+    signal reset_done          : boolean                             := False;
     --=================================================== Wirings ===================================================--
-    signal clk                     : std_logic                           := '0';
-    signal rst                     : std_logic                           := '0';
+    signal clk                 : std_logic                           := '0';
+    signal rst                 : std_logic                           := '0';
     --! PDI
-    signal pdi_data                : std_logic_vector(W_S - 1 downto 0)  := (others => '0');
-    signal pdi_data_delayed        : std_logic_vector(W_S - 1 downto 0)  := (others => '0');
-    signal pdi_valid               : std_logic                           := '0';
-    signal pdi_valid_delayed       : std_logic                           := '0';
-    signal pdi_ready               : std_logic;
+    signal pdi_data            : std_logic_vector(W_S - 1 downto 0)  := (others => '0');
+    signal pdi_data_delayed    : std_logic_vector(W_S - 1 downto 0)  := (others => '0');
+    signal pdi_valid           : std_logic                           := '0';
+    signal pdi_valid_delayed   : std_logic                           := '0';
+    signal pdi_ready           : std_logic;
     --! SDI
-    signal sdi_data                : std_logic_vector(SW_S - 1 downto 0) := (others => '0');
-    signal sdi_data_delayed        : std_logic_vector(SW_S - 1 downto 0) := (others => '0');
-    signal sdi_valid               : std_logic                           := '0';
-    signal sdi_valid_delayed       : std_logic                           := '0';
-    signal sdi_ready               : std_logic;
+    signal sdi_data            : std_logic_vector(SW_S - 1 downto 0) := (others => '0');
+    signal sdi_data_delayed    : std_logic_vector(SW_S - 1 downto 0) := (others => '0');
+    signal sdi_valid           : std_logic                           := '0';
+    signal sdi_valid_delayed   : std_logic                           := '0';
+    signal sdi_ready           : std_logic;
     --! DO
-    signal do_data                 : std_logic_vector(W_S - 1 downto 0);
-    signal do_valid                : std_logic;
-    signal do_last                 : std_logic;
-    signal do_ready                : std_logic                           := '0';
-    signal do_ready_delayed        : std_logic                           := '0';
+    signal do_data             : std_logic_vector(W_S - 1 downto 0);
+    signal do_valid            : std_logic;
+    signal do_last             : std_logic;
+    signal do_ready            : std_logic                           := '0';
+    signal do_ready_delayed    : std_logic                           := '0';
     -- Used only for protected implementations:
     --   RDI
-    signal rdi_data                : std_logic_vector(RW - 1 downto 0)   := (others => '0');
-    signal rdi_data_delayed        : std_logic_vector(RW - 1 downto 0)   := (others => '0'); -- @suppress "signal rdi_data_delayed is never read"
-    signal rdi_valid               : std_logic                           := '0';
-    signal rdi_valid_delayed       : std_logic                           := '0';
-    signal rdi_ready               : std_logic; -- @suppress "signal rdi_ready is never written"
+    signal rdi_data            : std_logic_vector(RW - 1 downto 0)   := (others => '0');
+    signal rdi_data_delayed    : std_logic_vector(RW - 1 downto 0)   := (others => '0');
+    signal rdi_valid           : std_logic                           := '0';
+    signal rdi_valid_delayed   : std_logic                           := '0';
+    signal rdi_ready           : std_logic;
     -- Counters
     signal pdi_operation_count     : integer                             := 0;
     signal cycle_counter           : natural                             := 0;
@@ -158,7 +158,7 @@ architecture TB of LWC_TB is
         end function;
     end protected body;
     --
-    shared variable prng           : rand_state;
+    shared variable prng       : rand_state;
     --
     impure function random return real is
     begin
@@ -258,7 +258,13 @@ begin
     -- generate reset
     Reset_PROCESS : process
     begin
-        report LF & " -- Testvectors:  " & G_FNAME_PDI & " " & G_FNAME_SDI & " " & G_FNAME_DO & LF & " -- Clock Period:  " & integer'image(G_CLK_PERIOD_PS) & " ps" & LF & " -- Max Failures:  " & integer'image(G_MAX_FAILURES) & LF & " -- Timout Cycles: " & integer'image(G_TIMEOUT_CYCLES) & LF & " -- Test Mode:     " & integer'image(G_TEST_MODE) & LF & " -- Random Seed:   " & integer'image(G_RANDOM_SEED) & LF & " -- Test Mode:     " & integer'image(G_TEST_MODE) & LF & CR severity note;
+        report LF & " -- Testvectors:  " & G_FNAME_PDI & " " & G_FNAME_SDI & " " & G_FNAME_DO & LF &
+        " -- Clock Period:  " & integer'image(G_CLK_PERIOD_PS) & " ps" & LF &
+        " -- Max Failures:  " & integer'image(G_MAX_FAILURES) & LF & 
+        " -- Timout Cycles: " & integer'image(G_TIMEOUT_CYCLES) & LF &
+        " -- Test Mode:     " & integer'image(G_TEST_MODE) & LF &
+        " -- Random Seed:   " & integer'image(G_RANDOM_SEED) & LF &
+        CR severity note;
 
         seed(G_RANDOM_SEED);
         wait for G_PRERESET_WAIT_PS * ps;
