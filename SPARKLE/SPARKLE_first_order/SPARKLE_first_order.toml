@@ -6,9 +6,9 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    { uri = "../../LWC/LWC.toml", rtl_pos = 2 }, 
+    { uri = "../../LWC/LWC.toml", rtl.pos = 2 }, 
     "../../gadgets.toml",
-    { uri = "../../LWC/wrapper.toml", rtl_pos = -1 },
+    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 [rtl]

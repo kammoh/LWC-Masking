@@ -97,8 +97,8 @@ class Lwc(BaseModel):
                 description="Width of the `rdi` port in bits (`rw`), 0 if the port is not used.",
             )
 
-        pdi: Pdi = Field(description="Public Data Input port")
-        sdi: Sdi = Field(description="Secret Data Input port")
+        pdi: Pdi = Field(Pdi(), description="Public Data Input port")
+        sdi: Sdi = Field(Sdi(), description="Secret Data Input port")
         rdi: Optional[Rdi] = Field(None, description="Random Data Input port.")
 
     class ScaProtection(BaseModel):
@@ -127,7 +127,7 @@ class Lwc(BaseModel):
         None, description="Details about the AEAD scheme and its implementation"
     )
     hash: Optional[Hash] = None
-    ports: Ports = Field(description="Description of LWC ports.")
+    ports: Ports = Field(Ports(), description="Description of LWC ports.")
     sca_protection: Optional[ScaProtection] = Field(
         None, description="Implemented countermeasures against side-channel attacks."
     )
@@ -305,6 +305,7 @@ def gen_shares(in_file: Path, num_shares, w_nbytes=0, keep_comments=True):
 FRESH_RAND_COL_NAME = "fresh rand. bits"
 RAND_PER_BYTE_COL_NAME = "rand. bits per byte of data"
 
+
 @click.command()
 @click.argument("toml_path")
 @click.option(
@@ -373,9 +374,10 @@ def cli(toml_path, debug, sim_flow, build=False):
             settings["wave"] = "benchmark.ghw"
         else:
             settings["vcd"] = "benchmark.vcd"
-    f = FlowRunner().run_flow(sim_flow, design, settings)
-    if not f.succeeded:
-        sys.exit("Simulation flow failed")
+    if sim_flow:
+        f = FlowRunner().run_flow(sim_flow, design, settings)
+        if not f.succeeded:
+            sys.exit("Simulation flow failed")
 
     assert timing_report.exists()
 
@@ -395,7 +397,8 @@ def cli(toml_path, debug, sim_flow, build=False):
             msgid = row["msgId"]
             assert isinstance(msgid, str)
             row["Cycles"] = msg_cycles[msgid]
-            row[FRESH_RAND_COL_NAME] = msg_fresh_rand[msgid]
+            if msgid in msg_fresh_rand:
+                row[FRESH_RAND_COL_NAME] = msg_fresh_rand[msgid]
             if row["hash"] == "True":
                 row["Op"] = "Hash"
             else:
@@ -410,7 +413,9 @@ def cli(toml_path, debug, sim_flow, build=False):
             total_bytes = row["adBytes"] + row["msgBytes"]
             row["Throughput"] = round(total_bytes / msg_cycles[msgid], 3)
             if FRESH_RAND_COL_NAME in row:
-                row[RAND_PER_BYTE_COL_NAME] = round(row[FRESH_RAND_COL_NAME] / total_bytes, 3)
+                row[RAND_PER_BYTE_COL_NAME] = round(
+                    row[FRESH_RAND_COL_NAME] / total_bytes, 3
+                )
             results.append(row)
             if row["longN+1"] == "True":
                 long_row = copy(results[-2])
@@ -430,7 +435,9 @@ def cli(toml_path, debug, sim_flow, build=False):
                 if msgid in msg_fresh_rand:
                     rnd_diff = msg_fresh_rand[msgid] - msg_fresh_rand[prev_id]
                     long_row[FRESH_RAND_COL_NAME] = rnd_diff
-                    long_row[RAND_PER_BYTE_COL_NAME] = round(rnd_diff / (ad_diff + msg_diff), 3)
+                    long_row[RAND_PER_BYTE_COL_NAME] = round(
+                        rnd_diff / (ad_diff + msg_diff), 3
+                    )
                 results.append(long_row)
     results_file = design.name + "_timing_results.csv"
     fieldnames = [
@@ -440,9 +447,12 @@ def cli(toml_path, debug, sim_flow, build=False):
         "adBytes",
         "Cycles",
         "Throughput",
-        FRESH_RAND_COL_NAME,
-        RAND_PER_BYTE_COL_NAME,
     ]
+    if msg_fresh_rand:
+        fieldnames += [
+            FRESH_RAND_COL_NAME,
+            RAND_PER_BYTE_COL_NAME,
+        ]
 
     def sorter(x):
         k = [99999 if x[f] == "long" else x[f] for f in fieldnames]

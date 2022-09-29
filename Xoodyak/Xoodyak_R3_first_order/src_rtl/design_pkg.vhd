@@ -111,7 +111,7 @@ package body Design_pkg is
     constant CCWdiv8         : integer := CCW/8; -- derived from parameters above
 
     --! design parameters specific to the CryptoCore
-    constant NPUB_SIZE       : integer := 128; --96 --! Npub size
+    constant NPUB_SIZE       : integer := 128; --! Npub size
     constant DBLK_SIZE       : integer := 352; --! Block size
     
     constant KEY_SIZE        : integer := 128; --! Key size
