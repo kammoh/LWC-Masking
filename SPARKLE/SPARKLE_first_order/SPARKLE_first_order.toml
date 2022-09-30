@@ -6,9 +6,9 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    { uri = "../../LWC/LWC.toml", rtl_pos = 2 }, 
+    { uri = "../../LWC/LWC.toml", rtl.pos = 3 }, 
     "../../gadgets.toml",
-    { uri = "../../LWC/wrapper.toml", rtl_pos = -1 },
+    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 [rtl]
@@ -52,16 +52,20 @@ verilog.version = "2001"
 # sources = ["LWC_SCA_TB.vhd"]
 # includes = []
 # top = "LWC_SCA_TB"
+
+
 [lwc.aead]
-algorithm = "schwaemm256128v1"
-block_bits = { 'AD' = 256, 'PT' = 256, 'HM'= 128}
+algorithm = "schwaemm256128v1" # WAS V1
+# block_bits = { 'AD' = 256, 'PT' = 256, 'HM'= 128}
 # key_bits = 128
 # npub_bits = 256
 # tag_bits = 128
 # input_sequence.encrypt = ["nsec", "npub", "ad", "data"]
 # input_sequence.decrypt = ["ensec", "npub", "ad", "data", "tag"]
+
+
 [lwc.hash]
-algorithm = "esch256v1"
+algorithm = "esch256v1" # WAS V1
 # digest_bits = 256
 [lwc.ports]
 # pdi.bit_width = 32

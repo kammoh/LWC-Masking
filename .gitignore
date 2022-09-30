@@ -1,3 +1,4 @@
 .vscode/
 *.cf
 xeda_run
+tmp/*
