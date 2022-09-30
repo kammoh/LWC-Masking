@@ -500,7 +500,6 @@ begin
     
     -- Capacity not affected
     state_out(127 downto 0) <= state_in(127 downto 0);
-    
 end structural;
 
 
@@ -548,6 +547,5 @@ begin
     
     -- Capacity not affected
     state_out(127 downto 0) <= state_in_post_feistel(127 downto 0);
-    
 end structural;
 
