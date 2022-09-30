@@ -3,3 +3,5 @@
 xeda_run
 .xeda
 .xeda_dependencies
+tmp/*
+

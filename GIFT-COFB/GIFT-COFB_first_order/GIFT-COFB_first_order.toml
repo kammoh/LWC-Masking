@@ -4,34 +4,44 @@ author = ["Nicolai Mueller", "Amir Moradi"]
 url = "https://github.com/vtsal/gift_cofb_lwc_v2" # Reference design which we protect
 license = "GPL-3.0"
 version = "0.1.0"
+
+
+dependencies = [
+    { uri = "../../LWC/LWC.toml", rtl.pos = 2 }, 
+    "../../gadgets.toml",
+    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+]
+
+
 [rtl]
 sources = [
-	"src_rtl/ConsGen.vhd",
+    "src_rtl/LWC_config.vhd",
+    "src_rtl/design_pkg.vhd",
+    "src_rtl/ConsGen.vhd",
+    "src_rtl/GIFT128.vhd",
+    "src_rtl/SomeFunc.vhd",
+    "src_rtl/myReg.vhd",
+    "src_rtl/PermBits.vhd",
+    "src_rtl/SubCells_HPC2_ClockGating_d1.v",
+    "src_rtl/GIFTCOFB_Controller.vhd",
+    "src_rtl/GIFTCOFB_Datapath.vhd",
+    "src_rtl/GIFTCOFB.vhd",
 	"src_rtl/CryptoCore_SCA.vhd",
-	"src_rtl/design_pkg.vhd",
-	"src_rtl/GIFT128.vhd",
-	"src_rtl/GIFTCOFB.vhd",
-	"src_rtl/GIFTCOFB_Controller.vhd",
-	"src_rtl/GIFTCOFB_Datapath.vhd",
-	"src_rtl/LWC_config.vhd",
-	"src_rtl/myReg.vhd",
-	"src_rtl/PermBits.vhd",
-	"src_rtl/SomeFunc.vhd",
-	"src_rtl/SubCells_HPC2_ClockGating_d1.v",
-	"LWC/data_piso.vhd",
-	"LWC/data_sipo.vhd",
-	"LWC/FIFO.vhd",
-	"LWC/key_piso.vhd",
-	"LWC/LWC_SCA.vhd",
-	"LWC/NIST_LWAPI.vhd",
-	"LWC/PostProcessor.vhd",
-	"LWC/PreProcessor.vhd",
-	"HPC2/and_HPC2.vhd",
-	"HPC2/xnor_HPC2.vhd",
-	"HPC2/xor_HPC2.vhd",
-	"General/reg.vhd",
-	"General/xnor_2.vhd",
-	"General/xor_2.vhd",
+
+	# "LWC/data_piso.vhd",
+	# "LWC/data_sipo.vhd",
+	# "LWC/FIFO.vhd",
+	# "LWC/key_piso.vhd",
+	# "LWC/LWC_SCA.vhd",
+	# "LWC/NIST_LWAPI.vhd",
+	# "LWC/PostProcessor.vhd",
+	# "LWC/PreProcessor.vhd",
+	# "HPC2/and_HPC2.vhd",
+	# "HPC2/xnor_HPC2.vhd",
+	# "HPC2/xor_HPC2.vhd",
+	# "General/reg.vhd",
+	# "General/xnor_2.vhd",
+	# "General/xor_2.vhd",
 ]
 
 # includes = []
@@ -51,7 +61,7 @@ verilog.version = "2001"
 # includes = []
 # top = "LWC_SCA_TB"
 [lwc.aead]
-algorithm = "GIFT-COFB"
+algorithm = "giftcofb128v1"
 # key_bits = 128
 # npub_bits = 128
 # tag_bits = 128
@@ -69,3 +79,16 @@ sdi.num_shares = 2
 [lwc.sca_protection]
 target = ["spa", "dpa", "cpa", "timing"]
 order = 1
+
+
+# [lwc.block_size]
+xt = 128
+ad = 128
+
+
+[tb]
+sources = ["../../LWC/LWC_TB_SCA.vhd"]
+top = "LWC_TB"
+parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
+parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
+parameters.G_FNAME_DO = {file = "KAT/do.txt"}
