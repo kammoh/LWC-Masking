@@ -2,7 +2,6 @@ name = "gadgets"
 
 [rtl]
 sources = [
-	# "General/Gates.v",
 	"General/Gates.vhd",
 	"General/not_masked.vhd",
 	"General/my_register.vhd",
@@ -21,4 +20,3 @@ sources = [
 	"HPC2/nor_HPC2.vhd",
 	"HPC2/mux2_HPC2.vhd",
 ]
-top = ""

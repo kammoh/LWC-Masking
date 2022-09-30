@@ -1,0 +1,80 @@
+Notation:
+Na, Nm, Nc, Nh : the number of complete blocks of associated data,
+plaintext, ciphertext, and hash message, respectively
+Ina, Inm, Inc, Inh : binary variables equal to 1 if the last block of
+the respective data type is incomplete, and 0 otherwise
+Bla, Blm, Blc, Blh : the number of bytes in the incomplete block of
+associated data, plaintext, ciphertext, and hash message, respectively.
+
+v1: Schwaemm256128 (AEAD only)
+
+a. Design goal
+Support for authenticated encryption, decryption.
+Basic iterative architecture to optimize throughput to area ratio.
+No BRAMs, no DSP units.
+All RAMs using asynchronous read.
+
+b. Supported maximum sizes of inputs
+Not evaluated.
+
+c. Reference software implementation
+
+schwaemm256128v1
+
+d. Non-default values of generics and constants
+None
+
+e. Block sizes
+
+AD block size = 256 bits
+Plaintext/Ciphertext block size = 256 bits
+
+f. Execution times
+
+Execution Time for Encryption:
+        38*Na + 47*Nm + 97
+
+Execution Time for Decryption:
+        38*Na + 47*Nc + 98
+
+g. Difference between execution times for a new key and the same key
+Not evaluated.
+
+v2: Schwaemm256128 and Esch256 (AEAD + HASH)
+
+a. Design goal
+Support for authenticated encryption, decryption, and hash.
+Basic iterative architecture to optimize throughput to area ratio.
+No BRAMs, no DSP units.
+All RAMs using asynchronous read.
+
+b. Supported maximum sizes of inputs
+Not evaluated.
+
+c. Reference software implementation
+
+schwaemm256128v1
+esch256v1
+
+d. Non-default values of generics and constants
+None
+
+e. Block sizes
+
+AD block size = 256 bits
+Plaintext/Ciphertext block size = 256 bits
+Hash block size = 128 bits
+
+f. Execution times
+
+Execution Time for Encryption:
+        38*Na + 47*Nm + 97
+
+Execution Time for Decryption:
+        38*Na + 47*Nc + 98      
+    
+Execution Time for Hash: 
+        34*Nh + 53
+
+g. Difference between execution times for a new key and the same key
+Not evaluated.

@@ -1,0 +1,60 @@
+[project]
+name = "SCHWAEMM"
+developer = 'Virginia Tech'
+xeda_run_dir = "../xeda/SCHWAEMM"
+
+[[design]]
+name = "SCHWAEMM_VT-v2"
+
+
+
+[design.lwc]
+algorithm = ['schwaemm256128v1', 'esch256v1']
+block_bits = { 'AD' = 256, 'PT' = 256, 'HM' = 128 }
+key_reuse = true
+
+[design.language]
+vhdl.standard = "08"
+vhdl.synopsys = false
+
+[design.rtl]
+sources = [
+    "src_rtl/LWC_config.vhd",
+    # "../LWC/hardware/LWC_rtl//NIST_LWAPI_pkg.vhd",
+    "src_rtl/v2/design_pkg.vhd",
+    "src_rtl/v2/utility_functions_pkg.vhd",
+    "src_rtl/v2/SchwaemmEsch.vhd",
+    "src_rtl/v2/SchwaemmEschController.vhd",
+    "src_rtl/v2/CryptoCore.vhd",
+    "src_rtl/v2/StepDownCountLd.vhd",
+    # "../LWC/hardware/LWC_rtl/FIFO.vhd",
+    # "../LWC/hardware/LWC_rtl/PISO.vhd",
+    # "../LWC/hardware/LWC_rtl/SIPO.vhd",
+    # "../LWC/hardware/LWC_rtl/PreProcessor.vhd",
+    # "../LWC/hardware/LWC_rtl/PostProcessor.vhd",
+    # "../LWC/hardware/LWC_rtl/LWC.vhd",
+]
+
+top = 'LWC'
+clock_port = 'clk'
+
+# [design.tb]
+# sources = [
+#     "../LWC/hardware/LWC_tb/LWC_TB.vhd",
+#     # wrapped:
+#     # "../LWC/hardware/LWC_tb/LWC_TB_wrapper_conf.vhd",
+# ]
+# top = "LWC_TB"
+# configuration_specification = "LWC_TB_wrapper_conf"
+
+[design.tb.generics]
+G_TEST_MODE = 4
+G_MAX_FAILURES = 0
+# G_FNAME_PDI.file = "KAT/v2/pdi.txt"
+# G_FNAME_SDI.file = "KAT/v2/sdi.txt"
+# G_FNAME_DO.file = "KAT/v2/do.txt"
+
+[flows.diamond_synth]
+fmax_low_freq = 45
+fmax_high_freq = 88
+synthesis_engine = "lse"
