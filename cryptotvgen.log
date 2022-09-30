@@ -99,3 +99,38 @@ candidates_dir=Romulus/Romulusn_first_order/cref does not have a crypto_hash/['r
 candidates_dir=Isap/Isapa_first_order/cref does not have a crypto_hash/['ref', 'aadomn/opt32'] sub directory!
 
 2022-09-29 20:21:52,090 [CRITICAL] `make -f /home/luke/.cryptotvgen/lwc_cffi.mk CRYPTO_VARIANT=isapxv20 CRYPTO_TYPE=aead CANDIDATE_PATH=. IMPL_SRC_DIR=ref` failed! (exit code: 2)
+2022-09-30 09:44:53,037 [INFO    ] Trying to determine the latest version of SUPERCOP from https://bench.cr.yp.to/supercop.html...
+2022-09-30 09:44:53,037 [INFO    ] Last-Modified timestamp from server: Sun, 19 Jun 2022 08:03:48 GMT
+2022-09-30 09:44:53,038 [INFO    ] Latest version of SUPERCOP seems to be 20220506 available from https://bench.cr.yp.to/supercop/supercop-20220506.tar.xz
+2022-09-30 09:44:53,038 [WARNING ] Using already cached version of supercop at /home/luke/.cryptotvgen/cache/supercop-20220506.tar.xz
+2022-09-30 09:44:53,040 [INFO    ] decompressing archive and determining the list of files to extract...
+2022-09-30 09:45:06,880 [INFO    ] Trying to determine the latest version of SUPERCOP from https://bench.cr.yp.to/supercop.html...
+2022-09-30 09:45:06,880 [INFO    ] Last-Modified timestamp from server: Sun, 19 Jun 2022 08:03:48 GMT
+2022-09-30 09:45:06,881 [INFO    ] Latest version of SUPERCOP seems to be 20220506 available from https://bench.cr.yp.to/supercop/supercop-20220506.tar.xz
+2022-09-30 09:45:06,881 [WARNING ] Using already cached version of supercop at /home/luke/.cryptotvgen/cache/supercop-20220506.tar.xz
+2022-09-30 09:45:06,882 [INFO    ] decompressing archive and determining the list of files to extract...
+2022-09-30 09:45:10,549 [INFO    ] extracting files...
+2022-09-30 09:45:11,446 [INFO    ] extraction complete
+2022-09-30 09:45:11,747 [INFO    ] moved sources to cryptotvgen data dir
+2022-09-30 09:45:11,747 [INFO    ] building only the following variants: []
+2022-09-30 09:45:28,389 [WARNING ] [Errno 2] No such file or directory: 'Isap/Isapa_first_order/cref/crypto_hash'
+candidates_dir=Isap/Isapa_first_order/cref does not have a crypto_hash/['ref', 'aadomn/opt32'] sub directory!
+
+2022-09-30 09:45:28,443 [CRITICAL] `make -f /home/luke/.cryptotvgen/lwc_cffi.mk CRYPTO_VARIANT=isapxv20 CRYPTO_TYPE=aead CANDIDATE_PATH=. IMPL_SRC_DIR=ref` failed! (exit code: 2)
+2022-09-30 12:50:43,212 [WARNING ] [Errno 2] No such file or directory: 'Isap/crypto_aead'
+candidates_dir=Isap does not have a crypto_aead/['ref', 'aadomn/opt32'] sub directory!
+
+2022-09-30 12:50:43,212 [WARNING ] [Errno 2] No such file or directory: 'Isap/crypto_hash'
+candidates_dir=Isap does not have a crypto_hash/['ref', 'aadomn/opt32'] sub directory!
+
+2022-09-30 12:50:53,277 [WARNING ] [Errno 2] No such file or directory: 'Isap/Isapa_first_order/cref/crypto_hash'
+candidates_dir=Isap/Isapa_first_order/cref does not have a crypto_hash/['ref', 'aadomn/opt32'] sub directory!
+
+2022-09-30 12:50:53,442 [CRITICAL] `make -f /home/luke/.cryptotvgen/lwc_cffi.mk CRYPTO_VARIANT=isapxv20 CRYPTO_TYPE=aead CANDIDATE_PATH=. IMPL_SRC_DIR=ref` failed! (exit code: 2)
+2022-09-30 12:54:22,084 [WARNING ] [Errno 2] No such file or directory: 'Isap/Isapa_first_order/cref/crypto_hash'
+candidates_dir=Isap/Isapa_first_order/cref does not have a crypto_hash/['ref', 'aadomn/opt32'] sub directory!
+
+2022-09-30 12:54:22,288 [CRITICAL] `make -f /home/luke/.cryptotvgen/lwc_cffi.mk CRYPTO_VARIANT=isapxv20 CRYPTO_TYPE=aead CANDIDATE_PATH=. IMPL_SRC_DIR=ref` failed! (exit code: 2)
+2022-09-30 12:55:42,004 [WARNING ] [Errno 2] No such file or directory: 'Isap/Isapa_first_order/cref/crypto_hash'
+candidates_dir=Isap/Isapa_first_order/cref does not have a crypto_hash/['ref', 'aadomn/opt32'] sub directory!
+
