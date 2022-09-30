@@ -6,7 +6,7 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    { uri = "../../LWC/LWC.toml", rtl.pos = 2 },
+    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 },
     "../../gadgets.toml",
     { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
@@ -37,7 +37,7 @@ sources = [
 ]
 
 # includes = []
-top = "LWC_SCA"
+# top = "LWC_SCA"
 # clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
@@ -45,24 +45,18 @@ top = "LWC_SCA"
 # parameters = { G_DO_FIFO_DEPTH = 1 }
 [language]
 vhdl.version = "2008"
-# vhdl.synopsys = false
+vhdl.synopsys = true
 verilog.version = "2001"
 # systemverilog.version = "2009"
 # [tb]
 # sources = ["LWC_SCA_TB.vhd"]
 # includes = []
 # top = "LWC_SCA_TB"
-[lwc.aead]
-algorithm = "schwaemm256128v1"
-block_bits = { 'AD' = 256, 'PT' = 256, 'HM' = 128 }
-# key_bits = 128
-# npub_bits = 256
-# tag_bits = 128
-# input_sequence.encrypt = ["nsec", "npub", "ad", "data"]
-# input_sequence.decrypt = ["ensec", "npub", "ad", "data", "tag"]
-[lwc.hash]
-algorithm = "esch256v1"
-# digest_bits = 256
+[lwc]
+block_bits = { AD = 256, XT = 256, HM = 128 }
+aead.algorithm = "schwaemm256128v1"
+hash.algorithm = "esch256v1"
+
 [lwc.ports]
 # pdi.bit_width = 32
 pdi.num_shares = 2
@@ -74,8 +68,14 @@ target = ["spa", "dpa", "cpa", "timing"]
 order = 1
 
 [tb]
-sources = ["../../LWC/LWC_TB_SCA.vhd"]
-top = "LWC_TB"
-parameters.G_FNAME_PDI = { file = "KAT/pdi_shared_2.txt" }
-parameters.G_FNAME_SDI = { file = "KAT/sdi_shared_2.txt" }
-parameters.G_FNAME_DO = { file = "KAT/do.txt" }
+# sources = ["../../LWC/LWC_TB_SCA.vhd"]
+# top = "LWC_TB"
+# parameters.G_FNAME_PDI = { file = "KAT/pdi_shared_2.txt" }
+# parameters.G_FNAME_SDI = { file = "KAT/sdi_shared_2.txt" }
+# parameters.G_FNAME_DO = { file = "KAT/do.txt" }
+[tb.parameters]
+G_TEST_MODE = 4
+G_MAX_FAILURES = 100
+G_FNAME_PDI.file = "../FAILING_KATS/pdi_shared_2.txt"
+G_FNAME_SDI.file = "../FAILING_KATS/sdi_shared_2.txt"
+G_FNAME_DO.file =  "../FAILING_KATS/do.txt"

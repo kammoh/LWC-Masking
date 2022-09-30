@@ -131,7 +131,7 @@ class Lwc(BaseModel):
     sca_protection: Optional[ScaProtection] = Field(
         None, description="Implemented countermeasures against side-channel attacks."
     )
-    block_size: Dict[str, int] = Field({"xt": 128, "ad": 128, "hm": 128})
+    block_bits: Dict[str, int] = dict(XT=512, AD=512, HM=512)
 
 
 class LwcDesign(Design):
@@ -190,21 +190,28 @@ def gen_tv(
             "--hash",
             lwc.hash.algorithm,
         ]
+    block_bits = {k.upper():v for k,v in lwc.block_bits.items()}
+    if "XT" in block_bits:
+        block_bits["PT"] = block_bits["XT"]
+        block_bits["CT"] = block_bits["XT"]
+    elif "PT" in block_bits and (not  "CT" in block_bits or block_bits["PT"] == block_bits["CT"]):
+        block_bits["XT"] = block_bits["PT"]
+    elif "CT" in block_bits:
+        block_bits["XT"] = block_bits["CT"]
+    elif "HM" in block_bits:
+        block_bits["XT"] = block_bits["HM"]
+    bs = block_bits.get("XT", block_bits.get("PT", 512))
     args += [
         "--io",
         str(lwc.ports.pdi.bit_width),
         str(lwc.ports.sdi.bit_width),
-        # '--key_size', '128',
-        # '--npub_size', '96',
-        # '--nsec_size', '0',
-        # '--message_digest_size', '256',
-        # '--tag_size', '128',
+        # TODO handle block_bits "PT" != "CT"
         "--block_size",
-        str(lwc.block_size["xt"]),
+        str(bs),
         "--block_size_ad",
-        str(lwc.block_size["ad"]),
+        str(block_bits.get("AD", bs)),
         "--block_size_msg_digest",
-        str(lwc.block_size["hm"]),
+        str(block_bits.get("HM", bs)),
     ]
 
     if blocks_per_segment:
@@ -319,7 +326,7 @@ RAND_PER_BYTE_COL_NAME = "rand. bits per byte of data"
     "--sim-flow",
     type=str,
     show_default=True,
-    default="ghdl_sim",
+    default="vivado_sim",
     help="simulation flow to use",
 )
 @click.option(
