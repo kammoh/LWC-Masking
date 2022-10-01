@@ -3,5 +3,7 @@
 xeda_run
 .xeda
 .xeda_dependencies
+*.so
+*.o
+*.dll
 tmp/*
-
