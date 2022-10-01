@@ -38,11 +38,11 @@ class Lwc(BaseModel):
 
     class Aead(BaseModel):
         class InputSequence(BaseModel):
-            encrypt: Optional[Sequence[Literal["ad", "pt", "npub", "tag"]]] = Field(
+            encrypt: Sequence[Literal["ad", "pt", "data", "npub", "tag"]] = Field(
                 ["npub", "ad", "pt", "tag"],
                 description="Sequence of inputs during encryption",
             )
-            decrypt: Optional[Sequence[Literal["ad", "ct", "npub", "tag"]]] = Field(
+            decrypt: Sequence[Literal["ad", "ct", "data", "npub", "tag"]] = Field(
                 ["npub", "ad", "ct", "tag"],
                 description="Sequence of inputs during decryption",
             )
@@ -55,8 +55,8 @@ class Lwc(BaseModel):
         key_bits: Optional[int] = Field(description="Size of key in bits.")
         npub_bits: Optional[int] = Field(description="Size of public nonce in bits.")
         tag_bits: Optional[int] = Field(description="Size of tag in bits.")
-        input_sequence: Optional[InputSequence] = Field(
-            None,
+        input_sequence: InputSequence = Field(
+            InputSequence(),  # type: ignore
             description="Order in which different input segment types should be fed to PDI.",
         )
         key_reuse: bool = False
@@ -182,8 +182,18 @@ def gen_tv(
             "--aead",
             lwc.aead.algorithm,
         ]
-        if lwc.aead.input_sequence:
-            args += ["--msg_format", *lwc.aead.input_sequence]
+        input_sequence = lwc.aead.input_sequence.encrypt
+        if input_sequence:
+            input_sequence = ["data" if i in ("ct", "pt") else i for i in input_sequence]
+            args += [
+                "--enc_msg_format", *input_sequence
+            ]
+        input_sequence = lwc.aead.input_sequence.decrypt
+        if input_sequence:
+            input_sequence = ["data" if i in ("ct", "pt") else i for i in input_sequence]
+            args += [
+                "--dec_msg_format", *input_sequence
+            ]
 
     if lwc.hash:
         args += [
@@ -323,13 +333,20 @@ RAND_PER_BYTE_COL_NAME = "rand. bits per byte of data"
     help="simulation flow to use",
 )
 @click.option(
+    "--cref-dir",
+    type=Path,
+    show_default=True,
+    default=None,
+    help="Path to C reference source code, with SUPERCOP directory structure.",
+)
+@click.option(
     "--build",
     is_flag=True,
     show_default=True,
     default=False,
     help="force build reference libraries",
 )
-def cli(toml_path, debug, sim_flow, build=False):
+def cli(toml_path, debug, sim_flow, cref_dir, build=False):
     """toml_path: Path to design description TOML file."""
     design = LwcDesign.from_toml(toml_path)
     lwc = design.lwc
@@ -341,9 +358,10 @@ def cli(toml_path, debug, sim_flow, build=False):
         design_root_dir = Path.cwd()
     tv_dir = design_root_dir / "BENCH_KAT" / design.name
     timing_report = Path.cwd() / (design.name + "_timing.txt")
-    cref_dir = Path(toml_path).parent / "cref"
-    if not cref_dir.exists():
-        cref_dir = None
+    if not cref_dir:
+        cref_dir = design.root_path / "cref"
+        if not cref_dir.exists():
+            cref_dir = None
     if build:
         algs = []
         if lwc.aead and lwc.aead.algorithm:
