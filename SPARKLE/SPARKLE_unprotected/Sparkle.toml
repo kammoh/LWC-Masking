@@ -2,7 +2,9 @@ name = "Sparkle_VT"
 developer = "Virginia Tech"
 description = "SCHWAEMM+ESCH"
 
-dependencies = ["git+https://github.com/GMUCERG/LWC.git#hardware/LWC_32.toml"]
+dependencies = [
+	{ uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_32.toml", rtl.pos = 1 },
+]
 
 [lwc]
 aead.algorithm = "schwaemm256128v1"
@@ -16,33 +18,15 @@ vhdl.synopsys = true
 
 [rtl]
 sources = [
-    "src_rtl/LWC_config.vhd",
-    # "../LWC/hardware/LWC_rtl//NIST_LWAPI_pkg.vhd",
     "src_rtl/v2/design_pkg.vhd",
     "src_rtl/v2/utility_functions_pkg.vhd",
     "src_rtl/v2/SchwaemmEsch.vhd",
     "src_rtl/v2/SchwaemmEschController.vhd",
     "src_rtl/v2/CryptoCore.vhd",
-    # "src_rtl/v2/StepDownCountLd.vhd",
-    # "../LWC/hardware/LWC_rtl/FIFO.vhd",
-    # "../LWC/hardware/LWC_rtl/PISO.vhd",
-    # "../LWC/hardware/LWC_rtl/SIPO.vhd",
-    # "../LWC/hardware/LWC_rtl/PreProcessor.vhd",
-    # "../LWC/hardware/LWC_rtl/PostProcessor.vhd",
-    # "../LWC/hardware/LWC_rtl/LWC.vhd",
 ]
-
-top = "LWC"
+# top = "LWC"
 clock_port = "clk"
 
-# [tb]
-# sources = [
-#     "../LWC/hardware/LWC_tb/LWC_TB.vhd",
-#     # wrapped:
-#     # "../LWC/hardware/LWC_tb/LWC_TB_wrapper_conf.vhd",
-# ]
-# top = "LWC_TB"
-# configuration_specification = "LWC_TB_wrapper_conf"
 
 [tb.generics]
 G_TEST_MODE = 4
