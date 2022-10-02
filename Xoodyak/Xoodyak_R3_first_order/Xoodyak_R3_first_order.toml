@@ -6,7 +6,7 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    { uri = "../../LWC/LWC.toml", rtl.pos = 2 }, 
+    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 }, 
     "../../gadgets.toml",
     { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
@@ -76,18 +76,14 @@ sdi.num_shares = 2
 target = ["spa", "dpa", "cpa", "timing"]
 order = 1
 [lwc.block_bits]
-XT = 352
-AD = 352
-HM = 352
+xt = 352
+ad = 352
+hm = 352
 
 
-[tb]
-sources = ["../../LWC/LWC_TB_SCA.vhd"]
-top = "LWC_TB"
+# [tb]
+# sources = ["../../LWC/LWC_TB_SCA.vhd"]
+# top = "LWC_TB"
 # parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
 # parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
 # parameters.G_FNAME_DO =  {file = "KAT/do.txt"}
-parameters.G_FNAME_PDI = {file = "BENCH_KAT/SPARKLE_first_order/timing_tests/pdi_shared_2.txt"}
-parameters.G_FNAME_SDI = {file = "BENCH_KAT/SPARKLE_first_order/timing_tests/sdi_shared_2.txt"}
-parameters.G_FNAME_DO =  {file = "BENCH_KAT/SPARKLE_first_order/timing_tests/do.txt"}
-parameters.G_TEST_MODE = 4

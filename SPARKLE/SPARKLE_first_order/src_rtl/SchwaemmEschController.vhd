@@ -675,7 +675,7 @@ begin
             end if;
         
         when START_PERM_INIT =>                         -- Handle starting permutation for initialization
-            perm_en <= '1';                             -- Start permutation            
+            perm_en <= '1';                             -- Start permutation
             next_state <= WAIT_PERM;                    -- Update state to wait for completion
             
         when WAIT_PERM => 
