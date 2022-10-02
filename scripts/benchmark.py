@@ -38,11 +38,11 @@ class Lwc(BaseModel):
 
     class Aead(BaseModel):
         class InputSequence(BaseModel):
-            encrypt: Sequence[Literal["ad", "pt", "data", "npub", "tag"]] = Field(
+            encrypt: Sequence[str] = Field(  # "ad", "pt", "ct", "data" (pt/ct), "npub", "tag", "length"
                 ["npub", "ad", "pt", "tag"],
                 description="Sequence of inputs during encryption",
             )
-            decrypt: Sequence[Literal["ad", "ct", "data", "npub", "tag"]] = Field(
+            decrypt: Sequence[str] = Field(
                 ["npub", "ad", "ct", "tag"],
                 description="Sequence of inputs during decryption",
             )
@@ -182,17 +182,17 @@ def gen_tv(
             "--aead",
             lwc.aead.algorithm,
         ]
+        def fix_key_names(in_seq):
+            return ["data" if i.lower() in ("ct", "pt") else i.lower() for i in in_seq]
         input_sequence = lwc.aead.input_sequence.encrypt
         if input_sequence:
-            input_sequence = ["data" if i in ("ct", "pt") else i for i in input_sequence]
             args += [
-                "--enc_msg_format", *input_sequence
+                "--enc_msg_format", *fix_key_names(input_sequence)
             ]
         input_sequence = lwc.aead.input_sequence.decrypt
         if input_sequence:
-            input_sequence = ["data" if i in ("ct", "pt") else i for i in input_sequence]
             args += [
-                "--dec_msg_format", *input_sequence
+                "--dec_msg_format", *fix_key_names(input_sequence)
             ]
 
     if lwc.hash:
