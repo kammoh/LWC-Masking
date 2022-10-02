@@ -7,3 +7,6 @@ xeda_run
 *.o
 *.dll
 tmp/*
+*.log
+cryptotvgen.log
+*.csv
