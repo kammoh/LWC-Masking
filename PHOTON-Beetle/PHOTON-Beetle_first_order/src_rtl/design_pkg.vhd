@@ -31,7 +31,7 @@ package Design_pkg is
     
     constant CCW        : integer := 32; --! bdo/bdi width
     constant CCSW       : integer := 32; --! key width
-    constant CCRW       : integer := 32; --! key width
+    constant CCRW       : integer := 1120; --! key width
     constant CCWdiv8         : integer; --! derived from parameters above, assigned in body.
 
     --! design parameters exclusivly used by the LWC core implementations

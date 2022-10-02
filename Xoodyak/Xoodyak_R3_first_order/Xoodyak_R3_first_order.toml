@@ -80,6 +80,10 @@ xt = 352
 ad = 352
 hm = 352
 
+[lwc.block_size]
+xt = 192
+ad = 352
+hm = 128
 
 # [tb]
 # sources = ["../../LWC/LWC_TB_SCA.vhd"]

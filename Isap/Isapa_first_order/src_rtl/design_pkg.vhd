@@ -33,7 +33,7 @@ package design_pkg is
     constant CCW             : natural := 32;
     --! CryptoCore key input width in bits
     constant CCSW            : natural := CCW;
-    constant CCRW            : natural := 32;
+    constant CCRW            : natural := 320;
     constant CCWdiv8         : natural := CCW/8;
 
 end design_pkg;
