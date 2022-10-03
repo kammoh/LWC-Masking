@@ -587,14 +587,29 @@ module api (/*AUTOARG*/
               end // if (dec == 1)
               else begin
 		         seglenn <= pdi_data[(`PDI_SHARES - 1) * `W + 15:(`PDI_SHARES - 1) * `W + 0];
-                 flagsn <= pdi_data[(`PDI_SHARES - 1) * `W + 27:(`PDI_SHARES - 1) * `W + 24];           
+                 flagsn <= pdi_data[(`PDI_SHARES - 1) * `W + 27:(`PDI_SHARES - 1) * `W + 24];   
+
+               //  if ((pdi_data[(`PDI_SHARES - 1) * `W + 25] == 1) && (pdi_data[(`PDI_SHARES - 1) * `W + 15:(`PDI_SHARES - 1) * `W + 0] < 16)) begin
+		         //      pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 3'b011, pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+		         //      if (pdo_ready) begin
+			      //         fsmn <= storemp;
+		         //      end
+				   //   end
+               //   else begin
+	            //      pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+		         //      if (pdo_ready) begin
+		         //         fsmn <= storemf;
+					// 	  end
+     		      //   end
+
                  if ((pdi_data[(`PDI_SHARES - 1) * `W + 25] == 1) && (pdi_data[(`PDI_SHARES - 1) * `W + 15:(`PDI_SHARES - 1) * `W + 0] < 16)) begin
 		              if (pdo_ready) begin
 			              fsmn <= storemp;
 			              pdi_ready <= 1;
 			              pdo_valid <= 1;
 			              pdo_data[1 * `W - 1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],1'b0,pdi_data[0 * `W + 23:0 * `W + 0]};
-			              pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],1'b0,pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+		                 pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 3'b011, pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+			            //   pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],1'b0,pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
 		              end
 				     end
                  else begin
@@ -603,7 +618,7 @@ module api (/*AUTOARG*/
 		                 fsmn <= storemf;
 		                 pdo_valid <= 1;
 		                 pdo_data[1 * `W - 1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],1'b0,pdi_data[0 * `W + 23:0 * `W + 0]};
-		                 pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],1'b0,pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+		                 pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25], pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
 						  end
      		        end // if (pdo_ready)		       
               end // else: !if(dec == 1)	      
