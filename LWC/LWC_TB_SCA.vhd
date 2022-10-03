@@ -7,7 +7,7 @@
 --! @copyright  Copyright (c) 2015, 2020, 2021, 2022 Cryptographic Engineering Research Group
 --!             ECE Department, George Mason University Fairfax, VA, U.S.A.
 --!             All rights Reserved.
---! @version    1.2.2
+--! @version    1.3
 --! @license    This project is released under the GNU Public License.
 --!             The license and distribution terms for this file may be
 --!             found in the file LICENSE in this distribution or at
@@ -35,43 +35,33 @@ use work.NIST_LWAPI_pkg.all;
 
 entity LWC_TB IS
     generic(
-        G_MAX_FAILURES     : natural  := 0; --! Maximum number of failures before stopping the simulation
-        G_TEST_MODE        : natural  := 0; --! 0: normal, 1: stall both sdi/pdi_valid and do_ready, 2: stall sdi/pdi_valid, 3: stall do_ready, 4: Timing (cycle) measurement 
-        G_PDI_STALLS       : natural  := 3; --! Number of cycles to stall pdi_valid
-        G_SDI_STALLS       : natural  := 3; --! Number of cycles to stall sdi_valid
-        G_DO_STALLS        : natural  := 3; --! Number of cycles to stall do_ready
-        G_RDI_STALLS       : natural  := 3; --! Number of cycles to stall rdi_valid
-        G_RANDOM_STALL     : boolean  := false; --! Stall for a random number of cycles in the range [0..G_xx_STALLS], when G_TEST_MODE = 4
-        G_CLK_PERIOD_PS    : positive := 10_000; --! Simulation clock period in picoseconds
-        G_FNAME_PDI        : string   := "../KAT/v1/pdi.txt"; --! Path to the input file containing cryptotvgen PDI testvector data
-        G_FNAME_SDI        : string   := "../KAT/v1/sdi.txt"; --! Path to the input file containing cryptotvgen SDI testvector data
-        G_FNAME_DO         : string   := "../KAT/v1/do.txt"; --! Path to the input file containing cryptotvgen DO testvector data
-        G_FNAME_RDI        : string   := "../KAT/v1/rdi.txt"; --! Path to the input file containing random data
-        G_PRNG_RDI         : boolean  := TRUE; --! Use testbench's internal PRNG to generate RDI input instead of the file `G_FNAME_RDI`
-        G_RANDOM_SEED      : positive := 1; --! Internal PRNG seed, must be positive
-        G_FNAME_LOG        : string   := "log.txt"; --! Path to the generated log file
-        G_FNAME_TIMING     : string   := "timing.txt"; --! Path to the generated timing measurements (when G_TEST_MODE=4)
+        G_MAX_FAILURES     : natural  := 0;                        --! Maximum number of failures before stopping the simulation
+        G_TEST_MODE        : natural  := 0;                        --! 0: normal, 1: stall both sdi/pdi_valid and do_ready, 2: stall sdi/pdi_valid, 3: stall do_ready, 4: Timing (cycle) measurement 
+        G_PDI_STALLS       : natural  := 3;                        --! Number of cycles to stall pdi_valid
+        G_SDI_STALLS       : natural  := 3;                        --! Number of cycles to stall sdi_valid
+        G_DO_STALLS        : natural  := 3;                        --! Number of cycles to stall do_ready
+        G_RDI_STALLS       : natural  := 3;                        --! Number of cycles to stall rdi_valid
+        G_RANDOM_STALL     : boolean  := FALSE;                    --! Stall for a random number of cycles in the range [0..G_xx_STALLS], when G_TEST_MODE = 4
+        G_CLK_PERIOD_PS    : positive := 10_000;                   --! Simulation clock period in picoseconds
+        G_FNAME_PDI        : string   := "../KAT/v1/pdi.txt";      --! Path to the input file containing cryptotvgen PDI testvector data
+        G_FNAME_SDI        : string   := "../KAT/v1/sdi.txt";      --! Path to the input file containing cryptotvgen SDI testvector data
+        G_FNAME_DO         : string   := "../KAT/v1/do.txt";       --! Path to the input file containing cryptotvgen DO testvector data
+        G_FNAME_RDI        : string   := "../KAT/v1/rdi.txt";      --! Path to the input file containing random data
+        G_PRNG_RDI         : boolean  := TRUE;                     --! Use testbench's internal PRNG to generate RDI input instead of the file `G_FNAME_RDI`
+        G_RANDOM_SEED      : positive := 1;                        --! Internal PRNG seed, must be positive
+        G_FNAME_LOG        : string   := "log.txt";                --! Path to the generated log file
+        G_FNAME_TIMING     : string   := "timing.txt";             --! Path to the generated timing measurements (when G_TEST_MODE=4)
         G_FNAME_FAILED_TVS : string   := "failed_testvectors.txt"; --! Path to the generated log of failed testvector words
-        G_FNAME_RESULT     : string   := "result.txt"; --! Path to the generated result file containing 0 or 1  -- REDUNDANT / NOT USED
-        G_PRERESET_WAIT_PS : natural  := 0; --! Time (in picoseconds) to wait before reseting UUT. Xilinx GSR takes 100ns, required for post-synth simulation
-        G_INPUT_DELAY_PS   : natural  := 1_500; --! Input delay in picoseconds
-        G_TIMEOUT_CYCLES   : integer  := 10_000; --! Fail simulation after this many consecutive cycles of data I/O inactivity, 0: disable timeout
-        G_VERBOSE_LEVEL    : integer  := 0; --! Verbosity level;
-        G_LWC_WRAPPER      : boolean  := FALSE
+        G_FNAME_RESULT     : string   := "result.txt";             --! Path to the generated result file containing 0 or 1  -- REDUNDANT / NOT USED
+        G_PRERESET_WAIT_PS : natural  := 0;                        --! Time (in picoseconds) to wait before reseting UUT. NOTE: Xilinx simulation library has a GSR reset time of 100_000 ps. Set to 100_000 (or higher) for Vivado/Xilinx post-synthesis/timing simulations.
+        G_INPUT_DELAY_PS   : natural  := 0;                        --! Input delay in picoseconds
+        G_TIMEOUT_CYCLES   : integer  := 10_000;                   --! Fail simulation after this many consecutive cycles of data I/O inactivity, 0: disable timeout
+        G_VERBOSE_LEVEL    : integer  := 0                         --! Verbosity level
     );
 end LWC_TB;
 
 architecture TB of LWC_TB is
     --================================================== Constants ==================================================--
-    function GET_RW return positive is
-    begin
-        if RW > 0 and G_LWC_WRAPPER then
-            return 0;
-        end if;
-        return RW;
-    end function;
-
-    constant RW          : positive       := GET_RW;
     constant W_S         : positive       := W * PDI_SHARES;
     constant SW_S        : positive       := SW * SDI_SHARES;
     constant input_delay : TIME           := G_INPUT_DELAY_PS * ps;
@@ -88,37 +78,37 @@ architecture TB of LWC_TB is
 
     --=================================================== Signals ===================================================--
     --! stop clock generation
-    signal stop_clock          : boolean                             := False;
+    signal stop_clock              : boolean                             := False;
     --! initial reset of UUT is complete
-    signal reset_done          : boolean                             := False;
+    signal reset_done              : boolean                             := False;
     --=================================================== Wirings ===================================================--
-    signal clk                 : std_logic                           := '0';
-    signal rst                 : std_logic                           := '0';
+    signal clk                     : std_logic                           := '0';
+    signal rst                     : std_logic                           := '0';
     --! PDI
-    signal pdi_data            : std_logic_vector(W_S - 1 downto 0)  := (others => '0');
-    signal pdi_data_delayed    : std_logic_vector(W_S - 1 downto 0)  := (others => '0');
-    signal pdi_valid           : std_logic                           := '0';
-    signal pdi_valid_delayed   : std_logic                           := '0';
-    signal pdi_ready           : std_logic;
+    signal pdi_data                : std_logic_vector(W_S - 1 downto 0)  := (others => '0');
+    signal pdi_data_delayed        : std_logic_vector(W_S - 1 downto 0)  := (others => '0');
+    signal pdi_valid               : std_logic                           := '0';
+    signal pdi_valid_delayed       : std_logic                           := '0';
+    signal pdi_ready               : std_logic;
     --! SDI
-    signal sdi_data            : std_logic_vector(SW_S - 1 downto 0) := (others => '0');
-    signal sdi_data_delayed    : std_logic_vector(SW_S - 1 downto 0) := (others => '0');
-    signal sdi_valid           : std_logic                           := '0';
-    signal sdi_valid_delayed   : std_logic                           := '0';
-    signal sdi_ready           : std_logic;
+    signal sdi_data                : std_logic_vector(SW_S - 1 downto 0) := (others => '0');
+    signal sdi_data_delayed        : std_logic_vector(SW_S - 1 downto 0) := (others => '0');
+    signal sdi_valid               : std_logic                           := '0';
+    signal sdi_valid_delayed       : std_logic                           := '0';
+    signal sdi_ready               : std_logic;
     --! DO
-    signal do_data             : std_logic_vector(W_S - 1 downto 0);
-    signal do_valid            : std_logic;
-    signal do_last             : std_logic;
-    signal do_ready            : std_logic                           := '0';
-    signal do_ready_delayed    : std_logic                           := '0';
+    signal do_data                 : std_logic_vector(W_S - 1 downto 0);
+    signal do_valid                : std_logic;
+    signal do_last                 : std_logic;
+    signal do_ready                : std_logic                           := '0';
+    signal do_ready_delayed        : std_logic                           := '0';
     -- Used only for protected implementations:
     --   RDI
-    signal rdi_data            : std_logic_vector(RW - 1 downto 0)   := (others => '0');
-    signal rdi_data_delayed    : std_logic_vector(RW - 1 downto 0)   := (others => '0');
-    signal rdi_valid           : std_logic                           := '0';
-    signal rdi_valid_delayed   : std_logic                           := '0';
-    signal rdi_ready           : std_logic;
+    signal rdi_data                : std_logic_vector(RW - 1 downto 0)   := (others => '0');
+    signal rdi_data_delayed        : std_logic_vector(RW - 1 downto 0)   := (others => '0'); -- @suppress "signal rdi_data_delayed is never read"
+    signal rdi_valid               : std_logic                           := '0';
+    signal rdi_valid_delayed       : std_logic                           := '0';
+    signal rdi_ready               : std_logic; -- @suppress "signal rdi_ready is never written"
     -- Counters
     signal pdi_operation_count     : integer                             := 0;
     signal cycle_counter           : natural                             := 0;
@@ -520,7 +510,7 @@ begin
     --===========================================================================================--
     --=================================== DO Verification =======================================--
     tb_verify_do : process
-        variable line_no      : integer := 0;
+        variable line_no      : integer := 1; -- starting from 1 as most text editors
         variable line_data    : LINE;
         variable logMsg       : LINE;
         variable logMsg2      : LINE;

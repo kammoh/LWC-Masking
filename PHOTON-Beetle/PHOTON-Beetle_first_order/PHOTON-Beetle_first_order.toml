@@ -6,9 +6,9 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    { uri = "../../LWC/LWC.toml", rtl.pos = 2 }, 
-    "../../gadgets.toml",
-    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+	{ uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 },
+	"../../gadgets.toml",
+	{ uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 [rtl]
@@ -83,6 +83,6 @@ order = 1
 [tb]
 sources = ["../../LWC/LWC_TB_SCA.vhd"]
 top = "LWC_TB"
-parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
-parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
-parameters.G_FNAME_DO = {file = "KAT/do.txt"}
+parameters.G_FNAME_PDI = { file = "KAT/pdi_shared_2.txt" }
+parameters.G_FNAME_SDI = { file = "KAT/sdi_shared_2.txt" }
+parameters.G_FNAME_DO = { file = "KAT/do.txt" }

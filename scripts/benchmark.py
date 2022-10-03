@@ -39,7 +39,7 @@ class Lwc(BaseModel):
     class Aead(BaseModel):
         class InputSequence(BaseModel):
             encrypt: Sequence[str] = Field(  # "ad", "pt", "ct", "data" (pt/ct), "npub", "tag", "length"
-                ["npub", "ad", "pt", "tag"],
+                ["npub", "ad", "pt"],
                 description="Sequence of inputs during encryption",
             )
             decrypt: Sequence[str] = Field(
@@ -365,10 +365,11 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
         design_root_dir = Path.cwd()
     tv_dir = design_root_dir / "BENCH_KAT" / design.name
     timing_report = Path.cwd() / (design.name + "_timing.txt")
-    if not cref_dir:
+    if cref_dir is None:
         cref_dir = design.root_path / "cref"
-        if not cref_dir.exists():
-            cref_dir = None
+    if not cref_dir or not cref_dir.exists():
+        print(f"cref_dir={cref_dir} not found! disabled.")
+        cref_dir = None
     if build:
         algs = []
         if lwc.aead and lwc.aead.algorithm:

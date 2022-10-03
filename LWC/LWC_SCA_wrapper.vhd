@@ -161,9 +161,6 @@ begin
     );
 
   INST_LWC : entity work.LWC_SCA
-    generic map(
-      G_DO_FIFO_DEPTH => 1
-    )
     port map(
       clk       => clk,
       rst       => rst,
