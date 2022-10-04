@@ -9,4 +9,3 @@ xeda_run
 tmp/*
 *.log
 cryptotvgen.log
-*.csv

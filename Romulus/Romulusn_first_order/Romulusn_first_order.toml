@@ -6,16 +6,16 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    "../../gadgets.toml",
-    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+	"../../gadgets.toml",
+	{ uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 
 [rtl]
 sources = [
-    "src_rtl/LWC_config.vhd",
-    "src_rtl/LWC_config2.v",
-    "src_rtl/NIST_LWAPI_pkg.vhd",
+	"src_rtl/LWC_config.vhd",
+	"src_rtl/LWC_config2.v",
+	"src_rtl/NIST_LWAPI_pkg.vhd",
 	"src_rtl/api.v",
 	"src_rtl/SkinnyPKG.vhd",
 	"src_rtl/HPermutation.vhd",
@@ -63,6 +63,8 @@ top = "LWC_TB"
 parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
 parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
 parameters.G_FNAME_DO = {file = "KAT/do.txt"}
+parameters.G_TEST_MODE = 0
+parameters.G_MAX_FAILURES = 0
 
 [lwc.aead]
 algorithm = "romulusn"
