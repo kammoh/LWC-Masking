@@ -38,8 +38,9 @@ class Lwc(BaseModel):
 
     class Aead(BaseModel):
         class InputSequence(BaseModel):
-            encrypt: Sequence[str] = Field(  # "ad", "pt", "ct", "data" (pt/ct), "npub", "tag", "length"
-                ["npub", "ad", "pt"],
+            #  input/output types: "ad", "pt", "ct", "data" (pt/ct), "npub", "tag", "length", ...
+            encrypt: Sequence[str] = Field(
+                ["npub", "ad", "pt"],  # "tag" is not an input in encrypt
                 description="Sequence of inputs during encryption",
             )
             decrypt: Sequence[str] = Field(
@@ -182,29 +183,33 @@ def gen_tv(
             "--aead",
             lwc.aead.algorithm,
         ]
+
         def fix_key_names(in_seq):
             return ["data" if i.lower() in ("ct", "pt") else i.lower() for i in in_seq]
-        input_sequence = lwc.aead.input_sequence.encrypt
+
+        input_sequence = list(lwc.aead.input_sequence.encrypt)
+        if (
+            "tag" not in input_sequence
+        ):  # cryptptvgen's enc_msg_format is output sequence!!! FIXME??!!
+            input_sequence.append("tag")
         if input_sequence:
-            args += [
-                "--enc_msg_format", *fix_key_names(input_sequence)
-            ]
-        input_sequence = lwc.aead.input_sequence.decrypt
+            args += ["--enc_msg_format", *fix_key_names(input_sequence)]
+        input_sequence = list(lwc.aead.input_sequence.decrypt)
         if input_sequence:
-            args += [
-                "--dec_msg_format", *fix_key_names(input_sequence)
-            ]
+            args += ["--dec_msg_format", *fix_key_names(input_sequence)]
 
     if lwc.hash:
         args += [
             "--hash",
             lwc.hash.algorithm,
         ]
-    block_bits = {k.upper():v for k,v in lwc.block_bits.items()}
+    block_bits = {k.upper(): v for k, v in lwc.block_bits.items()}
     if "XT" in block_bits:
         block_bits["PT"] = block_bits["XT"]
         block_bits["CT"] = block_bits["XT"]
-    elif "PT" in block_bits and (not  "CT" in block_bits or block_bits["PT"] == block_bits["CT"]):
+    elif "PT" in block_bits and (
+        not "CT" in block_bits or block_bits["PT"] == block_bits["CT"]
+    ):
         block_bits["XT"] = block_bits["PT"]
     elif "CT" in block_bits:
         block_bits["XT"] = block_bits["CT"]
