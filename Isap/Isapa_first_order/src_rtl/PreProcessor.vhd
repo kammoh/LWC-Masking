@@ -35,32 +35,27 @@ use work.design_pkg.all;
 
 
 entity PreProcessor is
-	generic (
-		G_W          : integer;
-		G_SW         : integer;
-		G_ASYNC_RSTN : boolean	
-	);
     port (  
             clk             : in  std_logic;
             rst             : in  std_logic;
             --! Public Data input (pdi) ========================================
-            pdi_data        : in  STD_LOGIC_VECTOR(PDI_SHARES * G_W - 1 downto 0);
+            pdi_data        : in  STD_LOGIC_VECTOR(PDI_SHARES * W - 1 downto 0);
             pdi_valid       : in  std_logic;
             pdi_ready       : out std_logic;
             --! Secret Data input (sdi) ========================================
-            sdi_data        : in  STD_LOGIC_VECTOR(SDI_SHARES * G_SW - 1 downto 0);
+            sdi_data        : in  STD_LOGIC_VECTOR(SDI_SHARES * SW - 1 downto 0);
             sdi_valid       : in  std_logic;
             sdi_ready       : out std_logic;
 
             --! Crypto Core ====================================================
-            key             : out std_logic_vector(SDI_SHARES * CCSW - 1 downto 0);
+            key_data        : out std_logic_vector(SDI_SHARES * CCSW - 1 downto 0);
             key_valid       : out std_logic;
             key_ready       : in  std_logic;
-            bdi             : out std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
+            bdi_data        : out std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
             bdi_valid       : out std_logic;
             bdi_ready       : in  std_logic;
-            bdi_pad_loc     : out std_logic_vector(CCWdiv8 -1 downto 0);
-            bdi_valid_bytes : out std_logic_vector(CCWdiv8 -1 downto 0);
+            bdi_pad_loc     : out std_logic_vector(CCW/8 -1 downto 0);
+            bdi_valid_bytes : out std_logic_vector(CCW/8 -1 downto 0);
             bdi_size        : out std_logic_vector(2 downto 0);
             bdi_eot         : out std_logic;
             bdi_eoi         : out std_logic;
@@ -69,7 +64,7 @@ entity PreProcessor is
             hash            : out std_logic;
             key_update      : out std_logic;
             ---! Header FIFO ===================================================
-            cmd             : out std_logic_vector(G_W - 1 downto 0);
+            cmd_data        : out std_logic_vector(W - 1 downto 0);
             cmd_valid       : out std_logic;
             cmd_ready       : in  std_logic
         );
@@ -104,7 +99,7 @@ architecture PreProcessor of PreProcessor is
     --Controller
     signal bdi_eoi_internal  : std_logic;
     signal bdi_eot_internal  : std_logic;
-    constant zero_data       : std_logic_vector(PDI_SHARES * G_W - 1 downto 0):=(others=>'0');
+    constant zero_data       : std_logic_vector(PDI_SHARES * W - 1 downto 0):=(others=>'0');
 
 
     ---STATES
@@ -129,7 +124,7 @@ begin
     SegLen: entity work.StepDownCountLd(StepDownCountLd)
         generic map(
                 N       =>  16,
-                step    =>  (G_W/8)
+                step    =>  (W/8)
                     )
         port map
                 (
@@ -140,9 +135,9 @@ begin
                 count   =>  dout_SegLenCnt
             );
 
-    -- if there are (G_W/8) or less bytes left, we processthe last flit
+    -- if there are (W/8) or less bytes left, we processthe last flit
     last_flit_of_segment <= '1' when
-        (to_integer(to_01(unsigned(dout_SegLenCnt))) <= (G_W/8)) else '0';
+        (to_integer(to_01(unsigned(dout_SegLenCnt))) <= (W/8)) else '0';
 
     -- set valid bytes
     with (to_integer(to_01(unsigned(dout_SegLenCnt)))) select
@@ -175,13 +170,13 @@ begin
     --! output assignment
     hash    <= hash_internal;
     decrypt <= decrypt_internal;
-    cmd     <= pdi_data(PDI_SHARES * G_W - 1 downto (PDI_SHARES - 1) * G_W);
+    cmd_data     <= pdi_data(PDI_SHARES * W - 1 downto (PDI_SHARES - 1) * W);
 
    -- ====================================================================================================
    --! 32 bit specific FSM -------------------------------------------------------------------------------
    -- ====================================================================================================
 
-FSM_32BIT: if (G_W=32) generate
+FSM_32BIT: if (W=32) generate
 
     --! 32 Bit specific declarations
     signal nx_state, pr_state: t_state32;
@@ -192,10 +187,10 @@ FSM_32BIT: if (G_W=32) generate
     signal bdi_size_p  : std_logic_vector(2 downto 0);
 
     ---ALIAS
-    alias pdi_opcode     : std_logic_vector( 3 downto 0) is pdi_data((PDI_SHARES - 1) * G_W + 31 downto (PDI_SHARES - 1) * G_W + 28);
-    alias sdi_opcode     : std_logic_vector( 3 downto 0) is sdi_data((SDI_SHARES - 1) * G_SW + 31 downto (SDI_SHARES - 1) * G_SW + 28);
-    alias pdi_seg_length : std_logic_vector(15 downto 0) is pdi_data((PDI_SHARES - 1) * G_W + 15 downto (PDI_SHARES - 1) * G_W + 0);
-    alias sdi_seg_length : std_logic_vector(15 downto 0) is sdi_data((SDI_SHARES - 1) * G_SW + 15 downto (SDI_SHARES - 1) * G_SW + 0);
+    alias pdi_opcode     : std_logic_vector( 3 downto 0) is pdi_data((PDI_SHARES - 1) * W + 31 downto (PDI_SHARES - 1) * W + 28);
+    alias sdi_opcode     : std_logic_vector( 3 downto 0) is sdi_data((SDI_SHARES - 1) * SW + 31 downto (SDI_SHARES - 1) * SW + 28);
+    alias pdi_seg_length : std_logic_vector(15 downto 0) is pdi_data((PDI_SHARES - 1) * W + 15 downto (PDI_SHARES - 1) * W + 0);
+    alias sdi_seg_length : std_logic_vector(15 downto 0) is sdi_data((SDI_SHARES - 1) * SW + 15 downto (SDI_SHARES - 1) * SW + 0);
 
     begin
 
@@ -210,12 +205,12 @@ FSM_32BIT: if (G_W=32) generate
     bdi_eot_internal  <= eot_flag and last_flit_of_segment;
 
     --! KEY PISO
-    key <= sdi_data;
+    key_data <= sdi_data;
     key_valid <= key_valid_p;
     key_ready_p <= key_ready;
 
     --! DATA PISO
-    bdi <= pdi_data;
+    bdi_data <= pdi_data;
     bdi_valid <= bdi_valid_p;
     bdi_ready_p <= bdi_ready;
     bdi_valid_bytes <= bdi_valid_bytes_p;
@@ -225,7 +220,7 @@ FSM_32BIT: if (G_W=32) generate
     bdi_size <= bdi_size_p;    
 
     --! State register
-    GEN_proc_SYNC_RST: if (not G_ASYNC_RSTN) generate
+    GEN_proc_SYNC_RST: if (not ASYNC_RSTN) generate
         process (clk)
         begin
             if rising_edge(clk) then
@@ -237,7 +232,7 @@ FSM_32BIT: if (G_W=32) generate
             end if;
         end process;
     end generate GEN_proc_SYNC_RST;
-    GEN_proc_ASYNC_RSTN: if (G_ASYNC_RSTN) generate
+    GEN_proc_ASYNC_RSTN: if (ASYNC_RSTN) generate
         process (clk, rst)
         begin
             if(rst='0')  then
@@ -494,7 +489,7 @@ FSM_32BIT: if (G_W=32) generate
                 if (pdi_opcode = INST_ENC or pdi_opcode = INST_DEC) then
                     if (pdi_valid = '1') then
                         -- pdi_data(28) is 1 if INST_DEC, else it is '0' if INST_ENC
-                        nx_decrypt_internal <= pdi_data((PDI_SHARES - 1) * G_W + 28);
+                        nx_decrypt_internal <= pdi_data((PDI_SHARES - 1) * W + 28);
                         cmd_valid           <= '1'; --Forward instruction
                         pdi_ready           <= cmd_ready; -- isap todo?
                     end if;
@@ -528,8 +523,8 @@ FSM_32BIT: if (G_W=32) generate
                 pdi_ready       <= '1';
                 len_SegLenCnt   <= pdi_valid;
                 if (pdi_valid = '1') then
-                    nx_eoi_flag <= pdi_data((PDI_SHARES - 1) * G_W + 26);
-                    nx_eot_flag <= pdi_data((PDI_SHARES - 1) * G_W + 25);
+                    nx_eoi_flag <= pdi_data((PDI_SHARES - 1) * W + 26);
+                    nx_eot_flag <= pdi_data((PDI_SHARES - 1) * W + 25);
                 end if;
 
             when S_LD_NPUB =>
@@ -543,8 +538,8 @@ FSM_32BIT: if (G_W=32) generate
                 pdi_ready       <='1';
                 len_SegLenCnt   <= pdi_valid;
                 if (pdi_valid = '1') then
-                    nx_eoi_flag <= pdi_data((PDI_SHARES - 1) * G_W + 26);
-                    nx_eot_flag <= pdi_data((PDI_SHARES - 1) * G_W + 25);
+                    nx_eoi_flag <= pdi_data((PDI_SHARES - 1) * W + 26);
+                    nx_eot_flag <= pdi_data((PDI_SHARES - 1) * W + 25);
                 end if;
 
             when S_LD_AD =>
@@ -559,8 +554,8 @@ FSM_32BIT: if (G_W=32) generate
                 pdi_ready       <= cmd_ready;
                 len_SegLenCnt   <= pdi_valid and cmd_ready;
                 if (pdi_valid = '1' and cmd_ready = '1') then
-                    nx_eoi_flag <= pdi_data((PDI_SHARES - 1) * G_W + 26);
-                    nx_eot_flag <= pdi_data((PDI_SHARES - 1) * G_W + 25);
+                    nx_eoi_flag <= pdi_data((PDI_SHARES - 1) * W + 26);
+                    nx_eot_flag <= pdi_data((PDI_SHARES - 1) * W + 25);
                 end if;
 
             when S_LD_MSG =>
@@ -592,8 +587,8 @@ FSM_32BIT: if (G_W=32) generate
                 pdi_ready       <= '1';
                 len_SegLenCnt   <= pdi_valid;
                 if (pdi_valid = '1') then
-                    nx_eoi_flag <= pdi_data((PDI_SHARES - 1) * G_W + 26);
-                    nx_eot_flag <= pdi_data((PDI_SHARES - 1) * G_W + 25);
+                    nx_eoi_flag <= pdi_data((PDI_SHARES - 1) * W + 26);
+                    nx_eot_flag <= pdi_data((PDI_SHARES - 1) * W + 25);
                 end if;
 
             when S_LD_HASH =>

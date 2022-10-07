@@ -1,11 +1,11 @@
 --------------------------------------------------------------------------------
---   ____                  _           ____                         ___ ____    _    ____  
---  / ___|_ __ _   _ _ __ | |_ ___    / ___|___  _ __ ___          |_ _/ ___|  / \  |  _ \ 
+--   ____                  _           ____                         ___ ____    _    ____
+--  / ___|_ __ _   _ _ __ | |_ ___    / ___|___  _ __ ___          |_ _/ ___|  / \  |  _ \
 -- | |   | '__| | | | '_ \| __/ _ \  | |   / _ \| '__/ _ \  _____   | |\___ \ / _ \ | |_) |
--- | |___| |  | |_| | |_) | || (_) | | |__| (_) | | |  __/ |_____|  | | ___) / ___ \|  __/ 
---  \____|_|   \__, | .__/ \__\___/   \____\___/|_|  \___|         |___|____/_/   \_\_|    
---	           |___/|_|                                                                    
--- 
+-- | |___| |  | |_| | |_) | || (_) | | |__| (_) | | |  __/ |_____|  | | ___) / ___ \|  __/
+--  \____|_|   \__, | .__/ \__\___/   \____\___/|_|  \___|         |___|____/_/   \_\_|
+--             |___/|_|
+--
 --------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -32,8 +32,8 @@ ENTITY CryptoCore_SCA_2pass IS
 		bdi : IN STD_LOGIC_VECTOR (PDI_SHARES * CCW - 1 DOWNTO 0);
 		bdi_valid : IN STD_LOGIC;
 		bdi_ready : OUT STD_LOGIC;
-		bdi_pad_loc : IN STD_LOGIC_VECTOR (CCWdiv8 - 1 DOWNTO 0);
-		bdi_valid_bytes : IN STD_LOGIC_VECTOR (CCWdiv8 - 1 DOWNTO 0);
+		bdi_pad_loc : IN STD_LOGIC_VECTOR (CCW/8 - 1 DOWNTO 0);
+		bdi_valid_bytes : IN STD_LOGIC_VECTOR (CCW/8 - 1 DOWNTO 0);
 		bdi_size : IN STD_LOGIC_VECTOR (3 - 1 DOWNTO 0);
 		bdi_eot : IN STD_LOGIC;
 		bdi_eoi : IN STD_LOGIC;
@@ -48,44 +48,44 @@ ENTITY CryptoCore_SCA_2pass IS
 		bdo_valid : OUT STD_LOGIC;
 		bdo_ready : IN STD_LOGIC;
 		bdo_type : OUT STD_LOGIC_VECTOR (4 - 1 DOWNTO 0);
-		bdo_valid_bytes : OUT STD_LOGIC_VECTOR (CCWdiv8 - 1 DOWNTO 0);
+		bdo_valid_bytes : OUT STD_LOGIC_VECTOR (CCW/8 - 1 DOWNTO 0);
 		end_of_block : OUT STD_LOGIC;
 		-- decrypt_out : OUT STD_LOGIC;
 		msg_auth_valid : OUT STD_LOGIC;
 		msg_auth_ready : IN STD_LOGIC;
 		msg_auth : OUT STD_LOGIC;
 		rdi             : in  std_logic_vector(RW - 1 downto 0);
-        rdi_valid       : in  std_logic;
-        rdi_ready       : out std_logic;
+		rdi_valid       : in  std_logic;
+		rdi_ready       : out std_logic;
 		-----------------------------------------------------------------------
 		-- Two-Pass-FIFO
 		-----------------------------------------------------------------------
-        fdi_data         : in std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
-        fdi_valid        : in std_logic;
-        fdi_ready        : out std_logic;
-        fdo_data         : out std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
-        fdo_valid        : out std_logic;
-        fdo_ready        : in  std_logic
+		fdi_data         : in std_logic_vector(PDI_SHARES * W - 1 downto 0);
+		fdi_valid        : in std_logic;
+		fdi_ready        : out std_logic;
+		fdo_data         : out std_logic_vector(PDI_SHARES * W - 1 downto 0);
+		fdo_valid        : out std_logic;
+		fdo_ready        : in  std_logic
 	);
 END CryptoCore_SCA_2pass;
 
 ARCHITECTURE behavioral OF CryptoCore_SCA_2pass IS
-    component Asconp_HPC2_ClockGating_d1 is
-        port(
-            clk : in std_logic;
-            state_in_s0 : in std_logic_vector (319 downto 0);
-            state_in_s1 : in std_logic_vector (319 downto 0);
-            state_out_s0 : out std_logic_vector (319 downto 0);
-            state_out_s1 : out std_logic_vector (319 downto 0);
-            rcon : in std_logic_vector (3 downto 0);
-            fresh : in std_logic_vector (319 downto 0)
-        );
-    end component;
+	component Asconp_HPC2_ClockGating_d1 is
+		port(
+			clk : in std_logic;
+			state_in_s0 : in std_logic_vector (319 downto 0);
+			state_in_s1 : in std_logic_vector (319 downto 0);
+			state_out_s0 : out std_logic_vector (319 downto 0);
+			state_out_s1 : out std_logic_vector (319 downto 0);
+			rcon : in std_logic_vector (3 downto 0);
+			fresh : in std_logic_vector (319 downto 0)
+		);
+	end component;
 
-    SIGNAL isap_state_cur_word_s_reg : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
-    SIGNAL isap_state_cur_word_s_reg_unshared : std_logic_vector(CCW - 1 DOWNTO 0);
-    SIGNAL bdi_s_reg : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
-    SIGNAL bdi_s_reg_unshared : std_logic_vector(CCW - 1 DOWNTO 0);    
+	SIGNAL isap_state_cur_word_s_reg : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
+	SIGNAL isap_state_cur_word_s_reg_unshared : std_logic_vector(CCW - 1 DOWNTO 0);
+	SIGNAL bdi_s_reg : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
+	SIGNAL bdi_s_reg_unshared : std_logic_vector(CCW - 1 DOWNTO 0);
 	---------------------------------------------------------------------------
 	--! Constant Values
 	---------------------------------------------------------------------------
@@ -95,40 +95,39 @@ ARCHITECTURE behavioral OF CryptoCore_SCA_2pass IS
 	CONSTANT BLOCK_WORDS_C : INTEGER := get_words(p_rH, CCW);
 	CONSTANT TAG_WORDS_C : INTEGER := get_words(p_k, CCW);
 	CONSTANT KEY_WORDS_C : INTEGER := get_words(p_k, CCW);
-    CONSTANT STATE_WORDS_C : INTEGER := get_words(p_n, CCW);
 
 	---------------------------------------------------------------------------
 	--! State Signals
 	---------------------------------------------------------------------------
-    TYPE state_t IS (IDLE,
-    STORE_KEY,
-    STORE_NONCE,
-    WAIT_INPUT_TYPE,
-    ISAP_RK_SETUP_STATE,
-    ISAP_RK_INITIALIZE,
-    ISAP_RK_REKEYING,
-    ISAP_RK_SQUEEZE,
-    ISAP_ENC_INITIALIZE,
-    ISAP_ENC_PERMUTE_PE,
-    ISAP_ENC_SEND_CT,
-    ISAP_MAC_SETUP_STATE,
-    ISAP_MAC_INITIALIZE,
-    ISAP_MAC_WAIT_INPUT,
-    ISAP_MAC_ABSORB_AD,
-    ISAP_MAC_PROCESS_AD,
-    ISAP_MAC_ABSORB_AD_PAD,
-    ISAP_MAC_DOMAIN_SEPERATION,
-    ISAP_MAC_ABSORB_CT,
-    ISAP_MAC_PROCESS_CT,
-    ISAP_MAC_ABSORB_CT_PAD,
-    ISAP_MAC_FINALIZE_AFTER_RK_STATE_SETUP,
-    ISAP_MAC_FINALIZE_PERMUTE_PH,
-    ISAP_ENC_SQUEEZE_BLOCK,
-    EXTRACT_TAG,
-    VERIFY_TAG,
-    WAIT_ACK,
-    HASH_SETUP_STATE,
-    EXTRACT_HASH_VALUE);
+	TYPE state_t IS (IDLE,
+		STORE_KEY,
+		STORE_NONCE,
+		WAIT_INPUT_TYPE,
+		ISAP_RK_SETUP_STATE,
+		ISAP_RK_INITIALIZE,
+		ISAP_RK_REKEYING,
+		ISAP_RK_SQUEEZE,
+		ISAP_ENC_INITIALIZE,
+		ISAP_ENC_PERMUTE_PE,
+		ISAP_ENC_SEND_CT,
+		ISAP_MAC_SETUP_STATE,
+		ISAP_MAC_INITIALIZE,
+		ISAP_MAC_WAIT_INPUT,
+		ISAP_MAC_ABSORB_AD,
+		ISAP_MAC_PROCESS_AD,
+		ISAP_MAC_ABSORB_AD_PAD,
+		ISAP_MAC_DOMAIN_SEPERATION,
+		ISAP_MAC_ABSORB_CT,
+		ISAP_MAC_PROCESS_CT,
+		ISAP_MAC_ABSORB_CT_PAD,
+		ISAP_MAC_FINALIZE_AFTER_RK_STATE_SETUP,
+		ISAP_MAC_FINALIZE_PERMUTE_PH,
+		ISAP_ENC_SQUEEZE_BLOCK,
+		EXTRACT_TAG,
+		VERIFY_TAG,
+		WAIT_ACK,
+		HASH_SETUP_STATE,
+		EXTRACT_HASH_VALUE);
 	SIGNAL n_state_s, state_s : state_t;
 
 	TYPE isap_encmac_t IS (ISAP_ENC, ISAP_MAC);
@@ -149,18 +148,18 @@ ARCHITECTURE behavioral OF CryptoCore_SCA_2pass IS
 	SIGNAL key_ready_s : std_logic;
 	SIGNAL bdi_ready_s : std_logic;
 	SIGNAL bdi_s : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
-	
-	SIGNAL bdi_valid_bytes_s : std_logic_vector(CCWdiv8 - 1 DOWNTO 0);
+
+	SIGNAL bdi_valid_bytes_s : std_logic_vector(CCW/8 - 1 DOWNTO 0);
 
 	-- Internal port signals: Output
 	SIGNAL bdo_s : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
-	SIGNAL bdo_valid_bytes_s : std_logic_vector(CCWdiv8 - 1 DOWNTO 0);
+	SIGNAL bdo_valid_bytes_s : std_logic_vector(CCW/8 - 1 DOWNTO 0);
 	SIGNAL bdo_valid_s : std_logic;
 	SIGNAL bdo_type_s : std_logic_vector(3 DOWNTO 0);
 	SIGNAL end_of_block_s : std_logic;
 	SIGNAL msg_auth_valid_s : std_logic;
-    SIGNAL bdi_pad_loc_s : std_logic_vector(CCWdiv8 - 1 DOWNTO 0);
-    SIGNAL bdoo_s : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
+	SIGNAL bdi_pad_loc_s : std_logic_vector(CCW/8 - 1 DOWNTO 0);
+	SIGNAL bdoo_s : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
 
 	-- Internal flags
 	SIGNAL n_msg_auth_s, msg_auth_s : std_logic;
@@ -168,14 +167,14 @@ ARCHITECTURE behavioral OF CryptoCore_SCA_2pass IS
 	SIGNAL n_eoi_s, eoi_s : std_logic;
 	SIGNAL n_eot_s, eot_s : std_logic;
 	SIGNAL n_fifo_words_s, fifo_words_s : INTEGER RANGE 0 TO 65535;
-    SIGNAL n_empty_hash_s, empty_hash_s : std_logic;
-    SIGNAL n_hash_s, hash_s : std_logic;
-        
+	SIGNAL n_empty_hash_s, empty_hash_s : std_logic;
+	SIGNAL n_hash_s, hash_s : std_logic;
+
 	-- ISAP
 	SIGNAL isap_state_s : std_logic_vector(PDI_SHARES * p_n - 1 DOWNTO 0);
 	SIGNAL isap_state_s_s0, isap_state_s_s1 : std_logic_vector(p_k - 1 DOWNTO 0);
-    SIGNAL isap_state_n_s : std_logic_vector(PDI_SHARES * p_n - 1 DOWNTO 0);
-	SIGNAL isap_cnt_s : std_logic_vector(7 DOWNTO 0); 
+	SIGNAL isap_state_n_s : std_logic_vector(PDI_SHARES * p_n - 1 DOWNTO 0);
+	SIGNAL isap_cnt_s : std_logic_vector(7 DOWNTO 0);
 	SIGNAL delay_cnt_s : std_logic_vector(1 DOWNTO 0);
 	SIGNAL isap_cnt_y_s : integer RANGE 0 TO 127;
 	SIGNAL isap_key_s : std_logic_vector(PDI_SHARES * p_k - 1 DOWNTO 0);
@@ -193,8 +192,8 @@ ARCHITECTURE behavioral OF CryptoCore_SCA_2pass IS
 	SIGNAL fifo_dout_ready_s : std_logic;
 	SIGNAL fifo_valid_bytes_s : std_logic_vector(CCW/8 - 1 DOWNTO 0);
 	SIGNAL fifo_last_word_valid_bytes_s : std_logic_vector(CCW/8 - 1 DOWNTO 0);
-    SIGNAL fifo_eoi : std_logic;
-    SIGNAL fifo_partial : std_logic;
+	SIGNAL fifo_eoi : std_logic;
+	SIGNAL fifo_partial : std_logic;
 
 	-- Utility signals
 	SIGNAL perm_in_s : std_logic_vector(PDI_SHARES * p_n - 1 DOWNTO 0);
@@ -203,25 +202,22 @@ ARCHITECTURE behavioral OF CryptoCore_SCA_2pass IS
 	SIGNAL bit_idx_s : INTEGER RANGE 0 TO 511;
 	SIGNAL isap_state_cur_word_s : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
 	SIGNAL bdi_partial_s : std_logic;
-	
+
 	SIGNAL bdi_masked_s : std_logic_vector(PDI_SHARES * CCW - 1 DOWNTO 0);
-	
+
 	-- AsconHash signals
-    SIGNAL hash_cnt_s : INTEGER RANGE 0 TO 3;
-    CONSTANT IV_HASH : std_logic_vector(63 DOWNTO 0) := X"00400c0000000100";
+	SIGNAL hash_cnt_s : INTEGER RANGE 0 TO 3;
+	CONSTANT IV_HASH : std_logic_vector(63 DOWNTO 0) := X"00400c0000000100";
 
-    --! Constant to check for empty hash
-    CONSTANT EMPTY_HASH_SIZE_C : std_logic_vector(2 DOWNTO 0) := (OTHERS => '0');
+	--! Constant to check for empty hash
+	CONSTANT EMPTY_HASH_SIZE_C : std_logic_vector(2 DOWNTO 0) := (OTHERS => '0');
 
-	SIGNAL perm_in_s_unshared, perm_out_s_unshared : std_logic_vector(p_n - 1 DOWNTO 0);
+BEGIN
+	isap_state_s_s0 <= isap_state_s(0*p_n+p_k-1 DOWNTO 0*p_n);
+	isap_state_s_s1 <= isap_state_s(1*p_n+p_k-1 DOWNTO 1*p_n);
 
-
-BEGIN      
-    isap_state_s_s0 <= isap_state_s(0*p_n+p_k-1 DOWNTO 0*p_n);    
-    isap_state_s_s1 <= isap_state_s(1*p_n+p_k-1 DOWNTO 1*p_n);    
-
-    isap_state_cur_word_s_reg_unshared <= (others => '0'); --isap_state_cur_word_s_reg(1*CCW-1 downto 0*CCW) xor isap_state_cur_word_s_reg(2*CCW-1 downto 1*CCW);
-    bdi_s_reg_unshared <= (others => '0'); --bdi_s_reg(1*CCW-1 downto 0*CCW) xor bdi_s_reg(2*CCW-1 downto 1*CCW);
+	isap_state_cur_word_s_reg_unshared <= (others => '0'); --isap_state_cur_word_s_reg(1*CCW-1 downto 0*CCW) xor isap_state_cur_word_s_reg(2*CCW-1 downto 1*CCW);
+	bdi_s_reg_unshared <= (others => '0'); --bdi_s_reg(1*CCW-1 downto 0*CCW) xor bdi_s_reg(2*CCW-1 downto 1*CCW);
 
 	----------------------------------------------------------------------------
 	--! I/O Mappings
@@ -230,9 +226,9 @@ BEGIN
 	----------------------------------------------------------------------------
 	key_s <= reverse_byte(key);
 	bdi_s <= reverse_byte(bdi);
-	
+
 	bdi_valid_bytes_s <= reverse_bit(bdi_valid_bytes);
-    bdi_pad_loc_s <= reverse_bit(bdi_pad_loc);
+	bdi_pad_loc_s <= reverse_bit(bdi_pad_loc);
 	key_ready <= key_ready_s;
 	bdi_ready <= bdi_ready_s;
 	bdo <= reverse_byte(bdo_s);
@@ -241,20 +237,19 @@ BEGIN
 	bdo_type <= bdo_type_s;
 	end_of_block <= end_of_block_s;
 	msg_auth <= msg_auth_s;
-	msg_auth_valid <= msg_auth_valid_s;
 	-- decrypt_out <= '1' WHEN isap_auth_encdec_s = AUTH_DEC ELSE '0';
-	
+
 	----------------------------------------------------------------------------
 	--! Two-pass FIFO Mappings
 	----------------------------------------------------------------------------
-    fdo_data <= fifo_din_s;
-    fdo_valid <= fifo_din_valid_s;
-    fifo_din_ready_s <= fdo_ready;
-    fifo_dout_s <= fdi_data;
-    fifo_dout_valid_s <= fdi_valid;
-    fdi_ready <= fifo_dout_ready_s;
-    
-    ---------------------------------------------------------------------------
+	fdo_data <= fifo_din_s;
+	fdo_valid <= fifo_din_valid_s;
+	fifo_din_ready_s <= fdo_ready;
+	fifo_dout_s <= fdi_data;
+	fifo_dout_valid_s <= fdi_valid;
+	fdi_ready <= fifo_dout_ready_s;
+
+	---------------------------------------------------------------------------
 	--! Utility Signals
 	---------------------------------------------------------------------------
 	-- Indicates whether the input word is fully filled or not.
@@ -265,57 +260,54 @@ BEGIN
 	isap_state_cur_word_s(2*CCW-1 downto 1*CCW) <= isap_state_s(1*p_n+bit_idx_s+CCW-1 DOWNTO 1*p_n+bit_idx_s);
 
 	-- Lowest bit index in state that is currently used for data absorption/extraction.
-    bit_idx_s <= word_idx_s * CCW;
+	bit_idx_s <= word_idx_s * CCW;
 
 	-- bdi signal where invalid bytes are set to 0.
 	bdi_masked_s <= mask_zero(bdi_s, bdi_valid_bytes_s);
 
-    perm_in_s_unshared <= perm_in_s(1*p_n-1 downto 0*p_n) xor perm_in_s(2*p_n-1 downto 1*p_n);
-    perm_out_s_unshared <= perm_out_s(1*p_n-1 downto 0*p_n) xor perm_out_s(2*p_n-1 downto 1*p_n);
-		
 	---------------------------------------------------------------------------
 	--! Ascon-p instantiation
 	---------------------------------------------------------------------------
 	g_asconp : IF ((ISAP_TYPE = ISAPA128) OR (ISAP_TYPE = ISAPA128A)) GENERATE
-	    i_Asconp_HPC2_ClockGating_d1: Asconp_HPC2_ClockGating_d1
-            port map (
-                clk => clk,
-                state_in_s0 => perm_in_s(1*p_n-1 DOWNTO 0*p_n),
-                state_in_s1 => perm_in_s(2*p_n-1 DOWNTO 1*p_n),
-                state_out_s0 => perm_out_s(1*p_n-1 DOWNTO 0*p_n),
-                state_out_s1 => perm_out_s(2*p_n-1 DOWNTO 1*p_n),  
-                rcon => isap_cnt_s(3 downto 0),
-                fresh => rdi
-            );
+		i_Asconp_HPC2_ClockGating_d1: Asconp_HPC2_ClockGating_d1
+			port map (
+				clk => clk,
+				state_in_s0 => perm_in_s(1*p_n-1 DOWNTO 0*p_n),
+				state_in_s1 => perm_in_s(2*p_n-1 DOWNTO 1*p_n),
+				state_out_s0 => perm_out_s(1*p_n-1 DOWNTO 0*p_n),
+				state_out_s1 => perm_out_s(2*p_n-1 DOWNTO 1*p_n),
+				rcon => isap_cnt_s(3 downto 0),
+				fresh => rdi
+			);
 	END GENERATE g_asconp;
 
 	---------------------------------------------------------------------------
 	--! Keccak-p[400] instantiation
 	---------------------------------------------------------------------------
---	 g_keccakpp400 : IF ((ISAP_TYPE = ISAPK128) OR (ISAP_TYPE = ISAPK128A)) GENERATE
---	 	i_keccakpp400 : ENTITY work.keccakp400
---	 		PORT MAP(
---	 			state_in => perm_in_s,
---	 			rcon => isap_cnt_s(4 DOWNTO 0),
---	 			state_out => perm_out_s
---	 		);
---	 END GENERATE;
+--   g_keccakpp400 : IF ((ISAP_TYPE = ISAPK128) OR (ISAP_TYPE = ISAPK128A)) GENERATE
+--      i_keccakpp400 : ENTITY work.keccakp400
+--          PORT MAP(
+--              state_in => perm_in_s,
+--              rcon => isap_cnt_s(4 DOWNTO 0),
+--              state_out => perm_out_s
+--          );
+--   END GENERATE;
 
 	----------------------------------------------------------------------------
 	--! Permutation input multiplexer
 	----------------------------------------------------------------------------
-	p_asconp_mux : PROCESS (isap_ctrl_s, isap_state_s, isap_y_s, isap_cnt_y_s)
+	p_asconp_mux : PROCESS (isap_ctrl_s, isap_state_s, isap_y_s)
 	BEGIN
 		CASE isap_ctrl_s IS
-		
+
 			WHEN X"0" =>
 				-- Permutation input => state.
 				perm_in_s <= isap_state_s;
 
 			WHEN X"1" =>
 				-- Permutation input => state xor 1 bit from Y (that is cyclically shifted).
-                perm_in_s(1*p_n-1 downto 0*p_n) <= isap_state_s(1*p_n - 1 DOWNTO 0*p_n+8) & (isap_state_s(0*p_n+7) XOR isap_y_s(0*p_k+127)) & isap_state_s(0*p_n+6 DOWNTO 0*p_n);
-                perm_in_s(2*p_n-1 downto 1*p_n) <= isap_state_s(2*p_n - 1 DOWNTO 1*p_n+8) & (isap_state_s(1*p_n+7) XOR isap_y_s(1*p_k+127)) & isap_state_s(1*p_n+6 DOWNTO 1*p_n);
+				perm_in_s(1*p_n-1 downto 0*p_n) <= isap_state_s(1*p_n - 1 DOWNTO 0*p_n+8) & (isap_state_s(0*p_n+7) XOR isap_y_s(0*p_k+127)) & isap_state_s(0*p_n+6 DOWNTO 0*p_n);
+				perm_in_s(2*p_n-1 downto 1*p_n) <= isap_state_s(2*p_n - 1 DOWNTO 1*p_n+8) & (isap_state_s(1*p_n+7) XOR isap_y_s(1*p_k+127)) & isap_state_s(1*p_n+6 DOWNTO 1*p_n);
 
 			WHEN X"2" =>
 				-- Permutation input => state xor emtpy lane with padding.
@@ -323,79 +315,81 @@ BEGIN
 				perm_in_s(2*p_n-1 downto 1*p_n) <= isap_state_s(2*p_n - 1 DOWNTO 1*p_n+8) & (isap_state_s(1*p_n+7 DOWNTO 1*p_n) XOR X"00");
 			WHEN OTHERS =>
 				perm_in_s <= isap_state_s;
-				
+
 		END CASE;
 	END PROCESS p_asconp_mux;
 
-    -- bdo dynamic slicing
-    p_dynslice_bdo : process (word_idx_s,isap_state_s)
-    begin
-        if word_idx_s < BLOCK_WORDS_C then
-            bdoo_s(1*CCW-1 downto 0*CCW) <= isap_state_s(0*p_n+CCW-1+CCW*word_idx_s DOWNTO 0*p_n+CCW*word_idx_s);
-            bdoo_s(2*CCW-1 downto 1*CCW) <= isap_state_s(1*p_n+CCW-1+CCW*word_idx_s DOWNTO 1*p_n+CCW*word_idx_s);
-        else
-            bdoo_s <= (OTHERS => '0');
-        end if;
-    end process;
-    
+	-- bdo dynamic slicing
+	p_dynslice_bdo : process (word_idx_s,isap_state_s)
+	begin
+		if word_idx_s < BLOCK_WORDS_C then
+			bdoo_s(1*CCW-1 downto 0*CCW) <= isap_state_s(0*p_n+CCW-1+CCW*word_idx_s DOWNTO 0*p_n+CCW*word_idx_s);
+			bdoo_s(2*CCW-1 downto 1*CCW) <= isap_state_s(1*p_n+CCW-1+CCW*word_idx_s DOWNTO 1*p_n+CCW*word_idx_s);
+		else
+			bdoo_s <= (OTHERS => '0');
+		end if;
+	end process;
+
 	----------------------------------------------------------------------------
 	--! fifo out valid bytes
 	----------------------------------------------------------------------------
 	p_fifo_val_bytes : PROCESS (fifo_last_word_valid_bytes_s,fifo_dout_valid_s, fifo_words_s,fifo_valid_bytes_s)
 	BEGIN
 		CASE fifo_words_s IS
-		
+
 			WHEN 1 =>
 				fifo_valid_bytes_s <= fifo_last_word_valid_bytes_s;
-                fifo_eoi <= '1';
-                fifo_partial <= not and_reduce(fifo_valid_bytes_s);
-                
+				fifo_eoi <= '1';
+				fifo_partial <= not and_reduce(fifo_valid_bytes_s);
+
 			WHEN 0 =>
 				fifo_valid_bytes_s <= (OTHERS => '0');
-			    fifo_eoi <= '0';
-			    fifo_partial <= '0';
-			    
+				fifo_eoi <= '0';
+				fifo_partial <= '0';
+
 			WHEN OTHERS =>
-			    fifo_eoi <= '0';
-			    fifo_partial <= '0';
-			    if(fifo_dout_valid_s = '1') then
-				    fifo_valid_bytes_s <= (OTHERS => '1');
+				fifo_eoi <= '0';
+				fifo_partial <= '0';
+				if(fifo_dout_valid_s = '1') then
+					fifo_valid_bytes_s <= (OTHERS => '1');
 				else
-				    fifo_valid_bytes_s <= (OTHERS => '0');
+					fifo_valid_bytes_s <= (OTHERS => '0');
 				end if;
-				
+
 		END CASE;
 	END PROCESS p_fifo_val_bytes;
-    
-    -- Quick fix for dynamic slicing 2
-    p_CASE2 : process (word_idx_s,isap_state_s,state_s,bdi_valid,bdi_s,isap_auth_encdec_s,bdi_valid_bytes_s,bdi_pad_loc_s,bdoo_s,bdi_eot,bdi_partial_s,fifo_dout_s,fifo_words_s,fifo_eoi,fifo_partial,fifo_valid_bytes_s)
-        variable pad1 : STD_LOGIC_VECTOR(PDI_SHARES*CCW-1 DOWNTO 0);
-        variable pad2 : STD_LOGIC_VECTOR(PDI_SHARES*CCW-1 DOWNTO 0);
-    begin
-        pad1 := pad_bdi(bdi_s, bdi_valid_bytes_s, bdoo_s, '0');
-        pad2 := pad_bdi((fifo_dout_s), reverse_bit(fifo_valid_bytes_s), bdoo_s, '0'); -- dec_in ok?
-        isap_state_n_s <= (others => '0');
-        
-    case state_s is
-        when ISAP_MAC_ABSORB_AD =>
-            if word_idx_s < BLOCK_WORDS_C then
-                isap_state_n_s <= dyn_slice(pad1,bdi_eot,bdi_partial_s,isap_state_s,word_idx_s);
-            end if;
-        when ISAP_MAC_ABSORB_CT =>
-            case isap_auth_encdec_s is
-                when AUTH_DEC =>
-					if word_idx_s < BLOCK_WORDS_C then
-						isap_state_n_s <= dyn_slice(pad1,bdi_eot,bdi_partial_s,isap_state_s,word_idx_s);
-					end if;
-                when AUTH_ENC =>
-					if word_idx_s < BLOCK_WORDS_C then
-						isap_state_n_s <= dyn_slice(pad2,fifo_eoi,fifo_partial,isap_state_s,word_idx_s);
-					end if;
-            end case;
-        when others =>
-            isap_state_n_s <= isap_state_s;
-    end case;
-    end process;
+
+	-- Quick fix for dynamic slicing 2
+	p_CASE2 : process (word_idx_s, isap_state_s, state_s,bdi_s, isap_auth_encdec_s,
+			bdi_valid_bytes_s, bdoo_s, bdi_eot, bdi_partial_s, fifo_dout_s,
+			fifo_eoi,fifo_partial, fifo_valid_bytes_s)
+		variable pad1 : STD_LOGIC_VECTOR(PDI_SHARES*CCW-1 DOWNTO 0);
+		variable pad2 : STD_LOGIC_VECTOR(PDI_SHARES*CCW-1 DOWNTO 0);
+	begin
+		pad1 := pad_bdi(bdi_s, bdi_valid_bytes_s, bdoo_s, '0');
+		pad2 := pad_bdi((fifo_dout_s), reverse_bit(fifo_valid_bytes_s), bdoo_s, '0'); -- dec_in ok?
+		isap_state_n_s <= (others => '0');
+
+		case state_s is
+			when ISAP_MAC_ABSORB_AD =>
+				if word_idx_s < BLOCK_WORDS_C then
+					isap_state_n_s <= dyn_slice(pad1,bdi_eot,bdi_partial_s,isap_state_s,word_idx_s);
+				end if;
+			when ISAP_MAC_ABSORB_CT =>
+				case isap_auth_encdec_s is
+					when AUTH_DEC =>
+						if word_idx_s < BLOCK_WORDS_C then
+							isap_state_n_s <= dyn_slice(pad1,bdi_eot,bdi_partial_s,isap_state_s,word_idx_s);
+						end if;
+					when AUTH_ENC =>
+						if word_idx_s < BLOCK_WORDS_C then
+							isap_state_n_s <= dyn_slice(pad2,fifo_eoi,fifo_partial,isap_state_s,word_idx_s);
+						end if;
+				end case;
+			when others =>
+				isap_state_n_s <= isap_state_s;
+		end case;
+	end process;
 
 	----------------------------------------------------------------------------
 	--! FIFO multiplexer
@@ -442,7 +436,7 @@ BEGIN
 	--! Bdo multiplexer
 	----------------------------------------------------------------------------
 	p_bdo_mux : PROCESS (state_s, bdi_masked_s, word_idx_s, bdi_valid_bytes_s, bdi_valid, bdi_eot, isap_auth_encdec_s, fifo_words_s,
-		fifo_dout_s, fifo_last_word_valid_bytes_s, isap_state_cur_word_s, hash_cnt_s)
+			fifo_dout_s, fifo_last_word_valid_bytes_s, isap_state_cur_word_s, hash_cnt_s)
 	BEGIN
 		CASE state_s IS
 			WHEN ISAP_ENC_SQUEEZE_BLOCK =>
@@ -477,17 +471,17 @@ BEGIN
 				ELSE
 					end_of_block_s <= '0';
 				END IF;
-				
-            WHEN EXTRACT_HASH_VALUE =>
-                bdo_s <= isap_state_cur_word_s;
-                bdo_valid_bytes_s <= (OTHERS => '1');
-                bdo_valid_s <= '1';
-                bdo_type_s <= HDR_HASH_VALUE;
-                IF (word_idx_s >= BLOCK_WORDS_C - 1 AND hash_cnt_s = 3) THEN
-                    end_of_block_s <= '1';
-                ELSE
-                    end_of_block_s <= '0';
-                END IF;
+
+			WHEN EXTRACT_HASH_VALUE =>
+				bdo_s <= isap_state_cur_word_s;
+				bdo_valid_bytes_s <= (OTHERS => '1');
+				bdo_valid_s <= '1';
+				bdo_type_s <= HDR_HASH_VALUE;
+				IF (word_idx_s >= BLOCK_WORDS_C - 1 AND hash_cnt_s = 3) THEN
+					end_of_block_s <= '1';
+				ELSE
+					end_of_block_s <= '0';
+				END IF;
 
 			WHEN OTHERS =>
 				bdo_s <= (OTHERS => '0');
@@ -503,30 +497,31 @@ BEGIN
 	--! Next_state FSM
 	----------------------------------------------------------------------------
 	p_next_state : PROCESS (state_s, key_valid, key_ready_s, key_update, bdi_valid, fifo_din_ready_s, pad_added_s, hash_in, hash_cnt_s,
-		bdi_ready_s, bdi_eot, bdi_eoi, bdi_type, eoi_s, eot_s, word_idx_s, isap_auth_encdec_s, bdo_valid_s, bdo_ready, msg_auth_s,
-		msg_auth_valid_s, msg_auth_ready, bdi_partial_s, isap_cnt_s, delay_cnt_s, isap_cnt_y_s, isap_encmac_s, fifo_dout_valid_s, fifo_dout_ready_s, fifo_words_s,hash_s,empty_hash_s)
+			bdi_ready_s, bdi_eot, bdi_eoi, bdi_type, eoi_s, eot_s, word_idx_s, isap_auth_encdec_s, bdo_valid_s, bdo_ready, msg_auth_s,
+			msg_auth_valid_s, msg_auth_ready, isap_cnt_s, delay_cnt_s, isap_cnt_y_s, isap_encmac_s, fifo_dout_valid_s, fifo_dout_ready_s, fifo_words_s,hash_s,empty_hash_s)
 	BEGIN
 
 		-- Default values preventing latches
 		n_state_s <= state_s;
+		msg_auth_valid <= '0';
 
 		CASE state_s IS
 			WHEN IDLE =>
 				-- Wakeup as soon as valid bdi or key is signaled.
 				IF (key_valid = '1' OR bdi_valid = '1') THEN
-                    n_state_s <= STORE_KEY;
+					n_state_s <= STORE_KEY;
 				END IF;
-				
+
 			WHEN HASH_SETUP_STATE => -- hash specific
-                n_state_s <= ISAP_MAC_INITIALIZE;
+				n_state_s <= ISAP_MAC_INITIALIZE;
 
 			WHEN STORE_KEY =>
 				IF (((key_valid = '1' AND key_ready_s = '1') OR key_update = '0') AND word_idx_s >= KEY_WORDS_C - 1) THEN
 					IF (hash_in = '1') THEN
-                        n_state_s <= HASH_SETUP_STATE;
-                    ELSE
-                        n_state_s <= STORE_NONCE;
-                    END IF;
+						n_state_s <= HASH_SETUP_STATE;
+					ELSE
+						n_state_s <= STORE_NONCE;
+					END IF;
 				END IF;
 
 			WHEN STORE_NONCE =>
@@ -621,26 +616,33 @@ BEGIN
 			WHEN ISAP_MAC_INITIALIZE =>
 				-- Perform sH permutation rounds, then absorb ad or only padding if ad length is zero.
 				IF (isap_cnt_s = X"01" and delay_cnt_s = B"01") THEN
-                    IF (hash_s = '1') then
-                        if (empty_hash_s = '1') THEN
-						    n_state_s <= ISAP_MAC_ABSORB_AD_PAD;
+					IF (hash_s = '1') then
+						if (empty_hash_s = '1') THEN
+							n_state_s <= ISAP_MAC_ABSORB_AD_PAD;
 						else
 							n_state_s <= ISAP_MAC_ABSORB_AD;
-                        end if;
+						end if;
 					ELSE
-                        n_state_s <= ISAP_MAC_WAIT_INPUT;
-                    end if;
+						n_state_s <= ISAP_MAC_WAIT_INPUT;
+					end if;
 				END IF;
 
 			WHEN ISAP_MAC_WAIT_INPUT =>
 				-- Wait until we know if ad needs to be absorbed.
-				IF (bdi_valid = '1') THEN
-					IF (bdi_type = HDR_AD) THEN
-						n_state_s <= ISAP_MAC_ABSORB_AD;
-					ELSE
+				if eoi_s = '1' then
+					n_state_s <= ISAP_MAC_ABSORB_AD_PAD;
+				else
+					IF (bdi_valid = '1') THEN
+						IF (bdi_type = HDR_AD) THEN
+							n_state_s <= ISAP_MAC_ABSORB_AD;
+						ELSE
+							n_state_s <= ISAP_MAC_ABSORB_AD_PAD;
+						END IF;
+					END IF;
+					IF (key_valid = '1') THEN
 						n_state_s <= ISAP_MAC_ABSORB_AD_PAD;
 					END IF;
-				END IF;
+				end if;
 
 			WHEN ISAP_MAC_ABSORB_AD =>
 				-- Wait until last word of AD is signaled.
@@ -657,16 +659,16 @@ BEGIN
 			WHEN ISAP_MAC_PROCESS_AD =>
 				-- Perform sH permutation rounds, then absorb padding if it was not already absorbed in the last block.
 				IF (isap_cnt_s = X"01" and delay_cnt_s = B"01") THEN
-				    -- hash specific
-				    if (hash_s = '1') then
-                        IF (eoi_s = '1') THEN
+					-- hash specific
+					if (hash_s = '1') then
+						IF (eoi_s = '1') THEN
 							IF (pad_added_s = '1') THEN
 								n_state_s <= EXTRACT_HASH_VALUE;
 							ELSE
 								n_state_s <= ISAP_MAC_ABSORB_AD_PAD;
 							END IF;
-					    else
-					    	n_state_s <= ISAP_MAC_ABSORB_AD;
+						else
+							n_state_s <= ISAP_MAC_ABSORB_AD;
 						END IF;
 					ELSIF (isap_auth_encdec_s = AUTH_ENC) THEN
 						IF (eoi_s = '1') THEN
@@ -694,12 +696,12 @@ BEGIN
 			WHEN ISAP_MAC_ABSORB_AD_PAD =>
 				-- Absorb block that only contains padding.
 				IF (isap_cnt_s = X"01" and delay_cnt_s = B"01") THEN
-				    -- hash specific
-				    if (hash_s = '1') then
-				        n_state_s <= EXTRACT_HASH_VALUE;
-                    else
-					   n_state_s <= ISAP_MAC_DOMAIN_SEPERATION;
-                    end if;
+					-- hash specific
+					if (hash_s = '1') then
+						n_state_s <= EXTRACT_HASH_VALUE;
+					else
+						n_state_s <= ISAP_MAC_DOMAIN_SEPERATION;
+					end if;
 				END IF;
 
 			WHEN ISAP_MAC_DOMAIN_SEPERATION =>
@@ -796,23 +798,24 @@ BEGIN
 
 			WHEN WAIT_ACK =>
 				-- Wait until message authentication is acknowledged.
-				IF (msg_auth_valid_s = '1' AND msg_auth_ready = '1') THEN
+				msg_auth_valid <= '1';
+				IF (msg_auth_ready = '1') THEN
 					IF (msg_auth_s = '1' AND fifo_words_s > 0) THEN
 						n_state_s <= ISAP_RK_SETUP_STATE;
 					ELSE
 						n_state_s <= IDLE;
 					END IF;
 				END IF;
-				
-            WHEN EXTRACT_HASH_VALUE =>
-                -- Wait until the whole hash is transferred, then go back to IDLE.
-                IF (bdo_valid_s = '1' AND bdo_ready = '1' AND word_idx_s >= BLOCK_WORDS_C - 1) THEN
-                    IF (hash_cnt_s < 3) THEN
-                        n_state_s <= ISAP_MAC_PROCESS_AD;
-                    ELSE
-                        n_state_s <= IDLE;
-                    END IF;
-                END IF;
+
+			WHEN EXTRACT_HASH_VALUE =>
+				-- Wait until the whole hash is transferred, then go back to IDLE.
+				IF (bdo_valid_s = '1' AND bdo_ready = '1' AND word_idx_s >= BLOCK_WORDS_C - 1) THEN
+					IF (hash_cnt_s < 3) THEN
+						n_state_s <= ISAP_MAC_PROCESS_AD;
+					ELSE
+						n_state_s <= IDLE;
+					END IF;
+				END IF;
 
 			WHEN OTHERS =>
 				n_state_s <= IDLE;
@@ -844,9 +847,9 @@ BEGIN
 				eoi_s <= n_eoi_s;
 				eot_s <= n_eot_s;
 				fifo_words_s <= n_fifo_words_s;
-                empty_hash_s <= n_empty_hash_s;
-                hash_s <= n_hash_s;
-            END IF;
+				empty_hash_s <= n_empty_hash_s;
+				hash_s <= n_hash_s;
+			END IF;
 		END IF;
 	END PROCESS p_reg;
 
@@ -854,8 +857,8 @@ BEGIN
 	--! Decoder process for control logic
 	----------------------------------------------------------------------------
 	p_decoder : PROCESS (state_s, key_valid, key_update, update_key_s, eoi_s, eot_s, bdi_eot, hash_in, bdi_size, bdi_s_reg_unshared,
-		bdi_s, bdi_eoi, bdi_valid, bdi_type, decrypt_in, isap_auth_encdec_s, bdi_ready_s, isap_state_cur_word_s, isap_state_cur_word_s_reg_unshared,
-		bdo_ready, word_idx_s, msg_auth_s, isap_cnt_s, fifo_words_s, fifo_dout_valid_s, fifo_dout_ready_s, fifo_din_ready_s,empty_hash_s,hash_s)
+			bdi_s, bdi_eoi, bdi_valid, bdi_type, decrypt_in, isap_auth_encdec_s, bdi_ready_s, isap_state_cur_word_s, isap_state_cur_word_s_reg_unshared,
+			bdo_ready, msg_auth_s, isap_cnt_s, fifo_words_s, fifo_dout_valid_s, fifo_dout_ready_s, fifo_din_ready_s,empty_hash_s,hash_s)
 	BEGIN
 		-- Default values preventing latches
 		key_ready_s <= '0';
@@ -868,10 +871,10 @@ BEGIN
 		n_eoi_s <= eoi_s;
 		n_eot_s <= eot_s;
 		isap_ctrl_s <= X"0";
-        n_empty_hash_s <= empty_hash_s;
-        n_hash_s <= hash_s;
-        isap_state_cur_word_s_reg <= (others => '0');
-        bdi_s_reg <= (others => '0');
+		n_empty_hash_s <= empty_hash_s;
+		n_hash_s <= hash_s;
+		isap_state_cur_word_s_reg <= (others => '0');
+		bdi_s_reg <= (others => '0');
 
 		CASE state_s IS
 
@@ -884,29 +887,29 @@ BEGIN
 				n_eoi_s <= '0';
 				n_eot_s <= '0';
 				n_fifo_words_s <= 0;
-                n_empty_hash_s <= '0';
-                n_hash_s <= '0';
+				n_empty_hash_s <= '0';
+				n_hash_s <= '0';
 				IF (key_valid = '1' AND key_update = '1') THEN
 					n_update_key_s <= '1';
 				END IF;
-                IF (bdi_valid = '1' AND hash_in = '1') THEN
-                    n_hash_s <= '1';
-                    IF (bdi_size = EMPTY_HASH_SIZE_C) THEN
-                        n_empty_hash_s <= '1';
-                        n_eoi_s <= '1';
-                        n_eot_s <= '1';
-                    END IF;
-                END IF;
-				
-		    when HASH_SETUP_STATE =>
+				IF (bdi_valid = '1' AND hash_in = '1') THEN
+					n_hash_s <= '1';
+					IF (bdi_size = EMPTY_HASH_SIZE_C) THEN
+						n_empty_hash_s <= '1';
+						n_eoi_s <= '1';
+						n_eot_s <= '1';
+					END IF;
+				END IF;
+
+			when HASH_SETUP_STATE =>
 				IF (bdi_valid = '1' AND bdi_type = HDR_HASH_MSG AND bdi_eoi = '1') THEN
 					n_eoi_s <= '1';
 				END IF;
 				-- If empty hash is detected, acknowledge with one cycle bdi_ready.
-                -- Afterwards empty_hash_s flag can be deasserted, it's not needed anymore.
-                IF (empty_hash_s = '1') THEN
-                    bdi_ready_s <= '1';
-                END IF;
+				-- Afterwards empty_hash_s flag can be deasserted, it's not needed anymore.
+				IF (empty_hash_s = '1') THEN
+					bdi_ready_s <= '1';
+				END IF;
 
 			WHEN STORE_KEY =>
 				-- Ready for key.
@@ -954,7 +957,7 @@ BEGIN
 				END IF;
 
 			WHEN ISAP_MAC_ABSORB_AD_PAD =>
-				-- Perform sH permutation rounds, absorb padding block before first permutation call.  
+				-- Perform sH permutation rounds, absorb padding block before first permutation call.
 				IF (isap_cnt_s = p_sH) THEN
 					isap_ctrl_s <= X"2";
 				END IF;
@@ -977,7 +980,7 @@ BEGIN
 				END IF;
 
 			WHEN ISAP_MAC_ABSORB_CT_PAD =>
-				-- Perform sH permutation rounds, absorb padding block before first permutation call.  
+				-- Perform sH permutation rounds, absorb padding block before first permutation call.
 				IF (isap_cnt_s = p_sH) THEN
 					isap_ctrl_s <= X"2";
 				END IF;
@@ -1003,7 +1006,7 @@ BEGIN
 				bdi_ready_s <= '1';
 				isap_state_cur_word_s_reg <= isap_state_cur_word_s;
 				bdi_s_reg <= bdi_s;
-				
+
 				IF (bdi_valid = '1' AND bdi_type = HDR_TAG AND (isap_state_cur_word_s_reg_unshared /= bdi_s_reg_unshared)) THEN
 					n_msg_auth_s <= '0';
 				END IF;
@@ -1186,7 +1189,7 @@ BEGIN
 						IF (bdi_valid = '1' AND bdi_ready_s = '1') THEN
 							isap_nonce_s(0*p_k+CCW*word_idx_s+CCW-1 DOWNTO 0*p_k+CCW*word_idx_s) <= bdi_s(1*CCW-1 downto 0*CCW);
 							isap_nonce_s(1*p_k+CCW*word_idx_s+CCW-1 DOWNTO 1*p_k+CCW*word_idx_s) <= bdi_s(2*CCW-1 downto 1*CCW);
-							
+
 							IF (word_idx_s >= NPUB_WORDS_C - 1) THEN
 								IF (isap_auth_encdec_s = AUTH_DEC) THEN
 									isap_encmac_s <= ISAP_MAC;
@@ -1196,41 +1199,41 @@ BEGIN
 							END IF;
 						END IF;
 
-                    WHEN HASH_SETUP_STATE =>
-                        -- Setup state with IV||0*.
-                        isap_state_s(0*p_n+64-1 DOWNTO 0*p_n) <= reverse_byte(IV_HASH);
-                        isap_state_s(1*p_n+64-1 DOWNTO 1*p_n) <= (others => '0');                      
-                        isap_state_s(1*p_n - 1 DOWNTO 0*p_n+64) <= (OTHERS => '0');
-                        isap_state_s(2*p_n - 1 DOWNTO 1*p_n+64) <= (OTHERS => '0');
-                        
-                        isap_cnt_s <= p_sH;
-                        delay_cnt_s <= LATENCY;
-                        pad_added_s <= '0';
-                        hash_cnt_s <= 0;
-                        isap_encmac_s <= ISAP_MAC;
+					WHEN HASH_SETUP_STATE =>
+						-- Setup state with IV||0*.
+						isap_state_s(0*p_n+64-1 DOWNTO 0*p_n) <= reverse_byte(IV_HASH);
+						isap_state_s(1*p_n+64-1 DOWNTO 1*p_n) <= (others => '0');
+						isap_state_s(1*p_n - 1 DOWNTO 0*p_n+64) <= (OTHERS => '0');
+						isap_state_s(2*p_n - 1 DOWNTO 1*p_n+64) <= (OTHERS => '0');
+
+						isap_cnt_s <= p_sH;
+						delay_cnt_s <= LATENCY;
+						pad_added_s <= '0';
+						hash_cnt_s <= 0;
+						isap_encmac_s <= ISAP_MAC;
 
 					WHEN ISAP_RK_SETUP_STATE =>
 						-- Fill state with key and IV.
 						isap_state_s(0*p_n+p_k-1 DOWNTO 0*p_n) <= isap_key_s(1*p_k-1 downto 0*p_k);
-						isap_state_s(1*p_n+p_k-1 DOWNTO 1*p_n) <= isap_key_s(2*p_k-1 downto 1*p_k);												
+						isap_state_s(1*p_n+p_k-1 DOWNTO 1*p_n) <= isap_key_s(2*p_k-1 downto 1*p_k);
 						isap_state_s(1*p_n-1 DOWNTO 0*p_n+p_k+64) <= (OTHERS => '0');
 						isap_state_s(2*p_n-1 DOWNTO 1*p_n+p_k+64) <= (OTHERS => '0');
-						
+
 						isap_cnt_s <= p_sK;
 						delay_cnt_s <= LATENCY;
 
 						IF (isap_encmac_s = ISAP_ENC) THEN
 							isap_state_s(0*p_n+p_k + 63 DOWNTO 0*p_n+p_k) <= reverse_byte(p_iv_ke);
 							isap_state_s(1*p_n+p_k + 63 DOWNTO 1*p_n+p_k) <= (OTHERS => '0');
-							
+
 							isap_y_s <= reverse_byte(isap_nonce_s);
 						ELSE
 							isap_state_s(0*p_n+p_k+63 DOWNTO 0*p_n+p_k) <= reverse_byte(p_iv_ka);
 							isap_state_s(1*p_n+p_k+63 DOWNTO 1*p_n+p_k) <= (OTHERS => '0');
-							
+
 							isap_y_s(1*p_k-1 downto 0*p_k) <= reverse_byte(isap_state_s_s0);
 							isap_y_s(2*p_k-1 downto 1*p_k) <= reverse_byte(isap_state_s_s1);
-							
+
 							isap_buf_s(1*(p_n-p_k) - 1 DOWNTO 0*(p_n-p_k)) <= isap_state_s(1*p_n-1 DOWNTO 0*p_n+p_k);
 							isap_buf_s(2*(p_n-p_k) - 1 DOWNTO 1*(p_n-p_k)) <= isap_state_s(2*p_n-1 DOWNTO 1*p_n+p_k);
 						END IF;
@@ -1238,77 +1241,77 @@ BEGIN
 					WHEN ISAP_RK_INITIALIZE =>
 						-- Perform sK permutation rounds.
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-						    IF (isap_cnt_s = X"01" and delay_cnt_s = B"01") THEN
-							    isap_cnt_s <= p_sB;
-							    delay_cnt_s <= LATENCY;
-							    isap_cnt_y_s <= 127;
-							    isap_state_s <= perm_out_s;
-						    ELSE
-						        IF (delay_cnt_s = B"01") THEN
-						            delay_cnt_s <= LATENCY;
-							        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-							        isap_state_s <= perm_out_s;
-							    ELSE
-							        delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-							    END IF;    
-						    END IF;
+							IF (isap_cnt_s = X"01" and delay_cnt_s = B"01") THEN
+								isap_cnt_s <= p_sB;
+								delay_cnt_s <= LATENCY;
+								isap_cnt_y_s <= 127;
+								isap_state_s <= perm_out_s;
+							ELSE
+								IF (delay_cnt_s = B"01") THEN
+									delay_cnt_s <= LATENCY;
+									isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+									isap_state_s <= perm_out_s;
+								ELSE
+									delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+								END IF;
+							END IF;
 						END IF;
 
 					WHEN ISAP_RK_REKEYING =>
 						-- Absorb Y bit by bit. After absorption of 1 bit do sB permutation rounds.
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-						    IF (delay_cnt_s = B"01") THEN
-						        IF (isap_cnt_y_s = 1 AND isap_cnt_s = X"01") THEN
-							        isap_cnt_s <= p_sK;
-						        ELSIF (isap_cnt_s = X"01") THEN
-							        isap_cnt_s <= p_sB;
-						        END IF;
-                            
-                                isap_cnt_y_s <= isap_cnt_y_s - 1;
-                                isap_y_s(1*p_k-1 downto 0*p_k) <= isap_y_s(0*p_k+126 downto 0*p_k) & isap_y_s(0*p_k+127);
-                                isap_y_s(2*p_k-1 downto 1*p_k) <= isap_y_s(1*p_k+126 downto 1*p_k) & isap_y_s(1*p_k+127);                        
-                                delay_cnt_s <= LATENCY;
-						        isap_state_s <= perm_out_s;
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF; 
+							IF (delay_cnt_s = B"01") THEN
+								IF (isap_cnt_y_s = 1 AND isap_cnt_s = X"01") THEN
+									isap_cnt_s <= p_sK;
+								ELSIF (isap_cnt_s = X"01") THEN
+									isap_cnt_s <= p_sB;
+								END IF;
+
+								isap_cnt_y_s <= isap_cnt_y_s - 1;
+								isap_y_s(1*p_k-1 downto 0*p_k) <= isap_y_s(0*p_k+126 downto 0*p_k) & isap_y_s(0*p_k+127);
+								isap_y_s(2*p_k-1 downto 1*p_k) <= isap_y_s(1*p_k+126 downto 1*p_k) & isap_y_s(1*p_k+127);
+								delay_cnt_s <= LATENCY;
+								isap_state_s <= perm_out_s;
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
 						END IF;
 					WHEN ISAP_RK_SQUEEZE =>
 						-- Perform sK permutation rounds.
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-						    IF (delay_cnt_s = B"01") THEN
-                                delay_cnt_s <= LATENCY;
-						        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-						        isap_state_s <= perm_out_s;
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF;    
-                        END IF;
+							IF (delay_cnt_s = B"01") THEN
+								delay_cnt_s <= LATENCY;
+								isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+								isap_state_s <= perm_out_s;
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
+						END IF;
 					WHEN ISAP_ENC_INITIALIZE =>
 						-- Overwrite part of state with nonce.
 						isap_cnt_s <= p_sE;
 						isap_state_s(1*p_n-1 DOWNTO 1*p_n-p_k) <= isap_nonce_s(1*p_k-1 DOWNTO 0*p_k);
-						isap_state_s(2*p_n-1 DOWNTO 2*p_n-p_k) <= isap_nonce_s(2*p_k-1 DOWNTO 1*p_k);						
+						isap_state_s(2*p_n-1 DOWNTO 2*p_n-p_k) <= isap_nonce_s(2*p_k-1 DOWNTO 1*p_k);
 
 					WHEN ISAP_ENC_PERMUTE_PE =>
 						-- Perform sE permutation rounds.
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-						    IF (delay_cnt_s = B"01") THEN
-                                delay_cnt_s <= LATENCY;
-						        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-						        isap_state_s <= perm_out_s;
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF;    
-                        END IF;
+							IF (delay_cnt_s = B"01") THEN
+								delay_cnt_s <= LATENCY;
+								isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+								isap_state_s <= perm_out_s;
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
+						END IF;
 					WHEN ISAP_ENC_SQUEEZE_BLOCK =>
 						-- Read from bdi/fifo during en/decryption.
 						IF (isap_auth_encdec_s = AUTH_DEC) THEN
@@ -1330,14 +1333,14 @@ BEGIN
 					WHEN ISAP_MAC_SETUP_STATE =>
 						-- Fill state with nonce and IV.
 						isap_state_s(0*p_n+p_k-1 DOWNTO 0*p_n) <= isap_nonce_s(1*p_k-1 downto 0*p_k);
-						isap_state_s(1*p_n+p_k-1 DOWNTO 1*p_n) <= isap_nonce_s(2*p_k-1 downto 1*p_k);			
-						
+						isap_state_s(1*p_n+p_k-1 DOWNTO 1*p_n) <= isap_nonce_s(2*p_k-1 downto 1*p_k);
+
 						isap_state_s(0*p_n+p_k+63 DOWNTO 0*p_n+p_k) <= reverse_byte(p_iv_a);
 						isap_state_s(1*p_n+p_k+63 DOWNTO 1*p_n+p_k) <= (OTHERS => '0');
-						
+
 						isap_state_s(1*p_n-1 DOWNTO 0*p_n+p_k+64) <= (OTHERS => '0');
 						isap_state_s(2*p_n-1 DOWNTO 1*p_n+p_k+64) <= (OTHERS => '0');
-						
+
 						isap_cnt_s <= p_sH;
 						delay_cnt_s <= LATENCY;
 						isap_encmac_s <= ISAP_MAC;
@@ -1345,21 +1348,21 @@ BEGIN
 					WHEN ISAP_MAC_INITIALIZE =>
 						-- Perform sH permutation rounds.
 						rdi_ready <= '1';
-						
-						IF (rdi_valid = '1') THEN
-						    IF (delay_cnt_s = B"01") THEN
-						        isap_state_s <= perm_out_s;
-							    delay_cnt_s <= LATENCY;
 
-						        IF (n_state_s = ISAP_MAC_ABSORB_AD_PAD) THEN
-					                isap_cnt_s <= p_sH;
-						        ELSE
-							        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-						        END IF;
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF; 
-						END IF;  
+						IF (rdi_valid = '1') THEN
+							IF (delay_cnt_s = B"01") THEN
+								isap_state_s <= perm_out_s;
+								delay_cnt_s <= LATENCY;
+
+								IF (n_state_s = ISAP_MAC_ABSORB_AD_PAD) THEN
+									isap_cnt_s <= p_sH;
+								ELSE
+									isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+								END IF;
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
+						END IF;
 					WHEN ISAP_MAC_WAIT_INPUT =>
 						-- Wait until we know the type of the next input.
 						IF (n_state_s /= ISAP_MAC_WAIT_INPUT) THEN
@@ -1391,38 +1394,38 @@ BEGIN
 					WHEN ISAP_MAC_PROCESS_AD =>
 						-- Perform sH permutation rounds.
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-						    IF (delay_cnt_s = B"01") THEN
-						        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-							    delay_cnt_s <= LATENCY;
-						        isap_state_s <= perm_out_s;
-						        IF (n_state_s = ISAP_MAC_ABSORB_AD_PAD) THEN
-							        isap_cnt_s <= p_sH;
-						        END IF;
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF; 
-						END IF; 
+							IF (delay_cnt_s = B"01") THEN
+								isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+								delay_cnt_s <= LATENCY;
+								isap_state_s <= perm_out_s;
+								IF (n_state_s = ISAP_MAC_ABSORB_AD_PAD) THEN
+									isap_cnt_s <= p_sH;
+								END IF;
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
+						END IF;
 					WHEN ISAP_MAC_ABSORB_AD_PAD =>
 						-- Absorb block that only contains padding.
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-						    IF (delay_cnt_s = B"01") THEN
-						        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-						        delay_cnt_s <= LATENCY;
-						        isap_state_s <= perm_out_s;
-                                pad_added_s <= '1';
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF; 
-						END IF; 
+							IF (delay_cnt_s = B"01") THEN
+								isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+								delay_cnt_s <= LATENCY;
+								isap_state_s <= perm_out_s;
+								pad_added_s <= '1';
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
+						END IF;
 					WHEN ISAP_MAC_DOMAIN_SEPERATION =>
 						-- Flip the highest bit in the state.
 						pad_added_s <= '0';
 						isap_state_s(1*p_n - 8) <= isap_state_s(1*p_n - 8) XOR '1';
-											
+
 						IF (n_state_s = ISAP_MAC_ABSORB_CT_PAD) THEN
 							isap_cnt_s <= p_sH;
 							delay_cnt_s <= LATENCY;
@@ -1442,7 +1445,7 @@ BEGIN
 								END IF;
 								-- When the last word is processed add padding if there is space for it.
 								-- Otherwise remember (pad_added_s) that we need to absorb another block with only padding.
-                                isap_state_s <= isap_state_n_s; -- todo new
+								isap_state_s <= isap_state_n_s; -- todo new
 								IF (bdi_eot = '1') THEN
 									IF (and_reduce(bdi_valid_bytes) = '1') THEN
 										IF (word_idx_s < BLOCK_WORDS_C - 1) THEN
@@ -1478,65 +1481,65 @@ BEGIN
 					WHEN ISAP_MAC_PROCESS_CT =>
 						-- Perform sH permutation rounds.
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-						    IF (delay_cnt_s = B"01") THEN
-						        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-						        delay_cnt_s <= LATENCY;
-						        isap_state_s <= perm_out_s;
-						        IF (n_state_s = ISAP_MAC_ABSORB_CT_PAD) THEN
-							        isap_cnt_s <= p_sH;
-						        END IF;
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF;
-						END IF;  
+							IF (delay_cnt_s = B"01") THEN
+								isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+								delay_cnt_s <= LATENCY;
+								isap_state_s <= perm_out_s;
+								IF (n_state_s = ISAP_MAC_ABSORB_CT_PAD) THEN
+									isap_cnt_s <= p_sH;
+								END IF;
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
+						END IF;
 					WHEN ISAP_MAC_ABSORB_CT_PAD =>
 						-- Absorb block that only contains padding
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-					        IF (delay_cnt_s = B"01") THEN
-						        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-						        delay_cnt_s <= LATENCY;
-						        isap_state_s <= perm_out_s;
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF; 
+							IF (delay_cnt_s = B"01") THEN
+								isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+								delay_cnt_s <= LATENCY;
+								isap_state_s <= perm_out_s;
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
 						END IF;
-						
+
 					WHEN ISAP_MAC_FINALIZE_AFTER_RK_STATE_SETUP =>
 						-- Overwrite parts of state by the previously saved state after the absorption of ct.
 						isap_state_s(1*p_n-1 DOWNTO 0*p_n+p_k) <= isap_buf_s(1*(p_n-p_k)-1 DOWNTO 0*(p_n-p_k));
-						isap_state_s(2*p_n-1 DOWNTO 1*p_n+p_k) <= isap_buf_s(2*(p_n-p_k)-1 DOWNTO 1*(p_n-p_k));						
-						
+						isap_state_s(2*p_n-1 DOWNTO 1*p_n+p_k) <= isap_buf_s(2*(p_n-p_k)-1 DOWNTO 1*(p_n-p_k));
+
 						isap_cnt_s <= p_sH;
-                        delay_cnt_s <= LATENCY;
+						delay_cnt_s <= LATENCY;
 
 					WHEN ISAP_MAC_FINALIZE_PERMUTE_PH =>
 						-- Perform sH permutation rounds.
 						rdi_ready <= '1';
-						
+
 						IF (rdi_valid = '1') THEN
-					        IF (delay_cnt_s = B"01") THEN
-						        isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
-						        delay_cnt_s <= LATENCY;
-						        isap_state_s <= perm_out_s;
-						    ELSE
-							    delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
-						    END IF; 
-                        END IF;
+							IF (delay_cnt_s = B"01") THEN
+								isap_cnt_s <= std_logic_vector(unsigned(isap_cnt_s) - 1);
+								delay_cnt_s <= LATENCY;
+								isap_state_s <= perm_out_s;
+							ELSE
+								delay_cnt_s <= std_logic_vector(unsigned(delay_cnt_s) - 1);
+							END IF;
+						END IF;
 					WHEN WAIT_ACK =>
 						-- Only entered during decryption. After tag verification start decryption.
 						IF (n_state_s = ISAP_RK_SETUP_STATE) THEN
 							isap_encmac_s <= ISAP_ENC;
 						END IF;
-						
+
 					when EXTRACT_HASH_VALUE =>
 						IF (n_state_s = ISAP_MAC_PROCESS_AD) THEN
 							isap_cnt_s <= p_sH;
 							delay_cnt_s <= LATENCY;
-                            hash_cnt_s <= hash_cnt_s + 1;
+							hash_cnt_s <= hash_cnt_s + 1;
 						END IF;
 
 					WHEN OTHERS =>
