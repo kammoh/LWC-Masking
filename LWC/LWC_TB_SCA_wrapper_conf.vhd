@@ -29,7 +29,7 @@ configuration LWC_TB_SCA_wrapper_conf of LWC_TB is
                     rdi_valid => rdi_valid_delayed,
                     rdi_ready => rdi_ready
                 );
+            end for;
+            
         end for;
-
-    end for;
 end configuration;
