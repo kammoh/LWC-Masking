@@ -39,7 +39,7 @@ sources = [
 parameters.XW = 32
 
 # includes = []
-# top = "LWC_SCA"
+top = "LWC_SCA_wrapper"
 # clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true

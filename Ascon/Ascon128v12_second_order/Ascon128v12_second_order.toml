@@ -37,6 +37,8 @@ sources = [
     # "General/xor_2.vhd",
 ]
 
+parameters.XW = 32
+
 # [rtl]
 # sources = [
 # 	"src_rtl/ascon_pkg.vhd",
