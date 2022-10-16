@@ -81,7 +81,7 @@ parameters.G_FNAME_DO = {file = "KAT/do.txt"}
 [flows.vivado_synth]
 fpga.part = "xc7a100tftg256-2L"
 synth.strategy =  "Flow_AlternateRoutability"
-# impl.strategy = "Performance_ExtraTimingOpt"
+impl.strategy = "Performance_ExtraTimingOpt"
 clock_period = 10.0
 
 [flows.vivado_alt_synth]
