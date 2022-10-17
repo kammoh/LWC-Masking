@@ -1,0 +1,57 @@
+name = "GIFT-COFB_VT"
+author = "VT"
+
+dependencies = [
+	# { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_32.toml", rtl.pos = 1 },
+]
+
+[lwc]
+aead.algorithm = "giftcofb128v1"
+block_bits = { AD = 128, PT = 128}
+
+
+[language]
+vhdl.standard = 2008
+vhdl.synopsys = true
+
+[rtl]
+sources = [
+    "src_rtl/v1/design_pkg.vhd",
+    "src_rtl/LWC_config_32.vhd",
+    "../../LWC/NIST_LWAPI_pkg.vhd",
+    "src_rtl/v1/ConsGen.vhd",
+    "src_rtl/v1/SomeFunc.vhd",
+    "src_rtl/v1/GIFT128.vhd",
+    "src_rtl/v1/myReg.vhd",
+    "src_rtl/v1/GIFTCOFB_Datapath.vhd",
+    "src_rtl/v1/GIFTCOFB_Controller.vhd",
+    "src_rtl/v1/GIFTCOFB.vhd",
+    "src_rtl/v1/CryptoCore.vhd",
+    "src_rtl/v1/PermBits.vhd",
+    "src_rtl/v1/Sbox.vhd",
+    "src_rtl/v1/SubCells.vhd",
+
+    "../../LWC/old/key_piso.vhd",
+    "../../LWC/old/data_piso.vhd",
+    "../../LWC/old/PreProcessor.vhd",
+    "../../LWC/SIPO.vhd",
+    "../../LWC/PostProcessor.vhd",
+    "../../LWC/FIFO.vhd",
+    "../../LWC/LWC.vhd",
+]
+top = "LWC"
+
+[tb]
+sources = [
+    "../../LWC/LWC_TB.vhd",
+]
+top = "LWC_TB"
+
+[tb.generics]
+G_TEST_MODE = 4
+G_MAX_FAILURES = 0
+G_FNAME_PDI.file = "KAT/v1/generic_aead_sizes_new_key/pdi.txt"
+G_FNAME_SDI.file = "KAT/v1/generic_aead_sizes_new_key/sdi.txt"
+G_FNAME_DO.file =  "KAT/v1/generic_aead_sizes_new_key/do.txt"
+
+

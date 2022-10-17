@@ -7,9 +7,9 @@ version = "0.1.0"
 
 
 dependencies = [
-    { uri = "../../LWC/LWC.toml", rtl.pos = 2 }, 
-    "../../gadgets.toml",
-    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+    # { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 },
+    # "../../gadgets.toml",
+    # { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 
@@ -22,29 +22,32 @@ sources = [
     "src_rtl/SomeFunc.vhd",
     "src_rtl/myReg.vhd",
     "src_rtl/PermBits.vhd",
-    "src_rtl/SubCells_HPC2_ClockGating_d1.v",
+	"../../HPC2/and_HPC2.vhd",
+	"../../HPC2/xnor_HPC2.vhd",
+	"../../HPC2/xor_HPC2.vhd",
+	"../../General/my_register.vhd",
+	"../../General/xnor_2.vhd",
+	"../../General/xor_2.vhd",
     "src_rtl/GIFTCOFB_Controller.vhd",
+    "src_rtl/SubCells_HPC2_ClockGating_d1.v",
     "src_rtl/GIFTCOFB_Datapath.vhd",
     "src_rtl/GIFTCOFB.vhd",
 	"src_rtl/CryptoCore_SCA.vhd",
 
-	# "LWC/data_piso.vhd",
-	# "LWC/data_sipo.vhd",
-	# "LWC/FIFO.vhd",
-	# "LWC/key_piso.vhd",
-	# "LWC/LWC_SCA.vhd",
-	# "LWC/NIST_LWAPI.vhd",
-	# "LWC/PostProcessor.vhd",
-	# "LWC/PreProcessor.vhd",
-	# "HPC2/and_HPC2.vhd",
-	# "HPC2/xnor_HPC2.vhd",
-	# "HPC2/xor_HPC2.vhd",
-	# "General/reg.vhd",
-	# "General/xnor_2.vhd",
-	# "General/xor_2.vhd",
+    # "../../LWC/old/key_piso.vhd",
+    # "../../LWC/old/data_piso.vhd",
+    # "../../LWC/old/PreProcessor.vhd",
+    "../../LWC/SIPO.vhd",
+    "../../LWC/PostProcessor.vhd",
+    "../../LWC/FIFO.vhd",
+    "../../LWC/LWC_SCA.vhd",
+
+    # "src_rtl/v1/StepDownCountLd.vhd",
+    # "src_rtl/v1/data_sipo.vhd",
+    # "src_rtl/v1/PostProcessor.vhd",
+    # "src_rtl/v1/fwft_fifo.vhd",
 ]
 
-# includes = []
 top = "LWC_SCA"
 # clock.port = "clk"
 # reset.port = "rst"
@@ -60,16 +63,13 @@ verilog.version = "2001"
 # sources = ["LWC_SCA_TB.vhd"]
 # includes = []
 # top = "LWC_SCA_TB"
-[lwc.aead]
-algorithm = "giftcofb128v1"
-# key_bits = 128
-# npub_bits = 128
-# tag_bits = 128
-# input_sequence.encrypt = ["npub", "ad", "pt"]
-# input_sequence.decrypt = ["npub", "ad", "ct", "tag"]
-# [lwc.hash]
-# algorithm = "" ###### (hashing is not supported)
-# digest_bits = 0
+[lwc]
+block_bits = { AD = 128, XT = 128}
+aead.algorithm = "giftcofb128v1"
+# aead.key_reuse = true
+aead.input_sequence.encrypt = ['npub', 'ad', 'pt']
+aead.input_sequence.decrypt = ['npub', 'ad', 'ct', 'tag']
+
 [lwc.ports]
 # pdi.bit_width = 32
 pdi.num_shares = 2
@@ -81,14 +81,13 @@ target = ["spa", "dpa", "cpa", "timing"]
 order = 1
 
 
-# [lwc.block_size]
-xt = 128
-ad = 128
-
-
 [tb]
-sources = ["../../LWC/LWC_TB_SCA.vhd"]
-top = "LWC_TB"
+# sources = ["../../LWC/LWC_TB_SCA.vhd"]
+# top = "LWC_TB"
 parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
 parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
 parameters.G_FNAME_DO = {file = "KAT/do.txt"}
+# parameters.G_FNAME_PDI = {file = "BENCH_KAT/GIFT-COFB_first_order/timing_tests/pdi_shared_2.txt"}
+# parameters.G_FNAME_SDI = {file = "BENCH_KAT/GIFT-COFB_first_order/timing_tests/sdi_shared_2.txt"}
+# parameters.G_FNAME_DO = {file =  "BENCH_KAT/GIFT-COFB_first_order/timing_tests/do.txt"}
+parameters.G_TEST_MODE = 4

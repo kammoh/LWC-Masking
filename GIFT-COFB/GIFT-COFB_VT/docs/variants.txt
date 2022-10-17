@@ -1,0 +1,37 @@
+Notation:
+Na, Nm, Nc: the number of blocks of associated data,
+plaintext, and ciphertext, respectively
+
+v1: GIFT-COFB v1.0
+ash
+a. Design goal
+Support for authenticated encryption, decryption.
+Basic iterative architecture to optimize throughput to area ratio.
+No BRAMs, no DSP units.
+All RAMs using asynchronous read.
+
+b. Supported maximum sizes of inputs
+Not evaluated.
+
+c. Reference software implementation
+
+giftcofb128v1
+
+d. Non-default values of generics and constants
+None
+
+e. Block sizes
+
+AD block size = 128 bits
+Plaintext/Ciphertext block size = 128 bits
+
+f. Execution times
+
+Execution Time for Encryption:
+60 + 49*Na + 47*Nm + ((Nm<>0)&&(Na==0))*45
+
+Execution Time for Decryption:
+61 + 49*Na + 47*Nm + ((Nm<>0)&&(Na==0))*45
+
+g. Difference between execution times for a new key and the same key
+8

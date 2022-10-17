@@ -7,7 +7,6 @@ version = "0.1.0"
 
 dependencies = [
     { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_2Pass.toml", rtl.pos = 2 },
-    # { uri = "/nhome/mmohajer/src/LWC-Masking/.xeda_dependencies/github.com/GMUCERG/LWC.git/hardware/LWC_SCA_2Pass.toml", rtl.pos = 2 },
     # "../../gadgets.toml",
     # { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
@@ -67,6 +66,7 @@ vhdl.version = "2008"
 verilog.version = "2001"
 
 [lwc]
+# block_bits = { AD = 128, XT = 128}
 aead.algorithm = "isapa128av20"
 aead.key_reuse = true
 aead.input_sequence.encrypt = ['npub', 'pt', 'ad', 'tag']
