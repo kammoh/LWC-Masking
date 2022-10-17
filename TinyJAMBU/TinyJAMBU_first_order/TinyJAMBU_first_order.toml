@@ -1,32 +1,72 @@
-name = "GIFT-COFB_first_order"
-description = "GIFT-COFB with 1st order masking"
+name = "TinyJAMBU_first_order"
+description = "TinyJAMBU with 1st order masking"
 author = ["Nicolai Mueller", "Amir Moradi"]
 url = "https://github.com/GMUCERG/TinyJAMBU" # Reference design which we protect
 license = "GPL-3.0"
 version = "0.1.0"
+
+dependencies = [
+    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 },
+    "../../gadgets.toml",
+    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+]
+
+
 [rtl]
 sources = [
-	"src_rtl/LWC_config.vhd",
-	"src_rtl/CryptoCore_SCA.vhd",
-	"src_rtl/design_pkg.vhd",
-	"src_rtl/nlfsr.vhd",
-	"src_rtl/nlfsr_core_HPC2_ClockGating_d1.v",
-	"src_rtl/tinyjambu_control.vhd",
-	"src_rtl/tinyjambu_datapath.vhd",
-	"LWC/data_piso.vhd",
-	"LWC/data_sipo.vhd",
-	"LWC/FIFO.vhd",
-	"LWC/key_piso.vhd",
-	"LWC/LWC_SCA.vhd",
-	"LWC/NIST_LWAPI.vhd",
-	"LWC/PostProcessor.vhd",
-	"LWC/PreProcessor.vhd",
-	"HPC2/nand_HPC2.vhd",
-	"General/reg.vhd",
+  "src_rtl/LWC_config.vhd",
+  "src_rtl/design_pkg.vhd",
+  "src_rtl/nlfsr.vhd",
+  "src_rtl/nlfsr_core_HPC2_ClockGating_d1.v",
+  "src_rtl/tinyjambu_control.vhd",
+  "src_rtl/tinyjambu_datapath.vhd",
+  "src_rtl/CryptoCore_SCA.vhd",
+
+    # "LWC/data_piso.vhd",
+    # "LWC/data_sipo.vhd",
+    # "LWC/FIFO.vhd",
+    # "LWC/key_piso.vhd",
+    # "LWC/LWC_SCA.vhd",
+    # "LWC/NIST_LWAPI.vhd",
+    # "LWC/PostProcessor.vhd",
+    # "LWC/PreProcessor.vhd",
+    # "HPC2/and_HPC2.vhd",
+    # "HPC2/xnor_HPC2.vhd",
+    # "HPC2/xor_HPC2.vhd",
+    # "General/Gates.v",
+    # "General/not_masked.v",
+    # "General/reg.vhd",
+    # "General/xnor_2.vhd",
+    # "General/xor_2.vhd",
 ]
 
 # includes = []
-top = "LWC_SCA"
+top = "LWC_SCA_wrapper"
+parameters.XW = 32
+
+# [rtl]
+# sources = [
+# 	"src_rtl/LWC_config.vhd",
+# 	"src_rtl/CryptoCore_SCA.vhd",
+# 	"src_rtl/design_pkg.vhd",
+# 	"src_rtl/nlfsr.vhd",
+# 	"src_rtl/nlfsr_core_HPC2_ClockGating_d1.v",
+# 	"src_rtl/tinyjambu_control.vhd",
+# 	"src_rtl/tinyjambu_datapath.vhd",
+# 	"LWC/data_piso.vhd",
+# 	"LWC/data_sipo.vhd",
+# 	"LWC/FIFO.vhd",
+# 	"LWC/key_piso.vhd",
+# 	"LWC/LWC_SCA.vhd",
+# 	"LWC/NIST_LWAPI.vhd",
+# 	"LWC/PostProcessor.vhd",
+# 	"LWC/PreProcessor.vhd",
+# 	"HPC2/nand_HPC2.vhd",
+# 	"General/reg.vhd",
+# ]
+
+# # includes = []
+# top = "LWC_SCA"
 # clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
