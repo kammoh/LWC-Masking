@@ -35,6 +35,9 @@ logger.root.setLevel(logging.INFO)
 
 class Lwc(BaseModel):
     """design.lwc"""
+    class Config:
+        extra = Extra.allow
+        allow_population_by_field_name = True
 
     class Aead(BaseModel):
         class InputSequence(BaseModel):
@@ -105,6 +108,7 @@ class Lwc(BaseModel):
     class ScaProtection(BaseModel):
         class Config:
             extra = Extra.allow
+            allow_population_by_field_name = True
 
         target: Optional[Sequence[str]] = Field(
             None,
@@ -132,7 +136,7 @@ class Lwc(BaseModel):
     sca_protection: Optional[ScaProtection] = Field(
         None, description="Implemented countermeasures against side-channel attacks."
     )
-    block_bits: Dict[str, int] = dict(XT=512, AD=512, HM=512)
+    block_bits: Dict[str, int] = Field(dict(XT=512, AD=512, HM=512), alias="block_size")
 
 
 class LwcDesign(Design):
@@ -204,6 +208,7 @@ def gen_tv(
             lwc.hash.algorithm,
         ]
     block_bits = {k.upper(): v for k, v in lwc.block_bits.items()}
+    logger.info("block_bits: ", block_bits)
     if "XT" in block_bits:
         block_bits["PT"] = block_bits["XT"]
         block_bits["CT"] = block_bits["XT"]
@@ -500,6 +505,7 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
         )
         writer.writeheader()
         writer.writerows(results)
+
     table = Table()
 
     def tr(f):

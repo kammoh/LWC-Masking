@@ -1,4 +1,4 @@
-name = "Sparkle_VT"
+name = "SPARKLE_VT_h"
 developer = "Virginia Tech"
 description = "SCHWAEMM+ESCH"
 
@@ -10,7 +10,7 @@ dependencies = [
 aead.algorithm = "schwaemm256128v1"
 aead.key_reuse = true
 hash.algorithm = "esch256v1"
-block_size = { xt = 256, ad = 256, hm = 256 }
+block_bits = { xt = 256, ad = 256, hm = 256 }
 
 [language]
 vhdl.version = "2008"

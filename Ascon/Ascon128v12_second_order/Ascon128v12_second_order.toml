@@ -4,34 +4,69 @@ author = ["Nicolai Mueller", "Amir Moradi"]
 url = "https://github.com/ascon/ascon-hardware/tree/master/src_rtl/v1" # Reference design which we protect
 license = "GPL-3.0"
 version = "0.1.0"
-[rtl]
-sources = [
-	"src_rtl/ascon_pkg.vhd",
-	"src_rtl/Asconp_HPC2_ClockGating_d2.v",
-	"src_rtl/CryptoCore_SCA.vhd",
-	"src_rtl/design_pkg.vhd",
-	"src_rtl/LWC_config.vhd",
-	"LWC/data_piso.vhd",
-	"LWC/data_sipo.vhd",
-	"LWC/FIFO.vhd",
-	"LWC/key_piso.vhd",
-	"LWC/LWC_SCA.vhd",
-	"LWC/NIST_LWAPI.vhd",
-	"LWC/PostProcessor.vhd",
-	"LWC/PreProcessor.vhd",
-	"HPC2/and_HPC2.vhd",
-	"HPC2/nor_HPC2.vhd",
-	"HPC2/xnor_HPC2.vhd",
-	"HPC2/xor_HPC2.vhd",
-	"General/Gates.v",
-	"General/not_masked.v",
-	"General/reg.vhd",
-	"General/xnor_2.vhd",
-	"General/xor_2.vhd",
+
+dependencies = [
+    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 3 },
+    "../../gadgets.toml",
+    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
+
+[rtl]
+sources = [
+    "src_rtl/ascon_pkg.vhd",
+    "src_rtl/design_pkg.vhd",
+    "src_rtl/LWC_config.vhd",
+    "src_rtl/Asconp_HPC2_ClockGating_d2.v",
+    "src_rtl/CryptoCore_SCA.vhd",
+    # "LWC/data_piso.vhd",
+    # "LWC/data_sipo.vhd",
+    # "LWC/FIFO.vhd",
+    # "LWC/key_piso.vhd",
+    # "LWC/LWC_SCA.vhd",
+    # "LWC/NIST_LWAPI.vhd",
+    # "LWC/PostProcessor.vhd",
+    # "LWC/PreProcessor.vhd",
+    # "HPC2/and_HPC2.vhd",
+    # "HPC2/xnor_HPC2.vhd",
+    # "HPC2/xor_HPC2.vhd",
+    # "General/Gates.v",
+    # "General/not_masked.v",
+    # "General/reg.vhd",
+    # "General/xnor_2.vhd",
+    # "General/xor_2.vhd",
+]
+
+parameters.XW = 32
+
+# [rtl]
+# sources = [
+# 	"src_rtl/ascon_pkg.vhd",
+# 	"src_rtl/Asconp_HPC2_ClockGating_d2.v",
+# 	"src_rtl/CryptoCore_SCA.vhd",
+# 	"src_rtl/design_pkg.vhd",
+# 	"src_rtl/LWC_config.vhd",
+# 	"LWC/data_piso.vhd",
+# 	"LWC/data_sipo.vhd",
+# 	"LWC/FIFO.vhd",
+# 	"LWC/key_piso.vhd",
+# 	"LWC/LWC_SCA.vhd",
+# 	"LWC/NIST_LWAPI.vhd",
+# 	"LWC/PostProcessor.vhd",
+# 	"LWC/PreProcessor.vhd",
+# 	"HPC2/and_HPC2.vhd",
+# 	"HPC2/nor_HPC2.vhd",
+# 	"HPC2/xnor_HPC2.vhd",
+# 	"HPC2/xor_HPC2.vhd",
+# 	"General/Gates.v",
+# 	"General/not_masked.v",
+# 	"General/reg.vhd",
+# 	"General/xnor_2.vhd",
+# 	"General/xor_2.vhd",
+# ]
+
 # includes = []
-top = "LWC_SCA"
+top = "LWC_SCA_wrapper"
 # clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
@@ -46,8 +81,11 @@ verilog.version = "2001"
 # sources = ["LWC_SCA_TB.vhd"]
 # includes = []
 # top = "LWC_SCA_TB"
-[lwc.aead]
-algorithm = "Ascon128v12"
+[lwc]
+block_bits = { AD = 64, XT = 64}
+aead.algorithm = "ascon128v12"
+aead.key_reuse = true
+hash.algorithm = "asconhashv12"
 # key_bits = 128
 # npub_bits = 128
 # tag_bits = 128

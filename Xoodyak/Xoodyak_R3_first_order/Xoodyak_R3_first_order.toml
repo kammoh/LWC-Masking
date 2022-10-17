@@ -75,12 +75,8 @@ sdi.num_shares = 2
 [lwc.sca_protection]
 target = ["spa", "dpa", "cpa", "timing"]
 order = 1
-[lwc.block_bits]
-xt = 352
-ad = 352
-hm = 352
 
-[lwc.block_size]
+[lwc.block_bits]
 xt = 192
 ad = 352
 hm = 128

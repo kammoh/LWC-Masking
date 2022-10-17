@@ -58,3 +58,6 @@ G_MAX_FAILURES = 0
 fmax_low_freq = 45
 fmax_high_freq = 88
 synthesis_engine = "lse"
+
+[flows.vivado_synth]
+fpga.part = "xc7a100tftg256-2L"

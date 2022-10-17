@@ -8,7 +8,6 @@ entity LWC_SCA_wrapper is
   generic(
     XRW             : natural  := 0;
     XW              : natural  := 64;
-    XSW             : natural  := 64;
     PDI_FIFO_DEPTH  : positive := 2;
     SDI_FIFO_DEPTH  : positive := 2;
     DO_FIFO_DEPTH   : positive := 2;
@@ -23,11 +22,12 @@ entity LWC_SCA_wrapper is
     pdi_valid   : in  std_logic;
     pdi_ready   : out std_logic;
     --! Secret data input
-    sdi_data    : in  std_logic_vector(XSW - 1 downto 0);
+    sdi_data    : in  std_logic_vector(XW - 1 downto 0);
     sdi_valid   : in  std_logic;
     sdi_ready   : out std_logic;
     --! Data out ports
     do_data     : out std_logic_vector(XW - 1 downto 0);
+    do_last     : out std_logic := '0';
     do_valid    : out std_logic;
     do_ready    : in  std_logic;
     --! Random Input
@@ -55,6 +55,8 @@ architecture RTL of LWC_SCA_wrapper is
     end loop;
     return r;
   end function;
+
+  constant XSW: natural := XW;
 
   signal lwc_pdi_data : std_logic_vector(PDI_SHARES * W - 1 downto 0);
   signal lwc_sdi_data : std_logic_vector(SDI_SHARES * SW - 1 downto 0);

@@ -1,3 +1,5 @@
+name = "LWC_SCA_wrapper"
+
 rtl.sources = [
     "LFSR.vhd",
     "asym_fifo.vhd",
@@ -6,3 +8,9 @@ rtl.sources = [
 rtl.top = "LWC_SCA_wrapper"
 rtl.clock_port = "clk"
 
+tb.sources = [
+    "LWC_TB_SCA.vhd",
+    "LWC_TB_SCA_wrapper_conf.vhd",
+]
+
+tb.top = "LWC_TB_SCA_wrapper_conf"
