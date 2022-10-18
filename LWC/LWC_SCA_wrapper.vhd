@@ -7,7 +7,7 @@ use work.LWC_config.all;
 entity LWC_SCA_wrapper is
   generic(
     XRW             : natural  := 0;
-    XW              : natural  := 64;
+    XW              : natural  := 32;
     PDI_FIFO_DEPTH  : positive := 2;
     SDI_FIFO_DEPTH  : positive := 2;
     DO_FIFO_DEPTH   : positive := 2;

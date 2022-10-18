@@ -9,7 +9,7 @@ version = "0.1.0"
 dependencies = [
     # { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 },
     # "../../gadgets.toml",
-    # { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 
@@ -45,8 +45,8 @@ sources = [
     "../../LWC/LWC_SCA.vhd",
 ]
 
-top = "LWC_SCA"
-# clock.port = "clk"
+top = "LWC_SCA_wrapper"
+clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
 # reset.asynchronous = false
