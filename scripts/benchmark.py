@@ -9,7 +9,7 @@ import sys
 from copy import copy
 from functools import reduce
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import click
 from cryptotvgen.cli import run_cryptotvgen
@@ -22,11 +22,6 @@ from xeda.flow_runner import DefaultRunner as FlowRunner
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
-# try:
-#     from lwc_design import LwcDesign
-# except ImportError:
-#     from .scripts.lwc_design import LwcDesign
-
 console = Console()
 
 logger = logging.getLogger(__name__)
@@ -35,6 +30,7 @@ logger.root.setLevel(logging.INFO)
 
 class Lwc(BaseModel):
     """design.lwc"""
+
     class Config:
         extra = Extra.allow
         allow_population_by_field_name = True
@@ -447,11 +443,9 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
             row["adBytes"] = int(row["adBytes"])
             row["msgBytes"] = int(row["msgBytes"])
             total_bytes = row["adBytes"] + row["msgBytes"]
-            row["Throughput"] = round(total_bytes / msg_cycles[msgid], 3)
+            row["Throughput"] = total_bytes / msg_cycles[msgid]
             if FRESH_RAND_COL_NAME in row:
-                row[RAND_PER_BYTE_COL_NAME] = round(
-                    row[FRESH_RAND_COL_NAME] / total_bytes, 3
-                )
+                row[RAND_PER_BYTE_COL_NAME] = row[FRESH_RAND_COL_NAME] / total_bytes
             results.append(row)
             if row["longN+1"] == "True":
                 long_row = copy(results[-2])
@@ -467,13 +461,11 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
                 long_row["msgBytes"] = "long" if int(row["msgBytes"]) else 0
                 long_row["Cycles"] = cycle_diff
                 long_row["msgId"] = prev_id + ":" + msgid
-                long_row["Throughput"] = round((ad_diff + msg_diff) / cycle_diff, 3)
+                long_row["Throughput"] = (ad_diff + msg_diff) / cycle_diff
                 if msgid in msg_fresh_rand:
                     rnd_diff = msg_fresh_rand[msgid] - msg_fresh_rand[prev_id]
                     long_row[FRESH_RAND_COL_NAME] = rnd_diff
-                    long_row[RAND_PER_BYTE_COL_NAME] = round(
-                        rnd_diff / (ad_diff + msg_diff), 3
-                    )
+                    long_row[RAND_PER_BYTE_COL_NAME] = rnd_diff / (ad_diff + msg_diff)
                 results.append(long_row)
     results_file = design.name + "_timing_results.csv"
     fieldnames = [
