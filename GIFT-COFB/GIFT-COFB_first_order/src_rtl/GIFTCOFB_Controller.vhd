@@ -121,26 +121,23 @@ architecture Behavioral of GIFTCOFB_Controller is
     signal ctr_time         : std_logic_vector(7 downto 0);
 
     signal msg_auth_s          : std_logic;
-    signal n_msg_auth_s        : std_logic;
     signal bdi_reg             : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
     signal bdo_reg             : std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
     -- FIXME
     signal bdi_reg_unshared    : std_logic_vector(CCW - 1 downto 0);
     signal bdo_reg_unshared    : std_logic_vector(CCW - 1 downto 0);
 
-    -- FIXED by Kamyar
-    signal bdo_valid_bytes_reg  : std_logic_vector(CCW/8 - 1 downto 0);
-    signal bdo_last_reg         : std_logic;
-    
     -- State machine signals
     signal state            : fsm;
     signal next_state       : fsm;
 
+    signal tag_reg_valid  : std_logic;
+
 -------------------------------------------------------------------------------
 begin
     msg_auth <= msg_auth_s;
-    bdi_reg_unshared <= bdi_reg(1*CCW-1 downto 0*CCW) xor bdi_reg(2*CCW-1 downto 1*CCW);
-    bdo_reg_unshared <= bdo_reg(1*CCW-1 downto 0*CCW) xor bdo_reg(2*CCW-1 downto 1*CCW);
+    bdi_reg_unshared <= (others => '0'); --bdi_reg(1*CCW-1 downto 0*CCW) xor bdi_reg(2*CCW-1 downto 1*CCW);
+    bdo_reg_unshared <= (others => '0'); --bdo_reg(1*CCW-1 downto 0*CCW) xor bdo_reg(2*CCW-1 downto 1*CCW);
     
     GIFT_rst <= rst or GIFT_reset; 
                 
@@ -154,22 +151,25 @@ begin
             else
 
                 state   <= next_state;
-                msg_auth_s <= n_msg_auth_s;
 
-                -- added by Kamyar
-                if bdi_valid = '1' and bdi_ready = '1' then
-                    bdo_last_reg        <= bdi_eot;
-                    bdo_valid_bytes_reg <= bdi_valid_bytes;
+                if tag_reg_valid = '1' then
+                    if (bdi_reg_unshared /= bdo_reg_unshared) then
+                        msg_auth_s <= '0';
+                    end if;
                 end if;
 
                 case state is
+                    when idle =>
+                        msg_auth_s    <= '1';
+                        tag_reg_valid <= '0';
                     when load_tag =>
-                        if bdi_valid = '1' and bdi_ready = '1' then
+                        if bdi_valid = '1' then
                             bdi_reg <= bdi;
-                        end if;
-                        if bdo_valid = '1' and bdo_ready = '1' then
                             bdo_reg <= bdo;
+                            tag_reg_valid <= '1';
                         end if;
+                    when verify_tag =>
+                        tag_reg_valid <= '0';
 
                     when others =>
                         null;
@@ -241,9 +241,9 @@ begin
     
     -- Controller process -------------------------------------------------------
     Controller: process(state, key_valid, key_update, bdi_valid, bdi_eot, last_M_reg, half_M_reg, no_M_reg,
-                        bdi_eoi, bdi_type, ctr_words, GIFT_done, bdo_ready, rdi_valid, bdi_reg_unshared, bdo_reg_unshared, 
-                        msg_auth_ready, ctr_time, decrypt_in, bdi_size, last_AD_reg, no_AD_reg, half_AD_reg, decrypt_reg,
-                        msg_auth_s, bdo_last_reg, bdo_valid_bytes_reg)
+                        bdi_eoi, bdi_type, ctr_words, GIFT_done, bdo_ready, rdi_valid, msg_auth_ready, 
+                        ctr_time, decrypt_in, bdi_size, last_AD_reg, no_AD_reg, half_AD_reg, decrypt_reg,
+                        bdi_valid_bytes, tag_reg_valid)
     begin
         next_state          <= state;
         key_ready           <= '0';
@@ -283,11 +283,9 @@ begin
         iData_mux_sel       <= "11";     
         bdo_t_mux_sel       <= '0';
         GIFT_reset          <= '0';     
-        n_msg_auth_s        <= msg_auth_s;
-        
 
-        bdo_valid_bytes <=  bdo_valid_bytes_reg;
-        end_of_block    <=  bdo_last_reg;             
+        bdo_valid_bytes <=  bdi_valid_bytes;
+        end_of_block    <=  bdi_eot;             
 
         case state is
             when idle =>
@@ -305,7 +303,6 @@ begin
                 half_M_rst          <= '1';
                 no_M_rst            <= '1';
                 next_state          <= load_rnd;
-                n_msg_auth_s        <= '1';
            
             when load_rnd =>   
                 rdi_ready <= '1'; -- ???
@@ -521,7 +518,7 @@ begin
             when output_tag =>
                 bdo_t_mux_sel       <= '1';
                 bdo_valid           <= '1';
-                ctr_words_inc       <= '1';
+                ctr_words_inc       <= bdo_ready;
                 end_of_block        <= '0';
                 bdo_valid_bytes     <= (others => '1');
                 if (ctr_words = 3) then
@@ -531,24 +528,22 @@ begin
                 end if; 
              
             when load_tag =>
-                rdi_ready           <= '1';
+                -- rdi_ready           <= '1';
                 bdi_ready           <= '1';
-                ctr_words_inc       <= '1';
-                iDataReg_en         <= '1';
+                ctr_words_inc       <= bdi_valid;
+                iDataReg_en         <= bdi_valid;
                 iData_mux_sel       <= "00";
-                -- FIXME one cycle delay
-                -- if (bdi_reg_unshared /= bdo_reg_unshared) then
-                    -- n_msg_auth_s <= '0';
-                -- end if;
                 if (ctr_words = 3) then
                     ctr_words_rst   <= '1';
                     next_state      <= verify_tag;
-                end if;   
+                end if;
             
             when verify_tag =>
-                msg_auth_valid  <= '1';
-                if (msg_auth_ready = '1') then
-                    next_state      <= idle; 
+                if tag_reg_valid = '0' then
+                    msg_auth_valid  <= '1';
+                    if (msg_auth_ready = '1') then
+                        next_state      <= idle; 
+                    end if;
                 end if;
 
             end case;

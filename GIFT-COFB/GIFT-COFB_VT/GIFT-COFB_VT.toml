@@ -33,6 +33,7 @@ sources = [
 
     "../../LWC/old/key_piso.vhd",
     "../../LWC/old/data_piso.vhd",
+    # "../../LWC/PISO.vhd",
     "../../LWC/old/PreProcessor.vhd",
     "../../LWC/SIPO.vhd",
     "../../LWC/PostProcessor.vhd",

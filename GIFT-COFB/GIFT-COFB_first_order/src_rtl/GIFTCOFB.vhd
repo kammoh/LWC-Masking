@@ -104,7 +104,6 @@ begin
         X_in_mux_sel    => X_in_mux_sel,
         key             => key,
         bdi             => bdi,   
-        bdi_size        => bdi_size,
         bdi_eot         => bdi_eot,
         bdo             => bdo_s,
         ctr_words       => ctr_words,

@@ -17,9 +17,10 @@ dependencies = [
 sources = [
     "src_rtl/LWC_config.vhd",
     "src_rtl/design_pkg.vhd",
+    "../../LWC/NIST_LWAPI_pkg.vhd",
     "src_rtl/ConsGen.vhd",
-    "src_rtl/GIFT128.vhd",
     "src_rtl/SomeFunc.vhd",
+    "src_rtl/GIFT128.vhd",
     "src_rtl/myReg.vhd",
     "src_rtl/PermBits.vhd",
 	"../../HPC2/and_HPC2.vhd",
@@ -34,18 +35,14 @@ sources = [
     "src_rtl/GIFTCOFB.vhd",
 	"src_rtl/CryptoCore_SCA.vhd",
 
-    # "../../LWC/old/key_piso.vhd",
-    # "../../LWC/old/data_piso.vhd",
-    # "../../LWC/old/PreProcessor.vhd",
+    "../../LWC/old/key_piso.vhd",
+    "../../LWC/old/data_piso.vhd",
+    "../../LWC/old/PreProcessor.vhd",
+
     "../../LWC/SIPO.vhd",
     "../../LWC/PostProcessor.vhd",
     "../../LWC/FIFO.vhd",
     "../../LWC/LWC_SCA.vhd",
-
-    # "src_rtl/v1/StepDownCountLd.vhd",
-    # "src_rtl/v1/data_sipo.vhd",
-    # "src_rtl/v1/PostProcessor.vhd",
-    # "src_rtl/v1/fwft_fifo.vhd",
 ]
 
 top = "LWC_SCA"
@@ -82,8 +79,8 @@ order = 1
 
 
 [tb]
-# sources = ["../../LWC/LWC_TB_SCA.vhd"]
-# top = "LWC_TB"
+sources = ["../../LWC/LWC_TB_SCA.vhd"]
+top = "LWC_TB"
 parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
 parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
 parameters.G_FNAME_DO = {file = "KAT/do.txt"}

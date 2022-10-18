@@ -10,7 +10,9 @@
 ----------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.all;
+use IEEE.NUMERIC_STD_UNSIGNED.all;
+
 use work.SomeFunc.all;
 use work.NIST_LWAPI_pkg.all;
 use work.design_pkg.all;
@@ -25,7 +27,6 @@ entity GIFTCOFB_Datapath is
     GIFT_done       : out std_logic;
     X_in_mux_sel    : in  std_logic;
     key, bdi        : in  std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
-    bdi_size        : in  std_logic_vector(2  downto 0);
     bdi_eot         : in  std_logic;
     bdo             : out std_logic_vector(PDI_SHARES * CCW - 1 downto 0);
     --msg_auth        : out std_logic;
@@ -50,7 +51,6 @@ architecture Behavioral of GIFTCOFB_Datapath is
 
     -- Constants ----------------------------------------------------
     constant zero64         : std_logic_vector(63  downto 0) := (others => '0');
-    constant zero127        : std_logic_vector(126 downto 0) := (others => '0');
 
     -- Signals -------------------------------------------------------
     signal X_in             : std_logic_vector(PDI_SHARES*128-1 downto 0);
@@ -147,11 +147,11 @@ begin
     
     with X_in_mux_sel select
         X_in(1*128-1 downto 0*128) <=  iDataReg_out(1*128-1 downto 0*128)       when '0',    -- Nonce
-        rho1(Y_out(1*128-1 downto 0*128), Pad(iDataReg_out(1*128-1 downto 0*128), conv_integer(ctr_bytes))) xor (DstateReg_out(1*64-1 downto 0*64) & zero64) when others; -- AD or PT
+        rho1(Y_out(1*128-1 downto 0*128), Pad(iDataReg_out(1*128-1 downto 0*128), to_integer(ctr_bytes))) xor (DstateReg_out(1*64-1 downto 0*64) & zero64) when others; -- AD or PT
 
     with X_in_mux_sel select
         X_in(2*128-1 downto 1*128) <=  iDataReg_out(2*128-1 downto 1*128)       when '0',    -- Nonce
-        rho1(Y_out(2*128-1 downto 1*128), Pad2(iDataReg_out(2*128-1 downto 1*128), conv_integer(ctr_bytes))) xor (DstateReg_out(2*64-1 downto 1*64) & zero64) when others; -- AD or PT
+        rho1(Y_out(2*128-1 downto 1*128), Pad2(iDataReg_out(2*128-1 downto 1*128), to_integer(ctr_bytes))) xor (DstateReg_out(2*64-1 downto 1*64) & zero64) when others; -- AD or PT
 
     with Dstate_mux_sel select
         DstateReg_in(1*64-1 downto 0*64) <=  Y_out(0*128+127 downto 0*128+64)            when "00",   -- Tranc(Ek(N))
@@ -170,8 +170,8 @@ begin
                                         myMux(iDataReg_out(1*128+95 downto 1*128+0) & bdo_t(2*32-1 downto 1*32), ctr_words, bdi_eot) when "10",   -- PT during the decryption                 
                                         myMux(iDataReg_out(1*128+95 downto 1*128+0) & bdi(2*32-1 downto 1*32), ctr_words, bdi_eot) when others; -- AD or PT
                             
-    Y_out_32(1*32-1 downto 0*32) <=  Y_out(0*128+(127 - conv_integer(ctr_words)*32) downto 0*128+(96 - conv_integer(ctr_words)*32)); 
-    Y_out_32(2*32-1 downto 1*32) <=  Y_out(1*128+(127 - conv_integer(ctr_words)*32) downto 1*128+(96 - conv_integer(ctr_words)*32)); 
+    Y_out_32(1*32-1 downto 0*32) <=  Y_out(0*128+(127 - to_integer(ctr_words)*32) downto 0*128+(96 - to_integer(ctr_words)*32)); 
+    Y_out_32(2*32-1 downto 1*32) <=  Y_out(1*128+(127 - to_integer(ctr_words)*32) downto 1*128+(96 - to_integer(ctr_words)*32)); 
 
     with bdo_t_mux_sel select                      
         bdo_t(1*32-1 downto 0*32) <=  Y_out_32(1*32-1 downto 0*32) xor bdi(1*32-1 downto 0*32) when '0',    -- CT(PT) =  Y xor PT(CT) 
