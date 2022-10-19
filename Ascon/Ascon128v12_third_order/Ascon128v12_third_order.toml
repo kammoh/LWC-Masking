@@ -51,8 +51,8 @@ sources = [
 ]
 
 top = "LWC_SCA_wrapper"
-parameters.XW = 32
 clock.port = "clk"
+parameters.XW = 32
 
 [tb]
 sources = ["../../LWC/LWC_TB_SCA.vhd"]

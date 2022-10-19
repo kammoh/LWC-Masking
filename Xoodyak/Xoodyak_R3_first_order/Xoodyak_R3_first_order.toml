@@ -6,9 +6,9 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 }, 
-    "../../gadgets.toml",
-    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+	{ uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 },
+	"../../gadgets.toml",
+	{ uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 [rtl]
@@ -43,30 +43,31 @@ sources = [
 # includes = []
 top = "LWC_SCA_wrapper"
 parameters.XW = 32
-# clock.port = "clk"
-# reset.port = "rst"
-# reset.active_high = true
-# reset.asynchronous = false
-# parameters = { G_DO_FIFO_DEPTH = 1 }
+
+[tb]
+sources = ["../../LWC/LWC_TB_SCA.vhd"]
+top = "LWC_TB"
+parameters.G_FNAME_PDI = { file = "KAT/pdi_shared_2.txt" }
+parameters.G_FNAME_SDI = { file = "KAT/sdi_shared_2.txt" }
+parameters.G_FNAME_DO = { file = "KAT/do.txt" }
+
 [language]
 vhdl.version = "2008"
 # vhdl.synopsys = false
 verilog.version = "2001"
-# systemverilog.version = "2009"
-# [tb]
-# sources = ["LWC_SCA_TB.vhd"]
-# includes = []
-# top = "LWC_SCA_TB"
+
 [lwc.aead]
 algorithm = "xoodyakround3"
-# key_bits = 128
-# npub_bits = 128
-# tag_bits = 128
-# input_sequence.encrypt = ["npub", "ad", "data"]
-# input_sequence.decrypt = ["npub", "ad", "data", "tag"]
+
 [lwc.hash]
 algorithm = "xoodyakround3"
-# digest_bits = 128
+
+[lwc.block_bits]
+xt = 192
+ad = 352
+hm = 128
+
+
 [lwc.ports]
 # pdi.bit_width = 32
 pdi.num_shares = 2
@@ -76,15 +77,3 @@ sdi.num_shares = 2
 [lwc.sca_protection]
 target = ["spa", "dpa", "cpa", "timing"]
 order = 1
-
-[lwc.block_bits]
-xt = 192
-ad = 352
-hm = 128
-
-# [tb]
-# sources = ["../../LWC/LWC_TB_SCA.vhd"]
-# top = "LWC_TB"
-# parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
-# parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
-# parameters.G_FNAME_DO =  {file = "KAT/do.txt"}
