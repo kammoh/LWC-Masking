@@ -292,132 +292,122 @@ begin
     end generate;
 
     GEN_BRAM : if (G_DEPTH > 2 or (G_DEPTH = 2 and not G_ELASTIC_2)) and G_RAM_STYLE = "block" generate
-        --! from:      fwft_fifo.vhd (Simple First-In-First_Out)
-        --! author     Patrick Karl <patrick.karl@tum.de>
-        --! copyright  Copyright (c) 2019 Chair of Security in Information Technology
-        --!            ECE Department, Technical University of Munich, GERMANY
-        --! license    GPL 3.0
 
-        -- Memory type and signal definition
-        signal mem_s            : t_storage;
 
-        attribute ram_style : string;
-        attribute ram_style of mem_s : signal is G_RAM_STYLE;
+        constant G_OUT_REG: boolean := FALSE; -- TODO: add as generic?
 
-        signal mem_s_next       : t_storage;
+        function slv_chunk(slv : std_logic_vector; chunk_width, i : natural) return std_logic_vector is
+            constant NUM_CHUNKS : natural := slv'length / chunk_width;
+        begin
+            return slv((i + 1) * chunk_width - 1 downto i * chunk_width);
+        end function;
 
-        -- Internal handshake signals
-        signal din_ready_s      : std_logic := '0';
-        signal dout_valid_s     : std_logic := '0';
+        --======================================== Registers =========================================--
+        signal is_empty          : boolean;
+        signal is_full           : boolean;
+        signal dequeued_is_valid : std_logic;
+        signal rd_ptr, wr_ptr    : unsigned(log2ceil(G_DEPTH) - 1 downto 0);
 
-        -- Internal flags
-        signal empty_s          : std_logic;
-        signal full_s           : std_logic;
-        signal wr_ptr_s         : integer range 0 to G_DEPTH - 1;
-        signal wr_ptr_s_next    : integer range 0 to G_DEPTH - 1;
-        signal rd_ptr_s         : integer range 0 to G_DEPTH - 1;
-        signal rd_ptr_s_next    : integer range 0 to G_DEPTH - 1;
+        --========================================== Wires ============================================--
+        signal next_rd_ptr                : unsigned(rd_ptr'range);
+        signal next_wr_ptr                : unsigned(wr_ptr'range);
+        signal write_en, read_en, overlap : boolean;
+        signal almost_empty, almost_full  : boolean;
+        signal can_deq                    : boolean;
+        signal read_data                  : std_logic_vector(G_W - 1 downto 0);
+        signal out_ready, enq_ready_o     : std_logic; -- := FALSE;
 
-        -- Although we use an additional counter for generating din_ready and
-        -- dout_valid, standalone synthesis shows less ressource usage.
-        -- In addition to that, the entries counter can be used for
-        -- generating additional full/empty flags and programmable full/empty flags.
-        signal entries_s        : integer range 0  to G_DEPTH;
-        signal entries_s_next   : integer range - 1 to G_DEPTH+1;
     begin
-        assert FALSE report "[FIFO] fwft_fifo BLOCK RAM" severity NOTE;
 
-        -- Output data
-        dout        <= mem_s(rd_ptr_s);
-        dout_valid  <= dout_valid_s;
-        din_ready   <= din_ready_s;
+        assert FALSE report LF & "[FIFO] Block RAM" severity NOTE;
 
-        -- Set flags
-        --prog_full       <= '1' when (entries_s >= to_integer(unsigned(prog_full_th))) else '0';
-        full_s          <= '1' when (entries_s >= G_DEPTH)      else '0';
-        empty_s         <= '1' when (entries_s <= 0)            else '0';
-        din_ready_s     <= not full_s;
-        dout_valid_s    <= not empty_s;
+        next_rd_ptr <= rd_ptr + 1;            -- mod (2 ** DEPTH_BITS)
+        next_wr_ptr <= wr_ptr + 1;            -- mod (2 ** DEPTH_BITS)
+
+        overlap <= rd_ptr = wr_ptr;
+
+        almost_empty <= next_rd_ptr = wr_ptr;
+        almost_full  <= next_wr_ptr = rd_ptr;
+        can_deq     <= is_full or not overlap;
+        enq_ready_o <= '0' when is_full else '1';
+
+        write_en  <= din_valid = '1' and enq_ready_o = '1';
+        read_en   <= can_deq and (dequeued_is_valid = '0' or out_ready = '1');
+        din_ready <= enq_ready_o;
 
 
-        -- Counting the numbers of entries, setting rd-/wr-pointers and
-        -- writing the data into the memory.
-
-        p_mem : process(clk)
+        process(clk) is
         begin
             if rising_edge(clk) then
-                mem_s <= mem_s_next;
-            end if;
-        end process p_mem;
-
-        GEN_p_ptr_SYNC_RST: if (not ASYNC_RSTN) generate
-            p_ptr : process(clk)
-            begin
-                if rising_edge(clk) then
-                    if (rst = '1') then
-                        wr_ptr_s    <= 0;
-                        rd_ptr_s    <= 0;
-                        entries_s   <= 0;
-                    else
-                        wr_ptr_s    <= wr_ptr_s_next;
-                        rd_ptr_s    <= rd_ptr_s_next;
-                        entries_s   <= entries_s_next;
+                if rst = '1' then
+                    is_empty          <= TRUE;
+                    is_full           <= FALSE;
+                    dequeued_is_valid <= '0';
+                    rd_ptr            <= (others => '0');
+                    wr_ptr            <= (others => '0');
+                else
+                    if write_en then
+                        if not read_en and almost_full then
+                            is_full <= TRUE;
+                        end if;
+                        is_empty <= FALSE;
+                        wr_ptr   <= next_wr_ptr;
+                    end if;
+                    if read_en then
+                        dequeued_is_valid <= '1';
+                        if not write_en and almost_empty then
+                            is_empty <= TRUE;
+                        end if;
+                        is_full           <= FALSE;
+                        rd_ptr            <= next_rd_ptr;
+                    elsif out_ready = '1' then
+                        dequeued_is_valid <= '0';
                     end if;
                 end if;
-            end process p_ptr;
-        end generate GEN_p_ptr_SYNC_RST;
+            end if;
+        end process;
 
-        GEN_p_ptr_ASYNC_RSTN: if (ASYNC_RSTN) generate
-            p_ptr : process(clk, rst)
-            begin
-                if (rst = '0') then
-                    wr_ptr_s    <= 0;
-                    rd_ptr_s    <= 0;
-                    entries_s   <= 0;
-                elsif rising_edge(clk) then
-                    wr_ptr_s    <= wr_ptr_s_next;
-                    rd_ptr_s    <= rd_ptr_s_next;
-                    entries_s   <= entries_s_next;
-                end if;
-            end process p_ptr;
-        end generate GEN_p_ptr_ASYNC_RSTN;
-
-        p_ptr_comb : process(din, din_ready_s, din_valid, dout_ready, dout_valid_s, entries_s, rd_ptr_s, wr_ptr_s, mem_s)
+        process(clk) is
         begin
-
-            wr_ptr_s_next  <= wr_ptr_s;
-            rd_ptr_s_next  <= rd_ptr_s;
-            entries_s_next <= entries_s;
-            mem_s_next     <= mem_s;
-            -- Increase entry counter if data is written but not read
-            -- Decrease entry counter if data is read but not written
-            if (din_valid = '1' and din_ready_s = '1'
-                    and (dout_valid_s = '0' or dout_ready = '0')) then
-                entries_s_next <= entries_s + 1;
-            elsif ((din_valid = '0' or din_ready_s = '0')
-                    and dout_valid_s = '1' and dout_ready = '1') then
-                entries_s_next <= entries_s - 1;
-            end if;
-
-            -- Write into memory and increase write pointer
-            if (din_valid = '1' and din_ready_s = '1') then
-                mem_s_next(wr_ptr_s) <= din;
-                if (wr_ptr_s >= G_DEPTH - 1) then
-                    wr_ptr_s_next <= 0;
-                else
-                    wr_ptr_s_next <= wr_ptr_s + 1;
+            if rising_edge(clk) then
+                if write_en then
+                    storage(to_int01(wr_ptr)) <= din;
+                end if;
+                if read_en then
+                    read_data <= storage(to_int01(rd_ptr));
                 end if;
             end if;
+        end process;
 
-            -- Increase read pointer if data is read
-            if (dout_valid_s = '1' and dout_ready = '1') then
-                if (rd_ptr_s >= G_DEPTH - 1) then
-                    rd_ptr_s_next <= 0;
-                else
-                    rd_ptr_s_next <= rd_ptr_s + 1;
+        GEN_OUTREG : if G_OUT_REG generate
+            --======================================== Registers ==========================================--
+            signal out_reg       : std_logic_vector(G_W - 1 downto 0);
+            signal out_reg_valid : std_logic;   -- := FALSE;
+
+        begin
+            dout  <= out_reg;
+            dout_valid <= out_reg_valid;
+            out_ready <= not out_reg_valid or dout_ready;
+
+            process(clk) is
+            begin
+                if rising_edge(clk) then
+                    if rst = '1' then
+                        out_reg_valid <= '0';
+                    elsif dout_ready = '1' or out_reg_valid = '0' then
+                        out_reg       <= read_data;
+                        out_reg_valid <= dequeued_is_valid;
+                    end if;
                 end if;
-            end if;
-        end process p_ptr_comb;
+            end process;
+        end generate;
+
+        GEN_NO_OUTREG : if not G_OUT_REG generate
+            dout  <= read_data;
+            dout_valid <= dequeued_is_valid;
+            out_ready <= dout_ready;
+        end generate;
+
     end generate;
 
 end architecture;

@@ -16,6 +16,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
+use work.LWC_config.RW;
+
 package Design_pkg is
     type set_selector is (dummy_lwc_8, dummy_lwc_16, dummy_lwc_32);
 
@@ -80,7 +82,7 @@ package body Design_pkg is
 
     constant CCW        : integer := vector_of_constants(1); --! bdo/bdi width
     constant CCSW       : integer := vector_of_constants(2); --! key width
-    constant CCRW       : integer := 1024; --! key width
+    constant CCRW       : integer := RW; --! key width
 
 
     -- derived from parameters above

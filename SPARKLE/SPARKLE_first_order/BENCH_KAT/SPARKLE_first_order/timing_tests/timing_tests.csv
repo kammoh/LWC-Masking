@@ -1,10 +1,10 @@
 msgId,newKey,decrypt,adBytes,msgBytes,hash,longN+1
 1,True,False,0,128,False,False
-2,True,False,0,160,False,True
+2,True,False,0,256,False,True
 3,True,False,128,0,False,False
-4,True,False,160,0,False,True
+4,True,False,256,0,False,True
 5,True,False,128,128,False,False
-6,True,False,160,160,False,True
+6,True,False,256,256,False,True
 7,True,False,0,16,False,False
 8,True,False,16,0,False,False
 9,True,False,16,16,False,False
@@ -15,11 +15,11 @@ msgId,newKey,decrypt,adBytes,msgBytes,hash,longN+1
 14,True,False,1536,0,False,False
 15,True,False,1536,1536,False,False
 16,True,True,0,128,False,False
-17,True,True,0,160,False,True
+17,True,True,0,256,False,True
 18,True,True,128,0,False,False
-19,True,True,160,0,False,True
+19,True,True,256,0,False,True
 20,True,True,128,128,False,False
-21,True,True,160,160,False,True
+21,True,True,256,256,False,True
 22,True,True,0,16,False,False
 23,True,True,16,0,False,False
 24,True,True,16,16,False,False
@@ -30,6 +30,6 @@ msgId,newKey,decrypt,adBytes,msgBytes,hash,longN+1
 29,True,True,1536,0,False,False
 30,True,True,1536,1536,False,False
 31,False,False,0,64,True,False
-32,False,False,0,80,True,True
+32,False,False,0,128,True,True
 33,False,False,0,16,True,False
 34,False,False,0,1536,True,False
