@@ -78,7 +78,6 @@ end entity PreProcessor;
 architecture rtl of PreProcessor is
     --======================================== Constants ========================================--
     constant SEGLEN_BITS  : positive := 16;
-    constant LOG2_W_DIV_8 : natural  := log2ceil(W / 8);
     constant HDR_LEN_BITS : positive := minimum(W, SEGLEN_BITS);
     constant W_S          : positive := PDI_SHARES * W;
 
@@ -270,47 +269,19 @@ begin
         bdi_eoi_internal  <= eoi_flag and last_flit_of_segment;
         bdi_eot_internal  <= eot_flag and last_flit_of_segment;
 
+        assert CCW = W and CCSW = SW report "NOT IMPLEMENTED" severity failure;
+        key_data <= sdi_data;
+        key_valid <= key_valid_p;
+        key_ready_p <= key_ready;
 
-        --! KEY PISO
-        -- for ccsw > SW: a piso is used for width conversion
-        keyPISO: entity work.KEY_PISO(behavioral)
-            port map(
-                clk          => clk,
-                rst          => rst,
-
-                data_s       => key_data,
-                data_valid_s => key_valid,
-                data_ready_s => key_ready,
-
-                data_p       => sdi_data,
-                data_valid_p => key_valid_p,
-                data_ready_p => key_ready_p
-            );
-
-        --! DATA PISO
-        -- for ccw > W: a piso is used for width conversion
-        bdiPISO: entity work.DATA_PISO(behavioral)
-            port map(
-                clk => clk,
-                rst => rst,
-                data_size_p   => bdi_size_p,
-                data_size_s   => bdi_size,
-                data_s        => bdi_data,
-                data_valid_s  => bdi_valid,
-                data_ready_s  => bdi_ready,
-                data_p        => pdi_data,
-                data_valid_p  => bdi_valid_p,
-                data_ready_p  => bdi_ready_p,
-                valid_bytes_p => bdi_valid_bytes_p,
-                valid_bytes_s => bdi_valid_bytes,
-                pad_loc_p     => bdi_pad_loc_p,
-                pad_loc_s     => bdi_pad_loc,
-                eoi_p         => bdi_eoi_internal,
-                eoi_s         => bdi_eoi,
-                eot_p         => bdi_eot_internal,
-                eot_s         => bdi_eot
-            );
-
+        bdi_size  <=  bdi_size_p;
+        bdi_data <= pdi_data;
+        bdi_ready_p  <=  bdi_ready;
+        bdi_valid   <=  bdi_valid_p;
+        bdi_valid_bytes <=  bdi_valid_bytes_p;
+        bdi_pad_loc  <=  bdi_pad_loc_p;
+        bdi_eoi <=  bdi_eoi_internal;
+        bdi_eot <=  bdi_eot_internal;
 
         --! State register
         GEN_proc_SYNC_RST: if (not ASYNC_RSTN) generate
