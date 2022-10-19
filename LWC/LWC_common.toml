@@ -1,0 +1,10 @@
+name = "LWC_common"
+
+rtl.sources = [
+    "NIST_LWAPI_pkg.vhd",
+    "PISO.vhd",
+    "SIPO.vhd",
+    "FIFO.vhd",
+    "PreProcessor.vhd",
+    "PostProcessor.vhd",
+]

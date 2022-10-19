@@ -6,7 +6,8 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_2Pass.toml", rtl.pos = 2 },
+    # { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_2Pass.toml", rtl.pos = 2 },
+    { uri = "../../LWC/LWC_SCA_2Pass.toml", rtl.pos = 2 },
     # "../../gadgets.toml",
     # { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
@@ -37,15 +38,16 @@ sources = [
 ]
 
 top = "LWC_SCA"
-# clock.port = "clk"
+clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
 # reset.asynchronous = false
-# [tb]
-# sources = [ # 
-#     "src_tb/LWC_TB_SCA.vhd",
-# ]
-# top = "LWC_TB"
+
+[tb]
+sources = [ # 
+    "../../LWC/LWC_TB_SCA.vhd",
+]
+top = "LWC_TB"
 
 [tb.generics]
 G_FNAME_PDI.file = "KAT/pdi_shared_2.txt"
