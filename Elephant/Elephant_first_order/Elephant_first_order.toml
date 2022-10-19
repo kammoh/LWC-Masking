@@ -7,7 +7,7 @@ version = "0.1.0"
 
 
 dependencies = [
-    { uri = "../../LWC/LWC.toml", rtl.pos = 3 }, 
+    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 3 },
     "../../gadgets.toml",
     { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
@@ -50,7 +50,9 @@ sources = [
 # hm = 128
 
 # includes = []
-top = "LWC_SCA"
+top = "LWC_SCA_wrapper"
+parameters.XW = 32
+
 # clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
@@ -83,9 +85,9 @@ sdi.num_shares = 2
 target = ["spa", "dpa", "cpa", "timing"]
 order = 1
 
-[tb]
-sources = ["../../LWC/LWC_TB_SCA.vhd"]
-top = "LWC_TB"
-parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
-parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
-parameters.G_FNAME_DO = {file = "KAT/do.txt"}
+# [tb]
+# sources = ["../../LWC/LWC_TB_SCA.vhd"]
+# top = "LWC_TB"
+# parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
+# parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
+# parameters.G_FNAME_DO = {file = "KAT/do.txt"}
