@@ -35,8 +35,6 @@ sources = [
     "src_rtl/GIFTCOFB.vhd",
 	"src_rtl/CryptoCore_SCA.vhd",
 
-    "../../LWC/old/key_piso.vhd",
-    "../../LWC/old/data_piso.vhd",
     "../../LWC/old/PreProcessor.vhd",
 
     "../../LWC/SIPO.vhd",
