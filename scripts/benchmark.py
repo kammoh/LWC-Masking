@@ -399,6 +399,7 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
         "G_FNAME_TIMING": str(timing_report),
         "G_TEST_MODE": 4,
     }
+    design.tb.top = ("LWC_TB",)
     settings = {}
     if debug:
         # settings["debug"] = True
@@ -408,7 +409,7 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
             settings["vcd"] = "benchmark.vcd"
     if sim_flow:
         f = FlowRunner().run_flow(sim_flow, design, settings)
-        if not f.succeeded:
+        if not f or not f.succeeded:
             sys.exit("Simulation flow failed")
 
     assert timing_report.exists()
