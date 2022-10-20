@@ -294,7 +294,7 @@ begin
     GEN_BRAM : if (G_DEPTH > 2 or (G_DEPTH = 2 and not G_ELASTIC_2)) and G_RAM_STYLE = "block" generate
 
 
-        constant G_OUT_REG: boolean := FALSE; -- TODO: add as generic?
+        constant G_OUT_REG: boolean := TRUE; -- TODO: add as generic?
 
         function slv_chunk(slv : std_logic_vector; chunk_width, i : natural) return std_logic_vector is
             constant NUM_CHUNKS : natural := slv'length / chunk_width;

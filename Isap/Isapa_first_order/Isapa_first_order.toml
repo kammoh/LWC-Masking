@@ -6,10 +6,11 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    # { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_2Pass.toml", rtl.pos = 2 },
-    { uri = "../../LWC/LWC_SCA_2Pass.toml", rtl.pos = 2 },
+    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_2Pass.toml", rtl.pos = 2 },
+    # { uri = "../../LWC/LWC_SCA_2Pass.toml", rtl.pos = 2 },
     # "../../gadgets.toml",
-    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_wrapper.toml", rtl.pos = -1 },
+    # { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 [rtl]
@@ -29,13 +30,14 @@ sources = [
     "src_rtl/Asconp_HPC2_ClockGating_d1.v",
     "src_rtl/CryptoCore_SCA_2pass.vhd",
 ]
-
+# comment out top (and optionally clock.port) to use LWC_SCA_wrapper as synthesis top
 # top = "LWC_SCA"
 # clock.port = "clk"
 
 
 [tb]
 # comment out both sources and top to simulate with LWC_SCA_wrapper
+# DO NOT comment out for benchmarking!
 sources = [ # 
     "../../LWC/LWC_TB_SCA.vhd",
 ]
