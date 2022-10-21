@@ -38,20 +38,21 @@ sources = [
     "src_rtl/RoundFunction_HPC2_ClockGating_d3.v",
     "src_rtl/mode_top.v",
     "src_rtl/LWC_SCA.v",
+    "../../LWC/LWC_SCA_wrapper.vhd",
 ]
 
-top = "LWC_SCA"
+top = "LWC_SCA_wrapper"
 clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
 # reset.asynchronous = false
-parameters.XW = 64
-parameters.XSW = 64
-parameters.PDI_FIFO_DEPTH = 64
-parameters.SDI_FIFO_DEPTH = 64
-parameters.DO_FIFO_DEPTH = 64
-parameters.FIFOS_OUT_REG = false
-parameters.FIFOS_RAM_STYLE = "block"
+parameters.XW = 32
+# parameters.XSW = 64
+# parameters.PDI_FIFO_DEPTH = 64
+# parameters.SDI_FIFO_DEPTH = 64
+# parameters.DO_FIFO_DEPTH = 64
+# parameters.FIFOS_OUT_REG = false
+# parameters.FIFOS_RAM_STYLE = "block"
 
 [language]
 vhdl.version = "2008"
