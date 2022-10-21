@@ -400,6 +400,7 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
         "G_TEST_MODE": 4,
     }
     design.tb.top = ("LWC_TB",)
+    design.language.vhdl.standard = "2008"
     settings = {}
     if debug:
         # settings["debug"] = True
