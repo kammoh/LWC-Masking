@@ -16,7 +16,6 @@ sources = [
 	"src_rtl/design_pkg.vhd",
 	"src_rtl/LWC_config.vhd",
 	"src_rtl/ctr.vhd",
-
 	"src_rtl/ozs.vhd",
 	"src_rtl/ozs2.vhd",
 	"src_rtl/Photon_256_HPC2_ClockGating_d1.v",
@@ -45,8 +44,9 @@ sources = [
 ]
 
 # includes = []
-top = "LWC_SCA"
-# clock.port = "clk"
+top = "LWC_SCA_wrapper"
+parameters.XW = 32
+clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
 # reset.asynchronous = false

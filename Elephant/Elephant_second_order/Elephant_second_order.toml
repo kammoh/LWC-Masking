@@ -6,9 +6,9 @@ license = "GPL-3.0"
 version = "0.1.0"
 
 dependencies = [
-    # { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 3 },
+    { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 3 },
     "../../gadgets.toml",
-    # { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 
@@ -59,7 +59,7 @@ parameters.G_FNAME_PDI = { file = "KAT/pdi_shared_3.txt" }
 parameters.G_FNAME_SDI = { file = "KAT/sdi_shared_3.txt" }
 parameters.G_FNAME_DO = { file = "KAT/do.txt" }
 parameters.G_TEST_MODE = 4
-parameters.G_MAX_FAILURES = 0
+parameters.G_MAX_FAILURES = 100
 
 
 [language]

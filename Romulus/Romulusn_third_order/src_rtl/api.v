@@ -72,9 +72,9 @@ module api (/*AUTOARG*/
    parameter outputtag1  = 19;   
    parameter verifytag0  = 20;
    parameter verifytag1  = 21;
-   parameter statuse     = 22;	
-	parameter statusdf    = 23;	
-	parameter statusds    = 24;	
+   parameter statuse     = 22;  
+    parameter statusdf    = 23; 
+    parameter statusds    = 24; 
    
    output reg [`PDI_SHARES * 32 - 1:0] pdo_data, pdi;
    output reg        pdi_ready, sdi_ready, rdi_ready, pdo_valid, do_last;
@@ -112,7 +112,7 @@ module api (/*AUTOARG*/
    reg               tk1sn;
 
    assign constant = cnt;   
-   assign pdo_reg_unshared = 32'h00000000; //pdo_reg[1*`W-1:0*`W] ^ pdo_reg[2*`W-1:1*`W] ^ pdo_reg[3*`W-1:2*`W] ^ pdo_reg[4*`W-1:3*`W]; 
+   assign pdo_reg_unshared = 32'h00000000; //pdo_reg[1*`W-1:0*`W] ^ pdo_reg[2*`W-1:1*`W]; 
 
    always @ (posedge clk) begin
       if (rst) begin
@@ -144,11 +144,11 @@ module api (/*AUTOARG*/
    end
    
    always @ ( counter or c2 or cnt or cnt2 or correct_cnt or dec or flags
-	     or fsm or nonce_domain or pdi_data or sdi_data or pdi_valid or pdo or pdo_reg_unshared
-	     or pdo_ready or sdi_valid or rdi_valid or seglen or st0 or tk1s) begin
+         or fsm or nonce_domain or pdi_data or sdi_data or pdi_valid or pdo or pdo_reg_unshared
+         or pdo_ready or sdi_valid or rdi_valid or seglen or st0 or tk1s) begin
       pdo_data <= 0;      
       pdi <= pdi_data;    
-      do_last <= 0;		
+      do_last <= 0;     
       domain <= 0;         
       srst   <= 0;
       senc   <= 0;
@@ -181,10 +181,10 @@ module api (/*AUTOARG*/
       cntn2 <= cnt2; 
       case (fsm) 
         idle: begin
-		  pdi_ready <= 1;
-	   srst <= 1;
-	   sse <= 1;
-	   senc <= 1;	   
+          pdi_ready <= 1;
+       srst <= 1;
+       sse <= 1;
+       senc <= 1;      
            tk1sn <= 1;     
            nonce_domainn <= adpadded; 
            if (pdi_valid) begin
@@ -210,7 +210,7 @@ module api (/*AUTOARG*/
               end
            end     
         end // case: idle
-		  loadkey: begin
+          loadkey: begin
            if (sdi_valid) begin
               sdi_ready <= 1;
               if (sdi_data[(`SDI_SHARES - 1) * `SW + 31:(`SDI_SHARES - 1) * `SW + 28] == LDKEY) begin
@@ -225,8 +225,8 @@ module api (/*AUTOARG*/
                  fsmn <= storekey;               
               end             
            end
-			  else if (pdi_valid) begin
-			     if (pdi_data[(`PDI_SHARES - 1) * `W + 31:(`PDI_SHARES - 1) * `W + 28] == ENC) begin
+              else if (pdi_valid) begin
+                 if (pdi_data[(`PDI_SHARES - 1) * `W + 31:(`PDI_SHARES - 1) * `W + 28] == ENC) begin
                  zenc <= 1;        
                  zrst <= 1;
                  correct_cntn <= 1;           
@@ -242,7 +242,7 @@ module api (/*AUTOARG*/
                  fsmn <= adheader;
                  decn <= 1;             
               end
-			  end
+              end
         end
         storekey: begin
            if (sdi_valid) begin
@@ -272,15 +272,15 @@ module api (/*AUTOARG*/
               pdi_ready <= 1;
               yenc <= 1;
               yse <= 1;
-              yrst <= 1;              	      
+              yrst <= 1;                      
               if (cnt == 5'h0F) begin
-		 domain <= nonce_domain;
-		 //zenc <= 1;
-		 //zse <= 1;
-		 //if (counter != INITCTR) begin
-		   // xse <= 1;
-		   // xenc <= 1;		    
-		 //end 		 
+         domain <= nonce_domain;
+         //zenc <= 1;
+         //zse <= 1;
+         //if (counter != INITCTR) begin
+           // xse <= 1;
+           // xenc <= 1;            
+         //end       
                  cntn <= 6'h01;
                  fsmn <= encryptn;               
               end
@@ -324,36 +324,36 @@ module api (/*AUTOARG*/
                 pdi_ready <= 1;                 
                 senc <= 1;
                 sse <= 1;
-				  
-				if (cnt == 5'h01) begin
-				    seglenn <= seglen - 16;
-				end
-					
+                  
+                if (cnt == 5'h01) begin
+                    seglenn <= seglen - 16;
+                end
+                    
                 if (cnt == 5'h0F) begin
-				    if (counter != INITCTR2) begin
-		                xse <= 1;
-		                xenc <= 1;		    
-		            end 
+                    if (counter != INITCTR2) begin
+                        xse <= 1;
+                        xenc <= 1;          
+                    end 
                     
                     cntn <= 6'h01;
-		            zenc <= 1;
-		            zse <= 1;
-                    if (seglen == 0) begin		 
+                    zenc <= 1;
+                    zse <= 1;
+                    if (seglen == 0) begin       
                         if (flags[1] == 1) begin
                             fsmn <= nonceheader;
-		                    nonce_domainn <= adfinal;
-		                    domain <= adfinal;		    
+                            nonce_domainn <= adfinal;
+                            domain <= adfinal;          
                         end else begin
                             fsmn <= adheader2;
-		                    domain <= adnormal;		    
+                            domain <= adnormal;         
                         end
-			        end else if (seglen < 16) begin
-			            fsmn <= storeadtp;
-				        domain <= adnormal;
-		            end else begin
-			            fsmn <= storeadtf;
-				        domain <= adnormal;
-		            end
+                    end else if (seglen < 16) begin
+                        fsmn <= storeadtp;
+                        domain <= adnormal;
+                    end else begin
+                        fsmn <= storeadtf;
+                        domain <= adnormal;
+                    end
                 end else begin
                     cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};                
                 end
@@ -411,43 +411,39 @@ module api (/*AUTOARG*/
                 end             
              end
              6'h0F: begin
-				    seglenn <= 0;
+                    seglenn <= 0;
                 if (seglen > 12) begin
                    if (pdi_valid) begin
-						    if (counter != INITCTR2) begin
-		    xse <= 1;
-		    xenc <= 1;		    
-		 end 
+                            if (counter != INITCTR2) begin
+            xse <= 1;
+            xenc <= 1;          
+         end 
                       pdi_ready <= 1;
                       pdi[1 * `W - 1:0 * `W] <= {pdi_data[0 * `W + 31:0 * `W + 4],4'h0};                                 
-                      pdi[2 * `W - 1:1 * `W] <= {pdi_data[1 * `W + 31:1 * `W + 4],4'h0};                                 
-                      pdi[3 * `W - 1:2 * `W] <= {pdi_data[2 * `W + 31:2 * `W + 4],4'h0};                                 
                       pdi[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {pdi_data[(`PDI_SHARES - 1) * `W + 31:(`PDI_SHARES - 1) * `W + 4],seglen[3:0]};                                 
                       senc <= 1;
                       sse <= 1;
-		      zenc <= 1;
-		      zse <= 1;	
-	 	      domain <= adpadded;
-		      nonce_domainn <= adpadded;		      
+              zenc <= 1;
+              zse <= 1; 
+              domain <= adpadded;
+              nonce_domainn <= adpadded;              
                       cntn <= 6'h01;
                       fsmn <= nonceheader;                    
                    end                     
                 end // if (seglen >= 0)
                 else begin
-					 if (counter != INITCTR2) begin
-		    xse <= 1;
-		    xenc <= 1;		    
-		 end 
-		   pdi[1 * `W - 1:0 * `W] <= 32'h00000000;
-		   pdi[2 * `W - 1:1 * `W] <= 32'h00000000;
-		   pdi[3 * `W - 1:2 * `W] <= 32'h00000000;
+                     if (counter != INITCTR2) begin
+            xse <= 1;
+            xenc <= 1;          
+         end 
+           pdi[1 * `W - 1:0 * `W] <= 32'h00000000;
            pdi[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {28'h0,seglen[3:0]};                  
            senc <= 1;
            sse <= 1;
-		   zenc <= 1;
-		   zse <= 1;		 		   
-	 	   domain <= nonce_domain;
-		   nonce_domainn <= adpadded;		      
+           zenc <= 1;
+           zse <= 1;                   
+           domain <= nonce_domain;
+           nonce_domainn <= adpadded;             
                    cntn <= 6'h01;
                    fsmn <= nonceheader;               
                 end                             
@@ -463,14 +459,14 @@ module api (/*AUTOARG*/
                 yrst <= 1;  
               
                 if (cnt == 5'h01) begin
-				    seglenn <= seglen - 16;
-				end
-								  
+                    seglenn <= seglen - 16;
+                end
+                                  
                 if (cnt == 5'h0F) begin
                     cntn <= 6'h01;
-		            if (flags[1] == 1) begin
-		                nonce_domainn <= adfinal;		      
-		            end
+                    if (flags[1] == 1) begin
+                        nonce_domainn <= adfinal;             
+                    end
                     fsmn <= encryptad;
                 end else begin
                     cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};                
@@ -535,32 +531,28 @@ module api (/*AUTOARG*/
                 end             
              end
              6'h0F: begin
-				    seglenn <= 0;
+                    seglenn <= 0;
                 if (seglen > 12) begin
                    if (pdi_valid) begin
                       pdi_ready <= 1;                     
                       pdi[1 * `W -1:0 * `W] <= {pdi_data[0 * `W + 31:0 * `W + 4],4'h0};                                 
-                      pdi[2 * `W -1:1 * `W] <= {pdi_data[1 * `W + 31:1 * `W + 4],4'h0};                                 
-                      pdi[3 * `W -1:2 * `W] <= {pdi_data[2 * `W + 31:2 * `W + 4],4'h0};                                 
                       pdi[`PDI_SHARES * `W -1:(`PDI_SHARES - 1) * `W] <= {pdi_data[(`PDI_SHARES - 1) * `W + 31:(`PDI_SHARES - 1) * `W + 4],seglen[3:0]};                       
                       yenc <= 1;
                       yse <= 1;
                       yrst <= 1;                      
                       cntn <= 6'h01;
-		      nonce_domainn <= adpadded;		      
-                      cntn <= 6'h01;                 		      
+              nonce_domainn <= adpadded;              
+                      cntn <= 6'h01;                              
                       fsmn <= encryptad;                      
                    end                     
                 end // if (seglen >= 0)
                 else begin 
                    pdi[1 * `W -1:0 * `W] <= 32'h00000000;
-                   pdi[2 * `W -1:1 * `W] <= 32'h00000000;
-                   pdi[3 * `W -1:2 * `W] <= 32'h00000000;
                    pdi[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {28'h0,seglen[3:0]}; 
                    yenc <= 1;
                    yse <= 1;
                    yrst <= 1;    
-		   nonce_domainn <= adpadded;		      
+           nonce_domainn <= adpadded;             
                    cntn <= 6'h01;
                    fsmn <= encryptad;                 
                 end                             
@@ -570,183 +562,163 @@ module api (/*AUTOARG*/
         msgheader: begin
            if (pdi_valid) begin
               if (dec == 1) begin
-                 if (pdi_data[(`PDI_SHARES - 1) * `W + 31:(`PDI_SHARES - 1) * `W + 28] == CIPHER) begin            
+                 if (pdi_data[(`PDI_SHARES - 1) * `W + 31:(`PDI_SHARES - 1) * `W + 28] == CIPHER) begin
                     seglenn <= pdi_data[(`PDI_SHARES - 1) * `W + 15:(`PDI_SHARES - 1) * `W + 0];
-                    flagsn <= pdi_data[(`PDI_SHARES - 1) * `W + 27:(`PDI_SHARES - 1) * `W + 24];           
+                    flagsn <= pdi_data[(`PDI_SHARES - 1) * `W + 27:(`PDI_SHARES - 1) * `W + 24];
+                    pdo_data[1 * `W -1:0 * `W] <= 0;
+                    // pdo_data[1 * `W -1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],pdi_data[0 * `W + 25],pdi_data[0 * `W + 23:0 * `W + 0]};
                     if ((pdi_data[(`PDI_SHARES - 1) * `W + 25] == 1) && (pdi_data[(`PDI_SHARES - 1) * `W + 15:(`PDI_SHARES - 1) * `W + 0] < 16)) begin
-			              if (pdo_ready) begin
-			        			  fsmn <= storemp;
-			     			     pdi_ready <= 1;
-			     			     pdo_valid <= 1;
-			     			     pdo_data[1 * `W -1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],pdi_data[0 * `W + 25],pdi_data[0 * `W + 23:0 * `W + 0]};
-			     			     pdo_data[2 * `W -1:1 * `W] <= {4'h0 , pdi_data[1 * `W + 27], 1'b0, pdi_data[1 * `W + 25],pdi_data[1 * `W + 25],pdi_data[1 * `W + 23:1 * `W + 0]};
-			     			     pdo_data[3 * `W -1:2 * `W] <= {4'h0 , pdi_data[2 * `W + 27], 1'b0, pdi_data[2 * `W + 25],pdi_data[2 * `W + 25],pdi_data[2 * `W + 23:2 * `W + 0]};
-			     			     pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {PLAIN , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
-			  			     end
-		              end
+                          if (pdo_ready) begin
+                                  fsmn <= storemp;
+                                 pdi_ready <= 1;
+                                 pdo_valid <= 1;
+                                 pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {PLAIN , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+                             end
+                      end
                     else begin
-		                 if (pdo_ready) begin
-			  			        pdi_ready <= 1;
-			  			        fsmn <= storemf;
-			  			        pdo_valid <= 1;
-			  			        pdo_data[1 * `W -1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],pdi_data[0 * `W + 25],pdi_data[0 * `W + 23:0 * `W + 0]};
-			  			        pdo_data[2 * `W -1:1 * `W] <= {4'h0 , pdi_data[1 * `W + 27], 1'b0, pdi_data[1 * `W + 25],pdi_data[1 * `W + 25],pdi_data[1 * `W + 23:1 * `W + 0]};
-			  			        pdo_data[3 * `W -1:2 * `W] <= {4'h0 , pdi_data[2 * `W + 27], 1'b0, pdi_data[2 * `W + 25],pdi_data[2 * `W + 25],pdi_data[2 * `W + 23:2 * `W + 0]};
-		     			        pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {PLAIN , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
-							  end
-		       		  end
+                         if (pdo_ready) begin
+                                pdi_ready <= 1;
+                                fsmn <= storemf;
+                                pdo_valid <= 1;
+                                pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {PLAIN , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 25],pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+                              end
+                      end
                  end         
               end // if (dec == 1)
-              else begin
-		         seglenn <= pdi_data[(`PDI_SHARES - 1) * `W + 15:(`PDI_SHARES - 1) * `W + 0];
-                 flagsn <= pdi_data[(`PDI_SHARES - 1) * `W + 27:(`PDI_SHARES - 1) * `W + 24];           
+              else begin // if enc
+                 seglenn <= pdi_data[(`PDI_SHARES - 1) * `W + 15:(`PDI_SHARES - 1) * `W + 0];
+               flagsn <= pdi_data[(`PDI_SHARES - 1) * `W + 27:(`PDI_SHARES - 1) * `W + 24];
+               pdo_data[1 * `W -1:0 * `W] <= 0;
+               // pdo_data[1 * `W - 1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],1'b0,pdi_data[0 * `W + 23:0 * `W + 0]};pdo_data[1 * `W - 1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],1'b0,pdi_data[0 * `W + 23:0 * `W + 0]};
                  if ((pdi_data[(`PDI_SHARES - 1) * `W + 25] == 1) && (pdi_data[(`PDI_SHARES - 1) * `W + 15:(`PDI_SHARES - 1) * `W + 0] < 16)) begin
-		              if (pdo_ready) begin
-			              fsmn <= storemp;
-			              pdi_ready <= 1;
-			              pdo_valid <= 1;
-			              pdo_data[1 * `W - 1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],1'b0,pdi_data[0 * `W + 23:0 * `W + 0]};
-			              pdo_data[2 * `W - 1:1 * `W] <= {4'h0 , pdi_data[1 * `W + 27], 1'b0, pdi_data[1 * `W + 25],1'b0,pdi_data[1 * `W + 23:1 * `W + 0]};
-			              pdo_data[3 * `W - 1:2 * `W] <= {4'h0 , pdi_data[2 * `W + 27], 1'b0, pdi_data[2 * `W + 25],1'b0,pdi_data[2 * `W + 23:2 * `W + 0]};
-			              pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],1'b0,pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
-		              end
-				     end
+                      if (pdo_ready) begin
+                          fsmn <= storemp;
+                          pdi_ready <= 1;
+                          pdo_valid <= 1;
+                         pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+                      end
+                     end
                  else begin
-		              if (pdo_ready) begin
-		                 pdi_ready <= 1;
-		                 fsmn <= storemf;
-		                 pdo_valid <= 1;
-		                 pdo_data[1 * `W - 1:0 * `W] <= {4'h0 , pdi_data[0 * `W + 27], 1'b0, pdi_data[0 * `W + 25],1'b0,pdi_data[0 * `W + 23:0 * `W + 0]};
-		                 pdo_data[2 * `W - 1:1 * `W] <= {4'h0 , pdi_data[1 * `W + 27], 1'b0, pdi_data[1 * `W + 25],1'b0,pdi_data[1 * `W + 23:1 * `W + 0]};
-			             pdo_data[3 * `W - 1:2 * `W] <= {4'h0 , pdi_data[2 * `W + 27], 1'b0, pdi_data[2 * `W + 25],1'b0,pdi_data[2 * `W + 23:2 * `W + 0]};
-		                 pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25],1'b0,pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
-						  end
-     		        end // if (pdo_ready)		       
-              end // else: !if(dec == 1)	      
+                      if (pdo_ready) begin
+                         pdi_ready <= 1;
+                         fsmn <= storemf;
+                         pdo_valid <= 1;
+                         pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {CIPHER , pdi_data[(`PDI_SHARES - 1) * `W + 27], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 25], 1'b0, pdi_data[(`PDI_SHARES - 1) * `W + 23:(`PDI_SHARES - 1) * `W + 0]};
+                          end
+                    end // if (pdo_ready)              
+              end // else: !if(dec == 1)          
            end // if (pdi_valid)           
         end // case: msgheader
         storemf: begin
            if (pdi_valid) begin
-	           if (pdo_ready) begin
-		           decrypt <= {dec,dec,dec,dec};		 
-		           pdo_valid <= 1;
-		           pdo_data <= pdo;		 
-		           pdi_ready <= 1;                 
-		           senc <= 1;
-		           sse <= 1;
-		           if (cnt == 5'h01) begin
-		              seglenn <= seglen - 16;
-		           end
-		           if (cnt == 5'h0F) begin
-		              zenc <= 1;
-		              zse <= 1;
-		              yenc <= 1;
-		              yse <= 1;
-		              xenc <= 1;
-		              xse <= 1;
-		              correct_cntn <= 1;	      
-		              if ((seglen == 0) && (flags[1] == 1)) begin
-		                 domain <= msgfinal;
-		                 nonce_domainn <= adpadded;		       
-		              end
-		              else begin
-		                 domain <= msgnormal;		       
-		              end
+               if (pdo_ready) begin
+                   decrypt <= {dec,dec,dec,dec};         
+                   pdo_valid <= 1;
+                   pdo_data <= pdo;      
+                   pdi_ready <= 1;                 
+                   senc <= 1;
+                   sse <= 1;
+                   if (cnt == 5'h01) begin
+                      seglenn <= seglen - 16;
+                   end
+                   if (cnt == 5'h0F) begin
+                      zenc <= 1;
+                      zse <= 1;
+                      yenc <= 1;
+                      yse <= 1;
+                      xenc <= 1;
+                      xse <= 1;
+                      correct_cntn <= 1;          
+                      if ((seglen == 0) && (flags[1] == 1)) begin
+                         domain <= msgfinal;
+                         nonce_domainn <= adpadded;            
+                      end
+                      else begin
+                         domain <= msgnormal;              
+                      end
                     cntn <= 6'h01;
                     fsmn <= encryptm;               
-		           end
-		           else begin
+                   end
+                   else begin
                     cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};                
-		           end
-              end // if (pdo_ready)	      
-	        end          
+                   end
+              end // if (pdo_ready)       
+            end          
         end
         storemp: begin
            case (cnt) 
-             6'h01: begin		
+             6'h01: begin       
                 if (seglen > 0) begin
-		   if (pdo_ready) begin
+           if (pdo_ready) begin
                       if (pdi_valid) begin
-			 pdo_valid <= 1;
-			 case (seglen) 
-			   1: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+24],24'h0};	
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+24],24'h0};	
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+24],24'h0};	
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+24],24'h0};	
-			      decrypt <= {dec,3'b0};		 
-			   end
-			   2: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+16],16'h0};
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+16],16'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+16],16'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+16],16'h0};
-			      decrypt <= {dec,dec,2'b0};		 
-			   end
-			   3: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+8],8'h0};
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+8],8'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+8],8'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+8],8'h0};
-			      decrypt <= {dec,dec,dec,1'b0};		 
-			   end
-			   default: begin
-			      pdo_data <= pdo;		
-			      decrypt <= {dec,dec,dec,dec};		 	      
-			   end
-			 endcase // case (seglen)			 
-			 pdi_ready <= 1;                 
-			 senc <= 1;
-			 sse <= 1;
-			 cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};           
+             pdo_valid <= 1;
+             case (seglen) 
+               1: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+24],24'h0};    
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+24],24'h0};    
+                  decrypt <= {dec,3'b0};         
+               end
+               2: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+16],16'h0};
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+16],16'h0};
+                  decrypt <= {dec,dec,2'b0};         
+               end
+               3: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+8],8'h0};
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+8],8'h0};
+                  decrypt <= {dec,dec,dec,1'b0};         
+               end
+               default: begin
+                  pdo_data <= pdo;      
+                  decrypt <= {dec,dec,dec,dec};               
+               end
+             endcase // case (seglen)            
+             pdi_ready <= 1;                 
+             senc <= 1;
+             sse <= 1;
+             cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};           
                       end                     
-                   end		   
-		end		
+                   end         
+        end     
                 else begin
                    pdi <= 0;
                    senc <= 1;
                    sse <= 1;
                    cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};                                 
                 end // else: !if(seglen >= 0)
-	     end // case: 6'h01	     
+         end // case: 6'h01      
              6'h03: begin
                 if (seglen > 4) begin
-		   if (pdo_ready) begin
+           if (pdo_ready) begin
                       if (pdi_valid) begin
-			 pdo_valid <= 1;
-			 case (seglen) 
-			   5: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+24],24'h0};	
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+24],24'h0};		
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+24],24'h0};		
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+24],24'h0};		
-			      decrypt <= {dec,3'b0};		 	      
-			   end
-			   6: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+16],16'h0};
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+16],16'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+16],16'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+16],16'h0};
-			      decrypt <= {dec,dec,2'b0};		 
-			   end
-			   7: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+8],8'h0};
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+8],8'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+8],8'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+8],8'h0};
-			      decrypt <= {dec,dec,dec,1'b0};		 
-			   end
-			   default: begin
-			      pdo_data <= pdo;		
-			      decrypt <= {dec,dec,dec,dec};		 	      
-			   end
-			 endcase // case (seglen)			 
-			 pdi_ready <= 1;                 
-			 senc <= 1;
-			 sse <= 1;
-			 cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};           
+             pdo_valid <= 1;
+             case (seglen) 
+               5: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+24],24'h0};    
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+24],24'h0};        
+                  decrypt <= {dec,3'b0};                  
+               end
+               6: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+16],16'h0};
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+16],16'h0};
+                  decrypt <= {dec,dec,2'b0};         
+               end
+               7: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+8],8'h0};
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+8],8'h0};
+                  decrypt <= {dec,dec,dec,1'b0};         
+               end
+               default: begin
+                  pdo_data <= pdo;      
+                  decrypt <= {dec,dec,dec,dec};               
+               end
+             endcase // case (seglen)            
+             pdi_ready <= 1;                 
+             senc <= 1;
+             sse <= 1;
+             cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};           
                       end               
-		   end      
+           end      
                 end // if (seglen >= 0)
                 else begin
                    pdi <= 0;               
@@ -757,42 +729,36 @@ module api (/*AUTOARG*/
              end
              6'h07: begin
                 if (seglen > 8) begin
-		   if (pdo_ready) begin
+           if (pdo_ready) begin
                       if (pdi_valid) begin
-			 pdo_valid <= 1;
-			 case (seglen) 
-			   9: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+24],24'h0};	
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+24],24'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+24],24'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+24],24'h0};
-			      decrypt <= {dec,3'b0};		 
-			   end
-			   10: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+16],16'h0};
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+16],16'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+16],16'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+16],16'h0};
-			      decrypt <= {dec,dec,2'b0};		 
-			   end
-			   11: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+8],8'h0};
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+8],8'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+8],8'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+8],8'h0};
-			      decrypt <= {dec,dec,dec,1'b0};		 
-			   end
-			   default: begin
-			      pdo_data <= pdo;		
-			      decrypt <= {dec,dec,dec,dec};		 	      
-			   end
-			 endcase // case (seglen)			 			 
-			 pdi_ready <= 1;                 
-			 senc <= 1;
-			 sse <= 1;
-			 cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};           
+             pdo_valid <= 1;
+             case (seglen) 
+               9: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+24],24'h0};    
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+24],24'h0};
+                  decrypt <= {dec,3'b0};         
+               end
+               10: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+16],16'h0};
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+16],16'h0};
+                  decrypt <= {dec,dec,2'b0};         
+               end
+               11: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+8],8'h0};
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+8],8'h0};
+                  decrypt <= {dec,dec,dec,1'b0};         
+               end
+               default: begin
+                  pdo_data <= pdo;      
+                  decrypt <= {dec,dec,dec,dec};               
+               end
+             endcase // case (seglen)                        
+             pdi_ready <= 1;                 
+             senc <= 1;
+             sse <= 1;
+             cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};           
                       end               
-		   end      
+           end      
                 end // if (seglen >= 0)
                 else begin
                    pdi <= 0;               
@@ -802,70 +768,60 @@ module api (/*AUTOARG*/
                 end             
              end
              6'h0F: begin
-				    seglenn <= 0;
+                    seglenn <= 0;
                 if (seglen > 12) begin
-		   if (pdo_ready) begin		      
+           if (pdo_ready) begin           
                       if (pdi_valid) begin
-			 pdo_valid <= 1;
-			 case (seglen) 
-			   13: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+24],24'h0};	
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+24],24'h0};			
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+24],24'h0};			
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+24],24'h0};			
-			      decrypt <= {dec,3'b0};		 	      
-			   end
-			   14: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+16],16'h0};
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+16],16'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+16],16'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+16],16'h0};
-			      decrypt <= {dec,dec,2'b0};		 
-			   end
-			   15: begin
-			      pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+8],8'h0};
-			      pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+8],8'h0};
-			      pdo_data[3*`W-1:2*`W] <= {pdo[2*`W+31:2*`W+8],8'h0};
-			      pdo_data[4*`W-1:3*`W] <= {pdo[3*`W+31:3*`W+8],8'h0};
-			      decrypt <= {dec,dec,dec,1'b0};		 
-			   end
-			   default: begin
-			      pdo_data <= pdo;		
-			      decrypt <= {dec,dec,dec,dec};		 
-			   end
-			 endcase // case (seglen)			 			 
-			 domain <= msgpadded;
-			 zenc <= 1;
-			 zse <= 1;
-			 correct_cntn <= 1;	      
-			 yenc <= 1;
-			 yse <= 1;
-			 xenc <= 1;
-			 xse <= 1;	      	      		      
-			 pdi_ready <= 1;
-			 pdi[1 * `W - 1: 0 * `W] <= {pdi_data[0 * `W + 31:0 * `W + 4],4'h0};                 
-			 pdi[2 * `W - 1: 1 * `W] <= {pdi_data[1 * `W + 31:1 * `W + 4],4'h0};                 
-			 pdi[3 * `W - 1: 2 * `W] <= {pdi_data[2 * `W + 31:2 * `W + 4],4'h0};                 
-			 pdi[`PDI_SHARES * `W - 1: (`PDI_SHARES - 1) * `W] <= {pdi_data[(`PDI_SHARES - 1) * `W + 31:(`PDI_SHARES - 1) * `W + 4],seglen[3:0]};                 
-			 senc <= 1;
-			 sse <= 1;
-			 cntn <= 6'h01;
-			 fsmn <= encryptm;               
+             pdo_valid <= 1;
+             case (seglen) 
+               13: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+24],24'h0};    
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+24],24'h0};            
+                  decrypt <= {dec,3'b0};                  
+               end
+               14: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+16],16'h0};
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+16],16'h0};
+                  decrypt <= {dec,dec,2'b0};         
+               end
+               15: begin
+                  pdo_data[1*`W-1:0*`W] <= {pdo[0*`W+31:0*`W+8],8'h0};
+                  pdo_data[2*`W-1:1*`W] <= {pdo[1*`W+31:1*`W+8],8'h0};
+                  decrypt <= {dec,dec,dec,1'b0};         
+               end
+               default: begin
+                  pdo_data <= pdo;      
+                  decrypt <= {dec,dec,dec,dec};      
+               end
+             endcase // case (seglen)                        
+             domain <= msgpadded;
+             zenc <= 1;
+             zse <= 1;
+             correct_cntn <= 1;       
+             yenc <= 1;
+             yse <= 1;
+             xenc <= 1;
+             xse <= 1;                            
+             pdi_ready <= 1;
+             pdi[1 * `W - 1: 0 * `W] <= {pdi_data[0 * `W + 31:0 * `W + 4],4'h0};                 
+             pdi[`PDI_SHARES * `W - 1: (`PDI_SHARES - 1) * `W] <= {pdi_data[(`PDI_SHARES - 1) * `W + 31:(`PDI_SHARES - 1) * `W + 4],seglen[3:0]};                 
+             senc <= 1;
+             sse <= 1;
+             cntn <= 6'h01;
+             fsmn <= encryptm;               
                       end            
-		   end         
+           end         
                 end // if (seglen >= 0)
                 else begin
-		   domain <= msgpadded;
-		   zenc <= 1;
-		   zse <= 1;
-		   correct_cntn <= 1;	      
-		   yenc <= 1;
-		   yse <= 1;
-		   xenc <= 1;
-		   xse <= 1;	      	      		   
-		   pdi[1 * `W -1:0 * `W] <= 32'h00000000;
-		   pdi[2 * `W -1:1 * `W] <= 32'h00000000;
-		   pdi[3 * `W -1:2 * `W] <= 32'h00000000;
+           domain <= msgpadded;
+           zenc <= 1;
+           zse <= 1;
+           correct_cntn <= 1;         
+           yenc <= 1;
+           yse <= 1;
+           xenc <= 1;
+           xse <= 1;                           
+           pdi[1 * `W -1:0 * `W] <= 32'h00000000;
            pdi[`PDI_SHARES * `W -1:(`PDI_SHARES - 1) * `W] <= {28'h0,seglen[3:0]}; 
                    senc <= 1;
                    sse <= 1;
@@ -890,32 +846,32 @@ module api (/*AUTOARG*/
                     cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};                                         
                     if (cnt == FINCONST) begin
                         cntn <= 6'h01;
-				        if (seglen == 0) begin
+                        if (seglen == 0) begin
                             if (flags[1] == 1) begin
                                 fsmn <= storeadsp;
                                 seglenn <= 0;           
                                 st0n <= 1;
                                 c2n <= 0;               
                             end else begin
-				                correct_cntn <= 1;
-		                      zenc <= 1;
-		                      zse <= 1;		 
+                                correct_cntn <= 1;
+                              zenc <= 1;
+                              zse <= 1;      
                                 fsmn <= adheader;
                                 c2n <= 1;                  
                             end    
                         end else if (seglen < 16) begin
-				            correct_cntn <= 1;
-				            fsmn <= storeadsp;
-					        zenc <= 1;
-		                    zse <= 1;
+                            correct_cntn <= 1;
+                            fsmn <= storeadsp;
+                            zenc <= 1;
+                            zse <= 1;
                             c2n <= 1;
                         end else begin
-				            correct_cntn <= 1;
-				            fsmn <= storeadsf;
-					        zenc <= 1;
-		                    zse <= 1;
+                            correct_cntn <= 1;
+                            fsmn <= storeadsf;
+                            zenc <= 1;
+                            zse <= 1;
                             c2n <= 1;
-                        end				  
+                        end               
                     end // if (cnt == FINCONST)     
                 end else begin
                     cntn2 <= cnt2 + 1;
@@ -938,10 +894,10 @@ module api (/*AUTOARG*/
                     if (cnt == FINCONST) begin
                         cntn <= 6'h01;          
                         fsmn <= msgheader;
-	                    zrst <= 1;
-	                    zenc <= 1;
-	                    zse <= 1;
-	                    correct_cntn <= 1;	      
+                        zrst <= 1;
+                        zenc <= 1;
+                        zse <= 1;
+                        correct_cntn <= 1;        
                         c2n <= 1;             
                     end // if (cnt == FINCONST)   
                 end else begin
@@ -964,7 +920,7 @@ module api (/*AUTOARG*/
                    cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1};                                         
                    if (cnt == FINCONST) begin
                        cntn <= 6'h01;
-                       if (seglen == 0) begin				  
+                       if (seglen == 0) begin                 
                            if (flags[1] == 1) begin
                                if (dec == 1) begin
                                    fsmn <= verifytag0;
@@ -984,7 +940,7 @@ module api (/*AUTOARG*/
                        end else begin
                            fsmn <= storemf;
                            c2n <= 1;
-                       end				  
+                       end                
                    end // if (cnt == FINCONST)   
                end else begin
                    cntn2 <= cnt2 + 1;
@@ -997,8 +953,6 @@ module api (/*AUTOARG*/
               pdi <= 0;    
               pdo_valid <= 1;      
               pdo_data[1 * `W - 1:0 * `W] <= 32'h00000000;
-              pdo_data[2 * `W - 1:1 * `W] <= 32'h00000000;
-              pdo_data[3 * `W - 1:2 * `W] <= 32'h00000000;
               pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {TAG,4'h3,8'h0,16'h010};
               fsmn <= outputtag1;             
            end
@@ -1017,19 +971,17 @@ module api (/*AUTOARG*/
               end
            end // if (pdo_ready)           
         end // case: outputtag1 
-		  statuse: begin
-		     if (pdo_ready) begin
-			     pdo_valid <= 1;
-			     pdo_data[1 * `W - 1:0 * `W] <= 32'h00000000;
-			     pdo_data[2 * `W - 1:1 * `W] <= 32'h00000000;
-                 pdo_data[3 * `W - 1:2 * `W] <= 32'h00000000;
+          statuse: begin
+             if (pdo_ready) begin
+                 pdo_valid <= 1;
+                 pdo_data[1 * `W - 1:0 * `W] <= 32'h00000000;
                  pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {SUCCESS, 28'h0};
-				  do_last <= 1;
-				  fsmn <= idle;
-				  xse <= 1;
-				  xenc <= 1;
-			  end
-		  end
+                  do_last <= 1;
+                  fsmn <= idle;
+                  xse <= 1;
+                  xenc <= 1;
+              end
+          end
         verifytag0: begin
            if (pdi_valid) begin
               if (pdi_data[(`PDI_SHARES - 1) * `W +31:(`PDI_SHARES - 1) * `W +28] == TAG) begin
@@ -1053,9 +1005,9 @@ module api (/*AUTOARG*/
               end // if (cnt == 6'h0F)
               else begin
                  cntn <= {cnt[4:0], cnt[5]^cnt[4]^1'b1}; 
-		         senc <= 1;
-		         sse <= 1;
-		         pdo_reg <= pdo; 
+                 senc <= 1;
+                 sse <= 1;
+                 pdo_reg <= pdo; 
                  if (pdo_reg_unshared != 32'h0) begin
                     decn <= 0;           
                  end
@@ -1063,32 +1015,28 @@ module api (/*AUTOARG*/
            end // if (pdi_valid)           
         end // case: verifytag1    
         statusds: begin
-		     if (pdo_ready) begin
-			     pdo_valid <= 1;
-			     pdo_data[1 * `W - 1:0 * `W] <= 32'h00000000;
-			     pdo_data[2 * `W - 1:1 * `W] <= 32'h00000000;
-			     pdo_data[3 * `W - 1:2 * `W] <= 32'h00000000;
+             if (pdo_ready) begin
+                 pdo_valid <= 1;
+                 pdo_data[1 * `W - 1:0 * `W] <= 32'h00000000;
                  pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {SUCCESS, 28'h0};
                  
-				  do_last <= 1;
-				  fsmn <= idle;
-				  xse <= 1;
-				  xenc <= 1;
-		     end
-        end	
+                  do_last <= 1;
+                  fsmn <= idle;
+                  xse <= 1;
+                  xenc <= 1;
+             end
+        end 
         statusdf: begin
-		     if (pdo_ready) begin
-			     pdo_valid <= 1;
-			     pdo_data[1 * `W - 1:0 * `W] <= 32'h00000000;
-			     pdo_data[2 * `W - 1:1 * `W] <= 32'h00000000;
-			     pdo_data[3 * `W - 1:2 * `W] <= 32'h00000000;
+             if (pdo_ready) begin
+                 pdo_valid <= 1;
+                 pdo_data[1 * `W - 1:0 * `W] <= 32'h00000000;
                  pdo_data[`PDI_SHARES * `W - 1:(`PDI_SHARES - 1) * `W] <= {FAILURE, 28'h0};
-				  do_last <= 1;
-				  fsmn <= idle;
-				  xse <= 1;
-				  xenc <= 1;
-		     end
-        end			  
+                  do_last <= 1;
+                  fsmn <= idle;
+                  xse <= 1;
+                  xenc <= 1;
+             end
+        end           
       endcase // case (fsm)      
    end
    

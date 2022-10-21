@@ -32,7 +32,7 @@ package Design_pkg is
     
     constant CCSW            : integer := 32; --! variant dependent design parameters are assigned in body!
     constant CCW             : integer := 32; --! variant dependent design parameters are assigned in body!
-    constant CCRW            : natural := CCW;
+    constant CCRW            : natural := 1152;
     constant CCWdiv8         : integer := CCW/8; --! derived from parameters above, assigned in body.
 
     --! design parameters exclusivly used by the LWC core implementations

@@ -36,10 +36,11 @@ sources = [
     "../../LWC/LWC_SCA.vhd",
 ]
 
-parameters.XW = 32
+
 
 # includes = []
 top = "LWC_SCA_wrapper"
+parameters.XW = 32
 # clock.port = "clk"
 # reset.port = "rst"
 # reset.active_high = true
