@@ -126,8 +126,6 @@ architecture PreProcessor of PreProcessor is
 
    --! for simulation only
    signal received_wrong_header : boolean;
-   -- For simulators which do not dump VHDL enum signals
-   signal dbg_state             : natural;
 
    --========================================= Aliases =========================================--
    alias pdi_hdr           : std_logic_vector(W - 1 downto 0) is pdi_data(W_S - 1 downto W_S - W);
@@ -143,9 +141,6 @@ architecture PreProcessor of PreProcessor is
    alias seglen_counter_lo : unsigned(LOG2_W_DIV_8 - 1 downto 0) is seglen_counter(LOG2_W_DIV_8 - 1 downto 0);
 
 begin
-   -- Copy of `state` register as an intger
-   dbg_state <= t_state'pos(state);
-
    --======================================== Instances ========================================--
    keyPISO : entity work.PISO
       generic map(
@@ -443,7 +438,7 @@ begin
       seglen_is_zero, hdr_first, hdr_last, op_is_actkey, last_flag, bdi_valid_bytes_p, hash_s, --
       relay_hdr_to_postproc, bdi_valid_s, bdi_ready, bdi_valid_bytes_s, decrypt_op, bdi_eot_p, --
       bdi_size_s, bdi_eoi_s, bdi_pad_loc_s, bdi_type_s, bdi_eoi_p, decrypt_s, bdi_pad_loc_p, --
-      hash_op, bdi_size_p, cur_hdr_last)
+      hash_op, bdi_size_p, cur_hdr_last, eoi_flag)
    begin
       -- Default Values
       sdi_ready_o           <= to_std_logic(reading_sdi_hdr);
@@ -475,9 +470,10 @@ begin
             -- When a bdiP=-PISO exists (W != CCW), wait for it to drain. The mux is optimized out when W = CCW.
             if bdi_valid_s = '0' then
                cmd_valid   <= pdi_valid and not to_std_logic(op_is_actkey);
-               pdi_ready_o <= cmd_ready or to_std_logic(op_is_actkey);
-
-               if pdi_fire then
+               -- pdi_ready_o <= cmd_ready or to_std_logic(op_is_actkey);
+               -- Wait for cmd FIFO, even when op_is_actkey = FALSE, in order to avoid combinational loop from pdi_data to pdi_ready
+               pdi_ready_o <= cmd_ready;
+               if pdi_valid = '1' then
                   if op_is_actkey then
                      nx_state <= S_INST_KEY;
                   else
@@ -546,7 +542,7 @@ begin
             pdi_ready_o <= bdi_ready_p;
             bdi_valid_p <= pdi_valid;
             if pdi_fire and last_flit_of_segment = '1' then
-               if last_flag = '1' then
+               if last_flag = '1' or (hash_op and eoi_flag = '1') then
                   nx_state <= S_INST;
                else
                   nx_state <= S_PDI_HDR;
