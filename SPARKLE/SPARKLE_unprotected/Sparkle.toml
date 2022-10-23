@@ -32,6 +32,6 @@ clock_port = "clk"
 [tb.parameters]
 G_TEST_MODE = 4
 G_MAX_FAILURES = 0
-G_FNAME_PDI.file = "../FAILING_KATS/pdi.txt"
-G_FNAME_SDI.file = "../FAILING_KATS/sdi.txt"
-G_FNAME_DO.file =  "../FAILING_KATS/do.txt"
+#G_FNAME_PDI.file = "../FAILING_KATS/pdi.txt"
+#G_FNAME_SDI.file = "../FAILING_KATS/sdi.txt"
+#G_FNAME_DO.file =  "../FAILING_KATS/do.txt"
