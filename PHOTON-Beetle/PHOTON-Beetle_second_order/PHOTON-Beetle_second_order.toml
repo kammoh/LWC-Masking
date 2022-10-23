@@ -8,7 +8,8 @@ version = "0.1.0"
 dependencies = [
     { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA.toml", rtl.pos = 2 },
     "../../gadgets.toml",
-    { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
+    # { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_wrapper.toml", rtl.pos = -1 },
+	{ uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 [rtl]
@@ -18,11 +19,11 @@ sources = [
     "src_rtl/ctr.vhd",
     "src_rtl/ozs.vhd",
     "src_rtl/ozs2.vhd",
-    "src_rtl/Photon_256_HPC2_ClockGating_d2.v",
     "src_rtl/reg2.vhd",
     "src_rtl/rho.vhd",
     "src_rtl/datapath.vhd",
     "src_rtl/controller.vhd",
+    "src_rtl/Photon_256_HPC2_ClockGating_d2.v",
 	"src_rtl/CryptoCore_SCA.vhd",
 
 	# "LWC/data_piso.vhd",
@@ -48,20 +49,17 @@ sources = [
 top = "LWC_SCA_wrapper"
 parameters.XW = 32
 clock.port = "clk"
-# clock.port = "clk"
-# reset.port = "rst"
-# reset.active_high = true
-# reset.asynchronous = false
-# parameters = { G_DO_FIFO_DEPTH = 1 }
+
 [language]
 vhdl.version = "2008"
 # vhdl.synopsys = false
 verilog.version = "2001"
-# systemverilog.version = "2009"
-# [tb]
+
+[tb]
 # sources = ["LWC_SCA_TB.vhd"]
 # includes = []
 # top = "LWC_SCA_TB"
+
 [lwc.aead]
 algorithm = "photonbeetleaead128rate128v1"
 # key_bits = 128
