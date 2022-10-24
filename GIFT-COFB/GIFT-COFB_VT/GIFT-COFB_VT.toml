@@ -39,6 +39,7 @@ sources = [
     "../../LWC/LWC.vhd",
 ]
 top = "LWC"
+clock.port = "clk"
 
 [tb]
 sources = [
