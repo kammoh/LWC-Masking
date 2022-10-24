@@ -77,17 +77,27 @@ class Lwc(BaseModel):
                 ge=8,
                 le=32,
                 description="Width of each word of PDI data in bits (`w`). The width of 'pdi_data' signal would be `pdi.bit_width × pdi.num_shares` (`w × n`) bits.",
+                alias="width",
             )
-            num_shares: int = Field(1, description="Number of PDI shares (`n`)")
+            num_shares: int = Field(
+                1,
+                description="Number of PDI shares (`n`)",
+                alias="shares",
+            )
 
         class Sdi(BaseModel):
             bit_width: Optional[int] = Field(
-                32,
+                None,
                 ge=8,
                 le=32,
                 description="Width of each word of SDI data in bits (`sw`). The width of `sdi_data` signal would be `sdi.bit_width × sdi.num_shares` (`sw × sn`) bits.",
+                alias="width",
             )
-            num_shares: int = Field(1, description="Number of SDI shares (`sn`)")
+            num_shares: int = Field(
+                1,
+                description="Number of SDI shares (`sn`)",
+                alias="shares",
+            )
 
         class Rdi(BaseModel):
             bit_width: int = Field(
@@ -217,10 +227,11 @@ def gen_tv(
     elif "HM" in block_bits:
         block_bits["XT"] = block_bits["HM"]
     bs = block_bits.get("XT", block_bits.get("PT", 512))
+    sdi_width = lwc.ports.sdi.bit_width or lwc.ports.pdi.bit_width
     args += [
         "--io",
         str(lwc.ports.pdi.bit_width),
-        str(lwc.ports.sdi.bit_width),
+        str(sdi_width),
         # TODO handle block_bits "PT" != "CT"
         "--block_size",
         str(bs),
