@@ -358,10 +358,20 @@ RAND_PER_BYTE_COL_NAME = "rand. bits per byte of data"
 )
 @click.option(
     "--cref-dir",
-    type=Path,
+    type=click.types.Path(file_okay=False, dir_okay=True),
     show_default=True,
     default=None,
     help="Path to C reference source code, with SUPERCOP directory structure.",
+)
+@click.option(
+    "--existing-timing-report",
+    type=click.types.Path(file_okay=True, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--existing-timing-tests",
+    type=click.types.Path(file_okay=True, dir_okay=False),
+    default=None,
 )
 @click.option(
     "--build",
@@ -370,7 +380,15 @@ RAND_PER_BYTE_COL_NAME = "rand. bits per byte of data"
     default=False,
     help="force build reference libraries",
 )
-def cli(toml_path, debug, sim_flow, cref_dir, build=False):
+def cli(
+    toml_path,
+    debug,
+    sim_flow,
+    cref_dir,
+    existing_timing_report,
+    existing_timing_tests,
+    build=False,
+):
     """toml_path: Path to design description TOML file."""
     design = LwcDesign.from_toml(toml_path)
     lwc = design.lwc
@@ -380,51 +398,61 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
     design_root_dir = design._design_root
     if not design_root_dir:
         design_root_dir = Path.cwd()
-    tv_dir = design_root_dir / "BENCH_KAT" / design.name
-    timing_report = Path.cwd() / (design.name + "_timing.txt")
-    if cref_dir is None:
-        cref_dir = design.root_path / "cref"
-    if not cref_dir or not cref_dir.exists():
-        print(f"cref_dir={cref_dir} not found! disabled.")
-        cref_dir = None
-    if build:
-        algs = []
-        if lwc.aead and lwc.aead.algorithm:
-            algs.append(lwc.aead.algorithm)
-        if lwc.hash and lwc.hash.algorithm:
-            algs.append(lwc.hash.algorithm)
-        build_libs(algs, cref_dir)
-    gen_tv(design.lwc, tv_dir, bench=True, cref_dir=cref_dir)
-    # KATs must exist
-    kat_dir = tv_dir / "timing_tests"
-    pdi_txt = kat_dir / "pdi.txt"
-    sdi_txt = kat_dir / "sdi.txt"
-    if pdi_shares > 1 or sdi_shares > 1:
-        pdi_txt = gen_shares(pdi_txt, pdi_shares, keep_comments=False)
-        sdi_txt = gen_shares(sdi_txt, sdi_shares, keep_comments=False)
-    design.tb.parameters = {
-        **design.tb.parameters,
-        "G_FNAME_PDI": {"file": pdi_txt},
-        "G_FNAME_SDI": {"file": sdi_txt},
-        "G_FNAME_DO": {"file": kat_dir / "do.txt"},
-        "G_FNAME_TIMING": str(timing_report),
-        "G_TEST_MODE": 4,
-    }
-    design.tb.top = ("LWC_TB",)
-    design.language.vhdl.standard = "2008"
-    settings = {}
-    if debug:
-        # settings["debug"] = True
-        if sim_flow == "ghdl_sim":
-            settings["wave"] = "benchmark.ghw"
-        else:
-            settings["vcd"] = "benchmark.vcd"
-    if sim_flow:
-        f = FlowRunner().run_flow(sim_flow, design, settings)
-        if not f or not f.succeeded:
-            sys.exit("Simulation flow failed")
 
-    assert timing_report.exists()
+    if existing_timing_report:
+        assert (
+            existing_timing_tests
+        ), "existing_timing_tests should as well be specified!"
+        timing_report = Path(existing_timing_report)
+        timing_tests_file = Path(existing_timing_tests)
+    else:
+        tv_dir = design_root_dir / "BENCH_KAT" / design.name
+        timing_report = Path.cwd() / (design.name + "_timing.txt")
+        if cref_dir is None:
+            cref_dir = design.root_path / "cref"
+        if not cref_dir or not cref_dir.exists():
+            print(f"cref_dir={cref_dir} not found! disabled.")
+            cref_dir = None
+        if build:
+            algs = []
+            if lwc.aead and lwc.aead.algorithm:
+                algs.append(lwc.aead.algorithm)
+            if lwc.hash and lwc.hash.algorithm:
+                algs.append(lwc.hash.algorithm)
+            build_libs(algs, cref_dir)
+        gen_tv(design.lwc, tv_dir, bench=True, cref_dir=cref_dir)
+        # KATs must exist
+        kat_dir = tv_dir / "timing_tests"
+        pdi_txt = kat_dir / "pdi.txt"
+        sdi_txt = kat_dir / "sdi.txt"
+        if pdi_shares > 1 or sdi_shares > 1:
+            pdi_txt = gen_shares(pdi_txt, pdi_shares, keep_comments=False)
+            sdi_txt = gen_shares(sdi_txt, sdi_shares, keep_comments=False)
+        design.tb.parameters = {
+            **design.tb.parameters,
+            "G_FNAME_PDI": {"file": pdi_txt},
+            "G_FNAME_SDI": {"file": sdi_txt},
+            "G_FNAME_DO": {"file": kat_dir / "do.txt"},
+            "G_FNAME_TIMING": str(timing_report),
+            "G_TEST_MODE": 4,
+        }
+        design.tb.top = ("LWC_TB",)
+        design.language.vhdl.standard = "2008"
+        settings = {}
+        if debug:
+            # settings["debug"] = True
+            if sim_flow == "ghdl_sim":
+                settings["wave"] = "benchmark.ghw"
+            else:
+                settings["vcd"] = "benchmark.vcd"
+        if sim_flow:
+            f = FlowRunner().run_flow(sim_flow, design, settings)
+            if not f or not f.succeeded:
+                sys.exit("Simulation flow failed")
+        timing_tests_file = kat_dir / "timing_tests.csv"
+
+    assert timing_report and timing_report.exists()
+    assert timing_tests_file and timing_tests_file.exists()
 
     msg_cycles: Dict[str, int] = {}
     msg_fresh_rand: Dict[str, int] = {}
@@ -436,7 +464,7 @@ def cli(toml_path, debug, sim_flow, cref_dir, build=False):
             if len(kv) >= 3:
                 msg_fresh_rand[kv[0]] = int(kv[2], 16)
     results: List[dict[str, Union[int, float, str]]] = []
-    with open(kat_dir / "timing_tests.csv") as f:
+    with open(timing_tests_file) as f:
         rows: List[Dict[Any, Any]] = list(csv.DictReader(f))
         for row in rows:
             msgid = row["msgId"]
