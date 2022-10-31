@@ -142,7 +142,7 @@ class Lwc(BaseModel):
     sca_protection: Optional[ScaProtection] = Field(
         None, description="Implemented countermeasures against side-channel attacks."
     )
-    block_bits: Dict[str, int] = Field(dict(XT=512, AD=512, HM=512), alias="block_size")
+    block_bits: Dict[str, int] = Field(alias="block_size")
 
 
 class LwcDesign(Design):

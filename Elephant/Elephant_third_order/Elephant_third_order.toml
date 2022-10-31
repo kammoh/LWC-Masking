@@ -67,8 +67,9 @@ vhdl.version = "2008"
 # vhdl.synopsys = false
 verilog.version = "2001"
 
-[lwc.aead]
-algorithm = "elephant160v1"
+[lwc]
+aead.algorithm = "elephant160v1"
+block_bits = { AD = 160, PT = 160 }
 
 [lwc.ports]
 # pdi.bit_width = 32
