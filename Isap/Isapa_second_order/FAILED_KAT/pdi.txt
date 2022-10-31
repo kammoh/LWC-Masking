@@ -6,7 +6,7 @@ INS = 70000000
 INS = 30000000
 # Info :                     Npub, EOI=0 EOT=1, Last=0, Length=16 bytes
 HDR = D2000010
-DAT = E3B30BE91416A13A12A5817DD0331304
+DAT = E3B30BE91416A13A12A5817DD0331304co
 # Info :               Ciphertext, EOI=0 EOT=1, Last=0, Length=0 bytes
 HDR = 52000000
 # Info :          Associated Data, EOI=1 EOT=1, Last=0, Length=512 bytes

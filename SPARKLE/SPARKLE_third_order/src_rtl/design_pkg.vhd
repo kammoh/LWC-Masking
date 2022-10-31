@@ -80,7 +80,7 @@ package body Design_pkg is
 
     constant CCW        : integer := vector_of_constants(1); --! bdo/bdi width
     constant CCSW       : integer := vector_of_constants(2); --! key width
-    constant CCRW       : integer := 1024; --! key width
+    constant CCRW       : integer := 6 * 1536;
 
 
     -- derived from parameters above

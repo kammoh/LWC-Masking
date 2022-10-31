@@ -9,11 +9,11 @@ dependencies = [
     { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_2Pass.toml", rtl.pos = 2 },
     { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_wrapper.toml", rtl.pos = -1 },
 ]
+
 [rtl]
 sources = [
     "src_rtl/LWC_config.vhd",
     "src_rtl/design_pkg.vhd",
-
     "../../HPC2/and_HPC2.vhd",
     "../../HPC2/nor_HPC2.vhd",
     "../../HPC2/xnor_HPC2.vhd",
@@ -28,9 +28,9 @@ sources = [
     "src_rtl/CryptoCore_SCA_2pass.vhd",
 ]
 
-top = "LWC_SCA_wrapper"
-parameters.XW = 32
-clock.port = "clk"
+# top = "LWC_SCA_wrapper"
+# parameters.XW = 32
+# clock.port = "clk"
 
 [tb]
 sources = [ # 
@@ -40,30 +40,26 @@ top = "LWC_TB"
 generics.G_FNAME_PDI.file = "KAT/pdi_shared_4.txt"
 generics.G_FNAME_SDI.file = "KAT/sdi_shared_4.txt"
 generics.G_FNAME_DO.file = "KAT/do.txt"
-generics.G_TIMEOUT_CYCLES = 30_000
+generics.G_TIMEOUT_CYCLES = 100_000
 
 [language]
 vhdl.version = "2008"
 verilog.version = "2001"
 
-[lwc.aead]
-algorithm = "isapa128av20"
-key_bits = 128
-npub_bits = 128
-tag_bits = 128
-input_sequence.encrypt = ["npub", "data", "ad"]
-input_sequence.decrypt = ["npub", "data", "ad", "tag"]
-
-[lwc.hash]
-algorithm = "asconhashv12"
-digest_bits = 256
+[lwc]
+block_bits = { AD = 64, XT = 64 }
+aead.algorithm = "isapa128av20"
+# aead.key_reuse = true
+aead.input_sequence.encrypt = ['npub', 'pt', 'ad', 'tag']
+aead.input_sequence.decrypt = ['npub', 'ad', 'ct', 'tag']
+hash.algorithm = "asconhashv12"
 
 [lwc.ports]
-pdi.bit_width = 32
-pdi.num_shares = 4
+pdi.width = 32
+pdi.shares = 4
+sdi.width = 32
+sdi.shares = 4
 rdi.bit_width = 1920
-sdi.bit_width = 32
-sdi.num_shares = 4
 
 [lwc.sca_protection]
 target = ["spa", "dpa", "cpa", "timing"]

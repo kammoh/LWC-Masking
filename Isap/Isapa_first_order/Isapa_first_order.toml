@@ -7,10 +7,8 @@ version = "0.1.0"
 
 dependencies = [
     { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_2Pass.toml", rtl.pos = 2 },
-    # { uri = "../../LWC/LWC_SCA_2Pass.toml", rtl.pos = 2 },
     # "../../gadgets.toml",
     { uri = "git+https://github.com/GMUCERG/LWC.git#hardware/LWC_SCA_wrapper.toml", rtl.pos = -1 },
-    # { uri = "../../LWC/wrapper.toml", rtl.pos = -1 },
 ]
 
 [rtl]
