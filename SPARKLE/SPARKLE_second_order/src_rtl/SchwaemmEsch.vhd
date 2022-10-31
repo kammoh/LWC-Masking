@@ -220,7 +220,7 @@ entity sparkle_permutation_fsm is
         state_in : in std_logic_vector(PDI_SHARES * 384 - 1 downto 0);
         state_out : out std_logic_vector(PDI_SHARES * 384 - 1 downto 0);
         perm_complete : out std_logic;
-        rdi             : in  std_logic_vector(RW - 1 downto 0);
+        rdi             : in  std_logic_vector(CCRW - 1 downto 0);
         rdi_valid       : in  std_logic;
         rdi_ready       : out std_logic
         );
@@ -537,7 +537,7 @@ case current_state is
 		 		 
 	when IDLE => 
         next_state <= IDLE; 
-		if (perm_start = '1') then		  
+		if (perm_start = '1') then
             -- Start counters and reset to 0
             rdi_ready <= '1';
             arx_cntr_en <= '1';
@@ -668,11 +668,13 @@ end rho;
 
 architecture structural of rho is
 begin
+
     -- Update rate part of state
     state_out(383 downto 128) <= state_in(383 downto 128) xor input_rate(255 downto 0);
     
     -- Capacity not affected
-    state_out(127 downto 0) <= state_in(127 downto 0);  
+    state_out(127 downto 0) <= state_in(127 downto 0);
+
 end structural;
 
 library IEEE;

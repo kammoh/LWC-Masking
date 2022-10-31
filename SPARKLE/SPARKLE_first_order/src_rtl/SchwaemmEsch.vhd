@@ -626,7 +626,7 @@ begin
     
     -- Capacity not affected
     state_out(127 downto 0) <= state_in(127 downto 0);
-    
+
 end structural;
 
 library IEEE;

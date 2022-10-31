@@ -16,14 +16,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
-use work.LWC_config.RW;
-
 package Design_pkg is
-    type set_selector is (dummy_lwc_8, dummy_lwc_16, dummy_lwc_32);
-
-    --! Select variant
-    constant variant : set_selector := dummy_lwc_32;
-    
     --! Adjust the bit counter widths to reduce ressource consumption.
     -- Range definition must not change.
     constant AD_CNT_WIDTH    : integer range 4 to 64 := 32;  --! Width of AD Bit counter
@@ -66,23 +59,10 @@ package body Design_pkg is
     -- Package body is not visible to clients of the package.
     -- Variant dependent parameters are assigned here.
 
-    type vector_of_constants_t is array (1 to 2) of integer; -- two variant dependent constants
-    type set_of_vector_of_constants_t is array (set_selector) of vector_of_constants_t;
-
-    constant set_of_vector_of_constants : set_of_vector_of_constants_t :=
-      --   CCW
-      --   |   CCSW
-      --   |   |
-      (  ( 8,  8), -- dummy_lwc_8
-         (16, 16), -- dummy_lwc_16
-         (32, 32)  -- dummy_lwc_32
-      );
-
-    alias vector_of_constants is set_of_vector_of_constants(variant);
-
-    constant CCW        : integer := vector_of_constants(1); --! bdo/bdi width
-    constant CCSW       : integer := vector_of_constants(2); --! key width
-    constant CCRW       : integer := RW; --! key width
+    constant CCW        : integer := 32; --! bdo/bdi width
+    constant CCSW       : integer := CCW; --! key width
+    -- constant CCRW       : integer := 1024; --! ???!!!
+    constant CCRW       : integer := 6 * 768;
 
 
     -- derived from parameters above

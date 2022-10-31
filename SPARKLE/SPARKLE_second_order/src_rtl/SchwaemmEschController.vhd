@@ -143,14 +143,14 @@ architecture behavioral of controller is
     signal state_sparkle_in, state_sparkle_out : std_logic_vector(PDI_SHARES * 384 - 1 downto 0);
     signal sparkle_in_sel : std_logic_vector(1 downto 0);
     signal bdi_valid_bytes_delayed : std_logic_vector(3 downto 0);
-       
+
     signal tag_reg, bdi_blk_reg : std_logic_vector(PDI_SHARES * 128 - 1 downto 0);
     signal tag_reg_unshared, bdi_blk_reg_unshared : std_logic_vector(127 downto 0);
-       
+
 begin
     tag_reg_unshared <= (others => '0'); --tag_reg(1*128-1 downto 0*128) xor tag_reg(2*128-1 downto 1*128) xor tag_reg(3*128-1 downto 2*128);
     bdi_blk_reg_unshared <= (others => '0'); --bdi_blk_reg(1*128-1 downto 0*128) xor bdi_blk_reg(2*128-1 downto 1*128) xor bdi_blk_reg(3*128-1 downto 2*128);
-    
+
     key_s0 <= key(1*CCSW-1 downto 0*CCSW);
     key_s1 <= key(2*CCSW-1 downto 1*CCSW);
     key_s2 <= key(3*CCSW-1 downto 2*CCSW);
@@ -611,7 +611,7 @@ bdo_valid_bytes <= VALID_WORD when '0',
                    bdi_valid_bytes_reg when '1',
                    VALID_WORD when others;
 
-register_input: process(clk, key_reg_en, bdi_reg_en, bdo_en, key_s0, key_s1, key_s2, bdi_p_s0, bdi_p_s1, bdi_p_s2, bdo_current_s0, bdo_current_s1, bdo_current_s2)
+register_input: process(clk)
 begin
 	if (rising_edge(clk)) then
         if (key_reg_en = '1') then       
@@ -697,7 +697,7 @@ begin
 	end if;
 end process;
 	
-sync_process: process(clk, rst, next_state)
+sync_process: process(clk)
 begin
     if (rising_edge(clk)) then
         if (rst = '1') then
