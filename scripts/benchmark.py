@@ -41,10 +41,12 @@ class Lwc(BaseModel):
             encrypt: Sequence[str] = Field(
                 ["npub", "ad", "pt"],  # "tag" is not an input in encrypt
                 description="Sequence of inputs during encryption",
+                alias="enc",
             )
             decrypt: Sequence[str] = Field(
                 ["npub", "ad", "ct", "tag"],
                 description="Sequence of inputs during decryption",
+                alias="dec",
             )
 
         algorithm: Optional[str] = Field(

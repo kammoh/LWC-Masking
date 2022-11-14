@@ -37,22 +37,12 @@ sources = [
 	"src_rtl/KeyExpansionNoReg.vhd",
 	"src_rtl/RoundFunction_HPC2_ClockGating_d1.v",
 	"src_rtl/mode_top.v",
-    "src_rtl/LWC_SCA.v",
-	"../../LWC/LWC_SCA_wrapper.vhd",
+	"src_rtl/LWC_SCA.v",
 ]
 
 top = "LWC_SCA_wrapper"
 clock.port = "clk"
-# reset.port = "rst"
-# reset.active_high = true
-# reset.asynchronous = false
 parameters.XW = 32
-# parameters.XSW = 64
-# parameters.PDI_FIFO_DEPTH = 64
-# parameters.SDI_FIFO_DEPTH = 64
-# parameters.DO_FIFO_DEPTH = 64
-# parameters.FIFOS_OUT_REG = false
-# parameters.FIFOS_RAM_STYLE = "block"
 
 [language]
 vhdl.version = "2008"
@@ -61,19 +51,17 @@ verilog.version = "2001"
 [tb]
 sources = ["../../LWC/LWC_TB_SCA.vhd"]
 top = "LWC_TB"
-parameters.G_FNAME_PDI = {file = "KAT/pdi_shared_2.txt"}
-parameters.G_FNAME_SDI = {file = "KAT/sdi_shared_2.txt"}
-parameters.G_FNAME_DO = {file = "KAT/do.txt"}
+parameters.G_FNAME_PDI = { file = "KAT/pdi_shared_2.txt" }
+parameters.G_FNAME_SDI = { file = "KAT/sdi_shared_2.txt" }
+parameters.G_FNAME_DO = { file = "KAT/do.txt" }
 parameters.G_TEST_MODE = 0
 parameters.G_MAX_FAILURES = 0
 
-[lwc.aead]
-algorithm = "romulusn"
-key_bits = 128
-npub_bits = 128
-tag_bits = 128
+[lwc]
+aead.algorithm = "romulusn"
 input_sequence.encrypt = ["ad", "npub", "data"]
 input_sequence.decrypt = ["ad", "npub", "data", "tag"]
+block_bits = { AD = 128, XT = 128 }
 
 [lwc.ports]
 pdi.bit_width = 32
