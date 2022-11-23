@@ -394,7 +394,6 @@ def cli(
     """toml_path: Path to design description TOML file."""
     design = LwcDesign.from_toml(toml_path)
     lwc = design.lwc
-    assert lwc.aead and lwc.aead.algorithm
     pdi_shares = lwc.ports.pdi.num_shares
     sdi_shares = lwc.ports.sdi.num_shares
     design_root_dir = design._design_root
