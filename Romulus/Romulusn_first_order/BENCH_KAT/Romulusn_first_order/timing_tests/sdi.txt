@@ -16,7 +16,7 @@
 # cc_pad_style           - 1
 # ciph_exp               - False
 # ciph_exp_noext         - False
-# dec_msg_format         - ['npub', 'ad', 'data', 'tag']
+# dec_msg_format         - ['ad', 'npub', 'data', 'tag']
 # gen_custom_mode        - 0
 # hash                   - None
 # io (W,SW)              - [32, 32]
@@ -28,14 +28,14 @@
 # message_digest_size    - 256
 # min_ad                 - 0
 # min_d                  - 0
-# msg_format             - ['npub', 'ad', 'data', 'tag']
+# msg_format             - ['ad', 'npub', 'data', 'tag']
 # npub_size              - 128
 # nsec_size              - 0
 # offline                - False
 # quickbench             - False
 # random_shuffle         - True
 # tag_size               - 128
-# with_key_reuse         - False
+# with_key_reuse         - True
 ###############################################################################
 
 #### MsgID=  1, KeyID=  1
@@ -43,167 +43,167 @@
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = D67040BB5D93D199265FEC9D78CDC772
+DAT = 4553B3B07C3436158F76D5382125F534
 
 #### MsgID=  2, KeyID=  2
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = D0D7451295F10ED75599C0AF7870F824
+DAT = 2A3518AAE96981D6DA24AEA77CCC48AB
 
 #### MsgID=  3, KeyID=  3
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = FA961E87F024D99471E7A6B24F835C27
+DAT = 26A1B380A1FF221A6857D75AC5A5B8AC
 
 #### MsgID=  4, KeyID=  4
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 5F29AC54726B6DED1FA559065A0B4C91
+DAT = 8F1ED6E0541684E0D6ADE1923AA0BF9C
 
 #### MsgID=  5, KeyID=  5
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 28DA78EFEEFCAE364D33D189846953F7
+DAT = BEFB3EC1F9FBDFA4FEBBC1E6DFD5C667
 
 #### MsgID=  6, KeyID=  6
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 468D414F12E2CFDAA2D04B5E4C5B04E8
+DAT = FAA7E9BEF47F7B38C9ACD46484FBE011
 
 #### MsgID=  7, KeyID=  7
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 3841708DD7926D79AC3A6C895AED2913
+DAT = 798C1D261CDF7B3A3B3B150563B2A623
 
 #### MsgID=  8, KeyID=  8
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 37456AEBDD465EC6BDAC755D2C622743
+DAT = 29A333FBE5DF20BBF8D110EC77E37796
 
 #### MsgID=  9, KeyID=  9
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 0E1106C7D9D622758E639B74011B7721
+DAT = A3B3D8FFB42C571B0F643396751BDECC
 
 #### MsgID= 10, KeyID= 10
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 773359CB33ABE5A40E17176314790E3D
+DAT = 76AEFAEB50C022B0071950A0C76F605A
 
 #### MsgID= 11, KeyID= 11
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = D18C639334E75F567BF886FE886C09F3
+DAT = 2B0FED4A1885FF4A267F5F17400C795B
 
 #### MsgID= 12, KeyID= 12
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = E1943A8DF4534BB8C0F66A140A9FD68B
+DAT = 8DC6E7A79C090A404AD1F3DD76C48FE0
 
 #### MsgID= 13, KeyID= 13
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 335D238BBCEC3BAA1BA8E058E6084276
+DAT = 2130D4CB6C3FA218A30C45A77401CD77
 
 #### MsgID= 14, KeyID= 14
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = DF5BB3D3B0D6AF95142CC8F1E3B92439
+DAT = DC0CDBE1DDEDFF86D4673DFA892D5C8B
 
 #### MsgID= 15, KeyID= 15
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 89449EE1CCDF33506F21A0A59AE34DF9
+DAT = B82C8429F9EF278B84BE26E61E43818A
 
 #### MsgID= 16, KeyID= 16
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = C34AC98FDC774EEC131A989C8CFA59A3
+DAT = 239F4752B1315B67635F78757DC3F443
 
 #### MsgID= 17, KeyID= 17
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 60C1E14C9C15D52F8A772FB661AFC4AD
+DAT = C7C4EFD1BB8E3E68D04878396B48AF73
 
 #### MsgID= 18, KeyID= 18
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 26230F11B310F486ED7A8A12CA2A04A1
+DAT = 42D5E07B28FC4142B1A3060B1A6966E1
 
 #### MsgID= 19, KeyID= 19
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 9E84D22CAC23900D9F347A8D71B8EC33
+DAT = D975D36556DFEE12D52F1DDEE45C7C0A
 
 #### MsgID= 20, KeyID= 20
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 8A721DE5B923FC87B3A8F50CE20AF2CB
+DAT = 4491B9C3F26CAC6BE3EB3A3C48783129
 
 #### MsgID= 21, KeyID= 21
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 6E7356D87F83C0013D36DBCB3EA0C1D6
+DAT = 606A8BE2FACD7E4CAAB57A9955C6D408
 
 #### MsgID= 22, KeyID= 22
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 083B6EB9CD66A085C2C891D22EA21275
+DAT = C5E1D0C1A97EFAD8FDC647CB1AACBACF
 
 #### MsgID= 23, KeyID= 23
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = 281EF6F75CC115A24ED1A47E69DA19DD
+DAT = 2DEB79C34988E6C68D51EAC993141C33
 
 #### MsgID= 24, KeyID= 24
 # Instruction: Opcode=Load Key
 INS = 40000000
 # Info :                      Key, EOI=1 EOT=1, Last=1, Length=16 bytes
 HDR = C7000010
-DAT = D79E466EE3668939891414060EC9620C
+DAT = 0B2AF9A3D35477C5DEEAB5D3A04A790D
 
 ###EOF
