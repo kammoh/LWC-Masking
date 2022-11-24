@@ -60,16 +60,11 @@ verilog.version = "2001"
 # includes = []
 # top = "LWC_SCA_TB"
 
-[lwc.aead]
-algorithm = "photonbeetleaead128rate128v1"
-# key_bits = 128
-# npub_bits = 128
-# tag_bits = 128
-# input_sequence.encrypt = ["npub", "ad", "data"]
-# input_sequence.decrypt = ["npub", "ad", "data", "tag"]
-# [lwc.hash]
-# algorithm = "photonbeetlehash256rate32v1"
-# digest_bits = 256
+[lwc]
+aead.algorithm = "photonbeetleaead128rate128v1"
+block_size = {XT = 128, AD = 128, HM = 32}
+hash.algorithm = "photonbeetlehash256rate32v1"
+
 [lwc.ports]
 # pdi.bit_width = 32
 pdi.num_shares = 3
