@@ -69,11 +69,12 @@ parameters.G_MAX_FAILURES = 0
 
 [lwc.aead]
 algorithm = "romulusn"
-key_bits = 128
-npub_bits = 128
-tag_bits = 128
 input_sequence.encrypt = ["ad", "npub", "data"]
 input_sequence.decrypt = ["ad", "npub", "data", "tag"]
+key_reuse = true
+
+[lwc]
+block_bits = { AD = 128, XT = 128 }
 
 [lwc.ports]
 pdi.bit_width = 32
