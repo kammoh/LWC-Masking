@@ -63,7 +63,7 @@ verilog.version = "2001"
 [lwc]
 aead.algorithm = "photonbeetleaead128rate128v1"
 block_size = {XT = 128, AD = 128, HM = 32}
-hash.algorithm = "photonbeetlehash256rate32v1"
+#hash.algorithm = "photonbeetlehash256rate32v1"
 
 [lwc.ports]
 # pdi.bit_width = 32
