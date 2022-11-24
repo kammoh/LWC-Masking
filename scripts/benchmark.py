@@ -32,10 +32,13 @@ class Lwc(BaseModel):
     """design.lwc"""
 
     class Config:
-        extra = Extra.allow
+        extra = Extra.forbid
         allow_population_by_field_name = True
 
     class Aead(BaseModel):
+        class Config:
+            extra = Extra.forbid
+
         class InputSequence(BaseModel):
             #  input/output types: "ad", "pt", "ct", "data" (pt/ct), "npub", "tag", "length", ...
             encrypt: Sequence[str] = Field(
@@ -64,6 +67,9 @@ class Lwc(BaseModel):
         key_reuse: bool = False
 
     class Hash(BaseModel):
+        class Config:
+            extra = Extra.forbid
+
         algorithm: str = Field(
             description="Name of the hashing algorithm based on [SUPERCOP](https://bench.cr.yp.to/primitives-aead.html) convention. Empty string if hashing is not supported",
             examples=["", "gimli24v1"],
@@ -73,6 +79,9 @@ class Lwc(BaseModel):
         )
 
     class Ports(BaseModel):
+        class Config:
+            extra = Extra.forbid
+
         class Pdi(BaseModel):
             bit_width: Optional[int] = Field(
                 32,
