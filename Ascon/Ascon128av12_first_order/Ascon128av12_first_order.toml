@@ -56,17 +56,13 @@ verilog.version = "2001"
 # # includes = []
 # top = "LWC_SCA_TB"
 
-[lwc.aead]
-algorithm = "ascon128av12"
-key_bits = 128
-npub_bits = 128
-tag_bits = 128
-input_sequence.encrypt = [ "npub", "ad", "data"]
-input_sequence.decrypt = [ "npub", "ad", "data", "tag" ]
 
-[lwc.hash]
-algorithm = "asconhashv12"
-digest_bits = 256
+[lwc]
+block_bits = { AD = 128, XT = 128 }
+aead.algorithm = "ascon128av12"
+aead.key_reuse = true
+hash.algorithm = "asconhashv12"
+hash.digest_bits = 256
 
 [lwc.ports]
 pdi.bit_width = 32
