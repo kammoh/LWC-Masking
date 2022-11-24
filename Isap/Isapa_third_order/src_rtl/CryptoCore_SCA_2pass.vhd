@@ -1182,7 +1182,7 @@ BEGIN
             IF (rst = '1') THEN
                 isap_encmac_s <= ISAP_ENC;
             ELSE
-                rdi_ready <= '0';
+                rdi_ready <= '1';
 
                 CASE state_s IS
                     WHEN IDLE =>

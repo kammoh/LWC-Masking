@@ -248,7 +248,7 @@ begin
         next_state          <= state;
         key_ready           <= '0';
         bdi_ready           <= '0';
-        rdi_ready           <= '0';
+        rdi_ready           <= '1';
         bdo_valid           <= '0';
         msg_auth_valid      <= '0';  
         GIFT_start          <= '0';    
@@ -426,8 +426,6 @@ begin
                 next_state          <= process_AD;
             
             when process_AD =>
-                rdi_ready           <= '1';  
-
                 if(rdi_valid = '1') then                            
                     if (ctr_time >= 4) then
                         ctr_time_rst <= '1';
@@ -491,8 +489,6 @@ begin
                 next_state          <= process_data;
             
             when process_data => 
-                rdi_ready           <= '1';
-                
                 if(rdi_valid = '1') then
                     if (ctr_time >= 4) then
                         ctr_time_rst <= '1';
