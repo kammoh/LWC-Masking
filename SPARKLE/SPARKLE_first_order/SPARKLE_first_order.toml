@@ -44,12 +44,12 @@ sources = [
 sources = ["../../LWC/LWC_TB_SCA.vhd"]
 top = "LWC_TB"
 
-[tb.parameters]
-G_TEST_MODE = 4
-G_MAX_FAILURES = 0
-G_FNAME_PDI.file = "FAILED_KATS/pdi_shared_2.txt"
-G_FNAME_SDI.file = "FAILED_KATS/sdi_shared_2.txt"
-G_FNAME_DO.file = "FAILED_KATS/do.txt"
+# [tb.parameters]
+# G_TEST_MODE = 4
+# G_MAX_FAILURES = 0
+# G_FNAME_PDI.file = "FAILED_KATS/pdi_shared_2.txt"
+# G_FNAME_SDI.file = "FAILED_KATS/sdi_shared_2.txt"
+# G_FNAME_DO.file = "FAILED_KATS/do.txt"
 
 [language]
 vhdl.version = "2008"
