@@ -64,7 +64,7 @@ class Lwc(BaseModel):
             InputSequence(),  # type: ignore
             description="Order in which different input segment types should be fed to PDI.",
         )
-        key_reuse: bool = False
+        key_reuse: bool = Field(False, alias="reuse_key")
 
     class Hash(BaseModel):
         class Config:
@@ -153,7 +153,7 @@ class Lwc(BaseModel):
     sca_protection: Optional[ScaProtection] = Field(
         None, description="Implemented countermeasures against side-channel attacks."
     )
-    block_bits: Dict[str, int] = Field(alias="block_size")
+    block_bits: Union[Dict[str, int], int] = Field(alias="block_size")
 
 
 class LwcDesign(Design):
@@ -224,6 +224,8 @@ def gen_tv(
             "--hash",
             lwc.hash.algorithm,
         ]
+    if isinstance(lwc.block_bits, int):
+        lwc.block_bits = dict(XT=lwc.block_bits)
     block_bits = {k.upper(): v for k, v in lwc.block_bits.items()}
     logger.info("block_bits: ", block_bits)
     if "XT" in block_bits:
