@@ -270,9 +270,7 @@ def gen_tv(
     else:
         args += ["--gen_test_combined", "1", "33", str(0)]  # 0: all random
 
-    # TODO
-    # args += gen_hash
-
+    print("cryptotvgen", *args)
     return run_cryptotvgen(args, logfile=None)
 
 
