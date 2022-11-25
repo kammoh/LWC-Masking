@@ -245,14 +245,19 @@ def gen_tv(
         "--io",
         str(lwc.ports.pdi.bit_width),
         str(sdi_width),
-        # TODO handle block_bits "PT" != "CT"
-        "--block_size",
-        str(bs),
-        "--block_size_ad",
-        str(block_bits.get("AD", bs)),
-        "--block_size_msg_digest",
-        str(block_bits.get("HM", bs)),
     ]
+    if lwc.aead and bs:
+        args += [
+            "--block_size",
+            str(bs),
+            "--block_size_ad",
+            str(block_bits.get("AD", bs)),
+        ]
+    if lwc.hash:
+        args += [
+            "--block_size_msg_digest",
+            str(block_bits.get("HM", bs)),
+        ]
 
     if blocks_per_segment:
         args += ["--max_block_per_sgmt", str(blocks_per_segment)]
