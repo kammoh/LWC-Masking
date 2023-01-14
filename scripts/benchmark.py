@@ -228,6 +228,7 @@ def gen_tv(
         lwc.block_bits = dict(XT=lwc.block_bits)
     block_bits = {k.upper(): v for k, v in lwc.block_bits.items()}
     logger.info("block_bits: ", block_bits)
+    print("block_bits: ", block_bits)
     if "XT" in block_bits:
         block_bits["PT"] = block_bits["XT"]
         block_bits["CT"] = block_bits["XT"]
@@ -410,7 +411,7 @@ def cli(
     lwc = design.lwc
     pdi_shares = lwc.ports.pdi.num_shares
     sdi_shares = lwc.ports.sdi.num_shares
-    design_root_dir = design._design_root
+    design_root_dir = design.design_root
     if not design_root_dir:
         design_root_dir = Path.cwd()
 
