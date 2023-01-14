@@ -426,6 +426,8 @@ def cli(
         timing_report = Path.cwd() / (design.name + "_timing.txt")
         if cref_dir is None:
             cref_dir = design.root_path / "cref"
+        if not isinstance(cref_dir, Path):
+            cref_dir = Path(cref_dir)
         if not cref_dir or not cref_dir.exists():
             print(f"cref_dir={cref_dir} not found! disabled.")
             cref_dir = None
