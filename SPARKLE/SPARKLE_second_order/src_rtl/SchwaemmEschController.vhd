@@ -708,7 +708,8 @@ begin
     end if;
 end process;
 
-fsm_process: process(ad_flag, current_state, key_update, key_valid, bdi_valid, bdi_type, bdi_size, bdi_valid_bytes, bdi_valid_bytes_delayed, bdi_pad_reg, lblk_reg, perm_complete, num_steps, word_counter, bdi_eot, hash_reg, eoi_reg, dec_reg, lword_index)
+-- fsm_process: process(ad_flag, current_state, key_update, key_valid, bdi_valid, bdi_type, bdi_size, bdi_valid_bytes, bdi_valid_bytes_delayed, bdi_pad_reg, lblk_reg, perm_complete, num_steps, word_counter, bdi_eot, hash_reg, eoi_reg, dec_reg, lword_index)
+fsm_process: process(all) is
 begin
  
     -- DEFAULTS:
@@ -983,7 +984,7 @@ begin
             zero_fill <= '1';                           -- Enable zero fill for the rest of block
             
             -- Check previous word validity
-            if (bdi_valid_bytes_delayed = VALID_WORD) then
+            if (bdi_valid_bytes = VALID_WORD) then
                 bdi_pad_en <= '1';                      -- Enable padding of zero-filled word
                 store_pad_en <= '1';                    -- Store the padding flag
             end if;
